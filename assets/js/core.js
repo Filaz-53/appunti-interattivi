@@ -180,7 +180,7 @@
   function esercizioEsame(e, x, opz = {}) {
     const etich = `${esc(e.titolo || "Esame del " + dataIt(e.data))} · esercizio ${x.n}`;
     const tag = (x.argomenti || []).map((t) => `<span class="chip-tag">${esc(t)}</span>`).join("");
-    const dom = x.domanda
+    const dom = x.domanda && !opz.senzaDomanda
       ? `<div class="domanda" data-id="esame-${esc(e.id)}-${x.n}">
            <p class="testo">${x.domanda.testo}</p>
            <div class="opz">${x.domanda.opzioni.map((o, i) => `<button${i === x.domanda.giusta ? " data-giusta" : ""}>${o}</button>`).join("")}</div>
@@ -191,7 +191,7 @@
         <div class="esercizio-testa"><span class="etichetta">${etich}${x.tipo ? " · " + esc(NOMI_TIPO[x.tipo] || x.tipo) : ""}</span>${x.titolo ? `<h4>${x.titolo}</h4>` : ""}</div>
         <div class="esame-testo">${x.testo}</div>
         ${dom}
-        <div class="soluzione"><span class="etichetta">Soluzione</span>
+        <div class="soluzione"${opz.nascondiSoluzione ? " hidden" : ""}><span class="etichetta">Soluzione${e.ufficiale === false ? " proposta negli appunti (la prova non ha una soluzione ufficiale)" : ""}</span>
           <ol class="passi">${(x.soluzione || []).map((s) => `<li><div>${s}</div></li>`).join("")}${x.risposta ? `<li><div><p class="risultato">${x.risposta}</p></div></li>` : ""}</ol>
         </div>
         <p class="piccolo-meta">${tag}${e.fonte ? ` <a href="${REPO_PROVE}${esc(e.fonte)}" target="_blank" rel="noopener">PDF originale</a>` : ""}</p>

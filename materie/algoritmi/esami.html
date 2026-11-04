@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Esami svolti · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Tutte le prove d'esame di Algoritmi e Strutture di Dati dal 2020 al 2026, filtrabili per argomento, con soluzioni passo per passo e simulazione a tempo.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+<style>
+  .ex-filtri { display: grid; gap: 12px; border: 1px solid var(--rule); background: var(--paper-solid); border-radius: 12px; padding: 14px 16px; }
+  .ex-filtri .riga-f { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .ex-filtri .riga-f > .etichetta { min-width: 6.5em; }
+  .ex-chip { font: 600 var(--t-xs)/1 var(--f-display); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-2); cursor: pointer; }
+  .ex-chip[aria-pressed="true"] { background: var(--pen-tint); border-color: var(--pen); color: var(--ink); }
+  .ex-chip small { font-weight: 500; color: var(--ink-3); margin-left: 3px; }
+  .ex-filtri input[type="search"], .ex-filtri select { font: 500 var(--t-s)/1.2 var(--f-display); padding: 7px 10px; border: 1px solid var(--rule); border-radius: 7px; background: var(--paper); color: var(--ink); min-width: 0; }
+  .ex-filtri input[type="search"] { flex: 1 1 220px; }
+  .ex-conteggio { font: 600 var(--t-s)/1.3 var(--f-display); color: var(--ink-2); }
+  .ex-prove { display: grid; gap: 8px; }
+  .ex-prova { border: 1px solid var(--rule); border-radius: 10px; background: var(--paper-solid); }
+  .ex-prova > summary { cursor: pointer; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; list-style: none; }
+  .ex-prova > summary::-webkit-details-marker { display: none; }
+  .ex-prova > summary b { font: 700 1.02rem/1.2 var(--f-display); }
+  .ex-prova > summary .ex-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ex-prova[open] > summary { border-bottom: 1px dashed var(--rule); }
+  .ex-prova .ex-dentro { display: grid; gap: 0; }
+  .ex-prova .ex-dentro .esercizio { border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; max-width: none; }
+  .ex-prova .ex-dentro .esercizio:last-child { border-bottom: 0; }
+  .ex-badge { font: 650 var(--t-xs)/1 var(--f-display); letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 7px; border-radius: 5px; border: 1px dashed var(--warn); color: var(--warn); }
+  .ex-stat { display: grid; gap: 5px; max-width: 46rem; }
+  .ex-stat .r { display: grid; grid-template-columns: 11em minmax(0, 1fr) 3.2em; gap: 10px; align-items: center; font: 500 var(--t-s)/1.2 var(--f-display); }
+  .ex-stat .r a { color: var(--ink); text-decoration: none; }
+  .ex-stat .r a:hover { text-decoration: underline; }
+  .ex-stat .b { height: 14px; background: var(--pen); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .ex-stat .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  @media (max-width: 560px) { .ex-stat .r { grid-template-columns: 8em minmax(0, 1fr) 2.6em; } }
+  .ex-sim { display: grid; gap: 14px; }
+  .ex-timer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border: 1px solid var(--rule); border-radius: 12px; background: var(--paper-solid); padding: 12px 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 60px); z-index: 5; }
+  .ex-timer .tempo { font: 700 1.6rem/1 var(--f-mono); font-variant-numeric: tabular-nums; min-width: 5.2ch; }
+  .ex-timer .tempo.scaduto { color: var(--ko); }
+  .ex-sim .foglio-sim { display: grid; gap: 12px; }
+  .ex-sim .sep-fogli { font: 650 var(--t-xs)/1 var(--f-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); border-top: 1px dashed var(--rule); padding-top: 10px; }
+  @media (max-width: 640px) { .ex-timer { position: static; } }
+</style>
+</head>
+<body data-root="../../" data-argomento="esami">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice della pagina">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#prova"><span class="n">1</span><span>Com'è fatta la prova</span></a></li>
+        <li><a href="#argomenti"><span class="n">2</span><span>Cosa chiede di più</span></a></li>
+        <li><a href="#simulazione"><span class="n">3</span><span>Simulazione a tempo</span></a></li>
+        <li><a href="#archivio"><span class="n">4</span><span>Archivio delle prove</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · Prove del professore</span>
+      <h1>Esami svolti</h1>
+      <p class="lede">Tutte le prove scritte dal 2020 al 2026 raccolte da CartaBinaria, con il testo e la soluzione spiegata passo per passo. Puoi filtrarle per argomento, allenarti su un argomento alla volta o simulare una prova intera con il tempo vero.</p>
+      <div class="meta">
+        <span class="etichetta" id="ex-totali">Caricamento…</span>
+        <span class="etichetta" data-progresso-pagina></span>
+      </div>
+    </header>
+
+    <section class="sez" id="prova">
+      <div class="titolo-sez largo">
+        <span class="num-sez">1 · Regole</span>
+        <h2>Com'è fatta la prova</h2>
+      </div>
+      <p>La prova scritta dura <strong>120 minuti</strong> e si svolge senza appunti, slide, libri, siti o altre persone. Gli esercizi sono quattro e si consegnano su due gruppi di fogli separati: gli esercizi 1–2 da una parte, gli esercizi 3–4 dall'altra.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Esercizio</th><th>Cosa chiede di solito</th><th>Dove si studia</th></tr></thead>
+          <tbody>
+            <tr><td><b>1</b></td><td>Calcolare il costo di un algoritmo dato, spesso ricorsivo o con una struttura dati usata in modo particolare, oppure risolvere un'equazione di ricorrenza.</td><td><a href="02-notazione-asintotica.html">Cap. 2</a></td></tr>
+            <tr><td><b>2</b></td><td>Eseguire a mano una sequenza di operazioni su una struttura dati (tabella hash, AVL, heap, union-find…) o un algoritmo su un grafo dato, mostrando gli stati intermedi.</td><td>Cap. <a href="05-alberi.html">5</a>, <a href="06-tabelle-hash.html">6</a>, <a href="07-heap.html">7</a>, <a href="08-union-find.html">8</a>, <a href="11-mst-cammini-minimi.html">11</a></td></tr>
+            <tr><td><b>3</b></td><td>Progettare un algoritmo efficiente: idea a parole, pseudocodice commentato e calcolo del costo.</td><td>Cap. <a href="03-ordinamento.html">3</a>, <a href="07-heap.html">7</a>, <a href="09-tecniche-algoritmiche.html">9</a></td></tr>
+            <tr><td><b>4</b></td><td>Progettare un algoritmo su grafi, quasi sempre adattando BFS, DFS, Dijkstra o un MST.</td><td>Cap. <a href="10-grafi.html">10</a>, <a href="11-mst-cammini-minimi.html">11</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="def">
+        <span class="etichetta">Dalle istruzioni della prova</span>
+        <p>Le soluzioni che chiedono di progettare un algoritmo devono: spiegare a parole l'algoritmo (se utile con esempi o disegni), fornire e commentare lo pseudocodice indicando il significato delle variabili, calcolare la complessità con tutti i passaggi matematici. Se l'esercizio ammette più soluzioni, quelle più efficienti o più semplici prendono più punti.</p>
+      </div>
+      <aside class="nota">Il costo va sempre dimostrato con i passaggi: il solo risultato non basta.</aside>
+      <p>Dal 2024 le istruzioni aggiungono che, se si usano tecniche diverse da quelle del corso (per esempio suggerite da un'intelligenza artificiale), bisogna giustificarle confrontandone il costo con quelle viste a lezione.</p>
+    </section>
+
+    <section class="sez" id="argomenti">
+      <div class="titolo-sez largo">
+        <span class="num-sez">2 · Statistiche</span>
+        <h2>Cosa chiede di più</h2>
+        <p class="sottotitolo">Quante volte ogni argomento compare negli esercizi dell'archivio. Tocca un argomento per vedere solo quegli esercizi.</p>
+      </div>
+      <div class="ex-stat largo" id="ex-stat"></div>
+    </section>
+
+    <section class="sez" id="simulazione">
+      <div class="titolo-sez largo">
+        <span class="num-sez">3 · Allenamento</span>
+        <h2>Simulazione a tempo</h2>
+        <p class="sottotitolo">Una prova intera con il cronometro: le soluzioni restano nascoste finché non le apri.</p>
+      </div>
+      <div class="fig-ctrl largo">
+        <button class="btn primario" type="button" id="sim-reale">Prova reale a caso</button>
+        <button class="btn" type="button" id="sim-mista">Prova mista: un esercizio per tipo da prove diverse</button>
+        <label class="etichetta" for="sim-recenti" style="display:inline-flex;gap:6px;align-items:center;text-transform:none;letter-spacing:0"><input type="checkbox" id="sim-recenti" checked> solo dal 2023 in poi</label>
+      </div>
+      <div class="ex-sim largo" id="ex-sim" hidden></div>
+    </section>
+
+    <section class="sez" id="archivio">
+      <div class="titolo-sez largo">
+        <span class="num-sez">4 · Archivio</span>
+        <h2>Tutte le prove</h2>
+      </div>
+      <div class="ex-filtri largo" id="ex-filtri">
+        <div class="riga-f"><span class="etichetta">Argomento</span><span id="f-tag" style="display:contents"></span></div>
+        <div class="riga-f"><span class="etichetta">Tipo</span><span id="f-tipo" style="display:contents"></span></div>
+        <div class="riga-f">
+          <label class="etichetta" for="f-anno">Anno</label>
+          <select id="f-anno"><option value="">tutti</option></select>
+          <input type="search" id="f-testo" placeholder="Cerca nel testo, per esempio «BFS» o «mystery»" aria-label="Cerca nel testo degli esercizi">
+        </div>
+        <div class="riga-f">
+          <span class="ex-conteggio" id="f-conteggio" aria-live="polite"></span>
+          <span class="sep" style="flex:1 1 auto"></span>
+          <div class="seg" role="group" aria-label="Vista">
+            <button type="button" id="v-prove" aria-pressed="true">Per prova</button><button type="button" id="v-esercizi" aria-pressed="false">Per esercizio</button>
+          </div>
+          <button class="btn piccolo" type="button" id="f-azzera">Togli i filtri</button>
+        </div>
+      </div>
+      <div class="ex-prove largo" id="ex-prove"></div>
+      <div class="esami-lista largo" id="ex-esercizi" hidden style="max-width:none"></div>
+    </section>
+
+    <footer class="piede">
+      <p>Fonte: cartella <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati/tree/main/prove" target="_blank" rel="noopener">prove</a> della raccolta CartaBinaria. Ogni esercizio ha il link al PDF originale. Dove la prova ha solo il testo, la soluzione è scritta in questi appunti ed è segnata come non ufficiale.</p>
+    </footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="js/esami.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>
