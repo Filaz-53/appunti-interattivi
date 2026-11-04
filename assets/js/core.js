@@ -165,6 +165,22 @@
       if (a.stato === "in-arrivo") return `<li class="in-arrivo"><div>${corpo}<span class="chip-arrivo">in arrivo</span></div></li>`;
       return `<li><a href="${esc(a.id)}.html">${corpo}<span class="vai" aria-hidden="true">→</span></a></li>`;
     }).join("")}</ol>`;
+    // online: un capitolo segnato «in arrivo» diventa cliccabile appena la sua pagina esiste
+    if (/^https?:/.test(location.protocol)) {
+      $$(".sommario li.in-arrivo", box).forEach((li, j) => {
+        const a = m.argomenti.filter((x) => x.stato === "in-arrivo")[j];
+        if (!a) return;
+        fetch(a.id + ".html", { method: "HEAD", cache: "no-store" }).then((r) => {
+          if (!r.ok) return;
+          const d = li.firstElementChild;
+          const link = document.createElement("a");
+          link.href = a.id + ".html";
+          link.innerHTML = d.innerHTML.replace(/<span class="chip-arrivo">.*?<\/span>/, '<span class="vai" aria-hidden="true">→</span>');
+          li.classList.remove("in-arrivo");
+          li.replaceChildren(link);
+        }).catch(() => {});
+      });
+    }
   }
 
   /* ----------------------------------------- esercizi d'esame collegati
