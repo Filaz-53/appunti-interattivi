@@ -99,9 +99,10 @@
     const libri = MATERIE.map((m) => {
       let fatte = 0, giuste = 0, tot = 0;
       m.argomenti.forEach((a) => { const r = riassunto(m.id, a.id); fatte += r.fatte; giuste += r.giuste; tot += r.tot || 0; });
-      const n = m.argomenti.length;
-      const pagine = n
-        ? m.argomenti.slice(0, 4).map((a, i) => `<li>${i + 1}. ${esc(a.titolo)}</li>`).join("")
+      const pronti = m.argomenti.filter((a) => a.stato !== "in-arrivo");
+      const n = pronti.length;
+      const pagine = m.argomenti.length
+        ? m.argomenti.slice(0, 5).map((a, i) => `<li>${i + 1}. ${esc(a.titolo)}</li>`).join("")
         : "<li>Pagine ancora bianche</li>";
       return `<a class="libro" href="materie/${m.id}/index.html" style="--hue:${m.tinta}" aria-label="Apri il quaderno di ${esc(m.nome)}">
           <span class="pagina-dentro" aria-hidden="true"><span class="etichetta">Indice</span><ol>${pagine}</ol></span>
@@ -109,7 +110,7 @@
             <span class="dorso" aria-hidden="true"></span>
             <span class="targhetta">
               <span class="riga-t"><span class="etichetta">Materia</span><b>${esc(m.nome)}</b></span>
-              <span class="riga-t"><span class="etichetta">Argomenti</span><span>${n === 0 ? "nessuno, per ora" : n === 1 ? "1 argomento" : n + " argomenti"}</span></span>
+              <span class="riga-t"><span class="etichetta">Argomenti</span><span>${n === 0 ? "nessuno, per ora" : n === 1 ? "1 argomento" : n + " argomenti"}${m.argomenti.length > n ? `, ${m.argomenti.length - n} in arrivo` : ""}</span></span>
               ${fatte ? `<span class="riga-t"><span class="etichetta">Quiz</span><span class="num">${giuste} giuste su ${tot || fatte}</span></span>` : ""}
             </span>
             <span class="sigla" aria-hidden="true">${esc(m.breve)}</span>
@@ -159,12 +160,67 @@
     box.innerHTML = `<ol class="sommario" style="--hue:${m.tinta}">${m.argomenti.map((a, i) => {
       const r = riassunto(m.id, a.id);
       const extra = [a.fonte ? "Fonte: " + esc(a.fonte) : "", r.fatte ? `quiz: ${r.giuste} giuste, ${r.fatte} risposte${r.tot ? " su " + r.tot : ""}` : ""].filter(Boolean).join(" · ");
-      return `<li><a href="${esc(a.id)}.html">
-          <span class="cap">${i + 1}</span>
-          <span class="corpo"><b>${esc(a.titolo)}</b><span>${esc(a.sottotitolo)}</span>${extra ? `<small>${extra}</small>` : ""}</span>
-          <span class="vai" aria-hidden="true">→</span>
-        </a></li>`;
+      const corpo = `<span class="cap">${i + 1}</span>
+          <span class="corpo"><b>${esc(a.titolo)}</b><span>${esc(a.sottotitolo)}</span>${extra ? `<small>${extra}</small>` : ""}</span>`;
+      if (a.stato === "in-arrivo") return `<li class="in-arrivo"><div>${corpo}<span class="chip-arrivo">in arrivo</span></div></li>`;
+      return `<li><a href="${esc(a.id)}.html">${corpo}<span class="vai" aria-hidden="true">→</span></a></li>`;
     }).join("")}</ol>`;
+  }
+
+  /* ----------------------------------------- esercizi d'esame collegati
+     I dati stanno in materie/<materia>/esami/*.js, che riempiono window.ESAMI.
+     Un capitolo mostra gli esercizi del suo argomento con
+       <div data-esami-tag="hash,heap"></div>                              */
+  const NOMI_TIPO = { analisi: "Analisi di costo", simulazione: "Simulazione", progettazione: "Progettazione", teoria: "Teoria" };
+  const REPO_PROVE = "https://github.com/cartabinaria/algoritmi-e-strutture-di-dati/blob/main/";
+  function dataIt(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+    return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+  }
+  function esercizioEsame(e, x, opz = {}) {
+    const etich = `${esc(e.titolo || "Esame del " + dataIt(e.data))} · esercizio ${x.n}`;
+    const tag = (x.argomenti || []).map((t) => `<span class="chip-tag">${esc(t)}</span>`).join("");
+    const dom = x.domanda
+      ? `<div class="domanda" data-id="esame-${esc(e.id)}-${x.n}">
+           <p class="testo">${x.domanda.testo}</p>
+           <div class="opz">${x.domanda.opzioni.map((o, i) => `<button${i === x.domanda.giusta ? " data-giusta" : ""}>${o}</button>`).join("")}</div>
+           <div class="perche" hidden><p>${x.domanda.perche || ""}</p></div>
+         </div>`
+      : "";
+    const corpo = `<div class="esercizio esame-corpo">
+        <div class="esercizio-testa"><span class="etichetta">${etich}${x.tipo ? " · " + esc(NOMI_TIPO[x.tipo] || x.tipo) : ""}</span>${x.titolo ? `<h4>${x.titolo}</h4>` : ""}</div>
+        <div class="esame-testo">${x.testo}</div>
+        ${dom}
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">${(x.soluzione || []).map((s) => `<li><div>${s}</div></li>`).join("")}${x.risposta ? `<li><div><p class="risultato">${x.risposta}</p></div></li>` : ""}</ol>
+        </div>
+        <p class="piccolo-meta">${tag}${e.fonte ? ` <a href="${REPO_PROVE}${esc(e.fonte)}" target="_blank" rel="noopener">PDF originale</a>` : ""}</p>
+      </div>`;
+    if (opz.aperto) return corpo;
+    const riassuntoTesto = (x.sommario || x.testo.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim().slice(0, 150);
+    return `<details class="esame-es" id="es-${esc(e.id)}-${x.n}">
+        <summary><span class="chip-data">${dataIt(e.data)}${e.turno ? " " + esc(e.turno) : ""}</span><span class="es-n">Es. ${x.n}</span><span class="es-sommario">${esc(riassuntoTesto)}${riassuntoTesto.length >= 150 ? "…" : ""}</span></summary>
+        ${corpo}
+      </details>`;
+  }
+  function esamiCollegati() {
+    const boxes = $$("[data-esami-tag]");
+    if (!boxes.length) return;
+    const esami = window.ESAMI || [];
+    boxes.forEach((box) => {
+      const tags = box.dataset.esamiTag.split(",").map((s) => s.trim()).filter(Boolean);
+      const lista = [];
+      esami.forEach((e) => (e.esercizi || []).forEach((x) => {
+        if ((x.argomenti || []).some((t) => tags.includes(t))) lista.push([e, x]);
+      }));
+      lista.sort((a, b) => (b[0].data + (b[0].turno || "")).localeCompare(a[0].data + (a[0].turno || "")) || a[1].n - b[1].n);
+      if (!lista.length) {
+        box.innerHTML = `<p class="avviso"><span class="etichetta">In arrivo</span><span>Gli esercizi d'esame su questo argomento sono in preparazione: compariranno qui da soli.</span></p>`;
+        return;
+      }
+      box.classList.add("esami-lista");
+      box.innerHTML = `<p class="etichetta">${lista.length} esercizi d'esame su questo argomento, dal più recente</p>` + lista.map(([e, x]) => esercizioEsame(e, x)).join("");
+    });
   }
 
   /* -------------------------------------------------------------- quiz */
@@ -473,10 +529,13 @@
   }
 
   /* -------------------------------------------------------------- avvio */
-  window.Appunti = { $, $$, store, esc, Player, fly, motoRidotto, evidenziaRiga };
+  window.Appunti = { $, $$, store, esc, Player, fly, motoRidotto, evidenziaRiga, esercizioEsame, dataIt, NOMI_TIPO };
   barra();
   home();
   indiceMateria();
+  esamiCollegati();
+  // una pagina può generare contenuto prima che quiz, codice ed esercizi vengano attivati
+  if (typeof window.APPUNTI_PRIMA === "function") { try { window.APPUNTI_PRIMA(window.Appunti); } catch (err) { console.error(err); } }
   codice();
   quiz();
   esercizi();

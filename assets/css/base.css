@@ -989,3 +989,35 @@ a.libro:hover .copertina { transform: rotateY(-16deg); box-shadow: 0 1px 0 rgba(
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+
+/* ------------------------------------------ indice: capitoli in arrivo */
+.sommario li.in-arrivo > div {
+  display: grid;
+  grid-template-columns: 2.6em minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 18px 8px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-3);
+}
+.sommario li.in-arrivo .cap { color: var(--ink-3); }
+.sommario li.in-arrivo .corpo b { color: var(--ink-2); }
+.chip-arrivo { font: 650 var(--t-xs)/1 var(--f-display); letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 8px; border-radius: 5px; border: 1px dashed var(--ink-3); color: var(--ink-3); white-space: nowrap; }
+
+/* ----------------------------------------------- esercizi d'esame */
+.esami-lista { display: grid; gap: 6px; max-width: 48rem; }
+.esame-es { border: 1px solid var(--rule); border-radius: 8px; background: var(--paper-solid); }
+.esame-es > summary { cursor: pointer; padding: 10px 14px; display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 10px; align-items: baseline; list-style: none; }
+.esame-es > summary::-webkit-details-marker { display: none; }
+.esame-es > summary:hover { background: var(--pen-tint); border-radius: 8px; }
+.esame-es[open] > summary { border-bottom: 1px dashed var(--rule); border-radius: 8px 8px 0 0; }
+.esame-es .esercizio { border: 0; border-radius: 0 0 8px 8px; max-width: none; }
+.chip-data { font: 700 var(--t-xs)/1 var(--f-display); font-variant-numeric: tabular-nums; padding: 5px 7px; border-radius: 5px; background: var(--pen-tint); color: var(--pen); white-space: nowrap; }
+.es-n { font: 700 var(--t-s)/1.2 var(--f-display); white-space: nowrap; }
+.es-sommario { color: var(--ink-2); font-size: 0.95rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 640px) { .esame-es > summary { grid-template-columns: auto auto; } .es-sommario { grid-column: 1 / -1; white-space: normal; } }
+.esame-testo { display: grid; gap: 8px; min-width: 0; }
+.esame-testo pre, .esame-corpo pre { overflow-x: auto; max-width: 100%; }
+.chip-tag { display: inline-block; font: 600 var(--t-xs)/1 var(--f-mono); padding: 4px 6px; border-radius: 4px; border: 1px solid var(--rule); color: var(--ink-2); margin-right: 4px; }
+.piccolo-meta { font: 500 var(--t-xs)/1.8 var(--f-display); color: var(--ink-3); }
+.scorri { overflow-x: auto; max-width: 100%; }
