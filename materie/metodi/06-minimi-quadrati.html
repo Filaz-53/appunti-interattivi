@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Il problema dei minimi quadrati · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="06-minimi-quadrati">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Il problema</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Esistenza e unicità</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Equazioni normali</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Soluzione con la SVD</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Confronto ed esercizi</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 6</span>
+      <h1>Il problema dei minimi quadrati</h1>
+      <p class="lede">Quando un sistema ha più equazioni che incognite e i dati sono rumorosi, non c'è una soluzione esatta: si cerca la x che rende Ax il più vicino possibile a b. È la base della regressione (capitolo 7 e HW2).</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Esiste sempre</strong> una soluzione; è <strong>unica ⟺ rank(A) = n</strong>.</li>
+        <li>Il residuo ottimo è <strong>ortogonale</strong> alle colonne di A, da cui le equazioni normali <strong>AᵀAx = Aᵀb</strong>.</li>
+        <li>Equazioni normali + Cholesky: semplici, ma <strong>K(AᵀA) = K(A)²</strong>.</li>
+        <li><strong>SVD</strong>: più robusta, funziona anche con rango non massimo e dà la soluzione di <strong>norma minima</strong> x† = A⁺b.</li>
+        <li>Risolvere a mano un piccolo problema con le equazioni normali (2×2).</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Formulazione</span>
+        <h2>Da dove nasce il problema</h2>
+      </div>
+      <p>Ax = b con A ∈ ℝᵐˣⁿ e <strong>m &gt; n</strong>: più equazioni che incognite, cioè un sistema <strong>sovradeterminato</strong>. Con dati reali e rumorosi in generale non esiste x che soddisfi tutte le equazioni.</p>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Il residuo è r(x) = b − Ax. Il <strong>problema lineare dei minimi quadrati</strong> è <strong>x* = argmin ‖b − Ax‖₂²</strong>: si minimizza la somma dei quadrati degli errori.</p>
+      </div>
+      <p><strong>Perché i quadrati?</strong> Errori positivi e negativi non si cancellano; quelli grandi pesano di più; la funzione è derivabile; il caso lineare porta a strumenti di algebra lineare efficienti. <strong>Svantaggio:</strong> un valore anomalo (<em>outlier</em>) influisce molto, perché il suo errore viene elevato al quadrato.</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Teoria</span>
+        <h2>Esistenza, unicità e geometria</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teorema</span>
+        <p>Il problema ammette <strong>sempre almeno una soluzione</strong>. Se <strong>rank(A) = n</strong> (colonne linearmente indipendenti, cioè rango massimo per colonne) la soluzione è <strong>unica</strong>. Se rank(A) &lt; n le soluzioni sono <strong>infinite</strong>, tutte con lo stesso Ax* e lo stesso residuo minimo. Tra queste si sceglie quella di <strong>norma minima</strong>.</p>
+      </div>
+      <p><strong>Geometria:</strong> Ax sta sempre in Im(A) = span delle colonne di A. La soluzione sceglie Ax* come il punto di Im(A) <strong>più vicino a b</strong>, cioè la <strong>proiezione ortogonale</strong> di b su Im(A). Nel punto più vicino il residuo è <strong>ortogonale</strong> a tutte le colonne:</p>
+      <p class="formula">Aᵀr* = 0  ⟺  Aᵀ(b − Ax*) = 0</p>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Metodo 1</span>
+        <h2>Le equazioni normali</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Equazioni normali</span>
+        <p><strong>AᵀAx* = Aᵀb</strong>. AᵀA è n×n, <strong>simmetrica</strong> e <strong>semidefinita positiva</strong>, perché zᵀAᵀAz = ‖Az‖² ≥ 0. Se A ha rango massimo per colonne, AᵀA è <strong>definita positiva</strong> e invertibile, quindi si risolve con <strong>Cholesky</strong>: AᵀA = LLᵀ, poi Ly = Aᵀb e Lᵀx = y.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · a mano</span><h4>Retta per (0,1), (1,2), (2,2), (3,4)</h4></div>
+        <p>A = [[1,0],[1,1],[1,2],[1,3]] (colonna di 1 per l'intercetta, colonna delle x), b = (1, 2, 2, 4).</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p class="formula">AᵀA = [[4, 6], [6, 14]]    Aᵀb = (1+2+2+4, 0+2+4+12) = (9, 18)</p></div></li>
+            <li><div><p>det = 4·14 − 36 = 20. Con Cramer: x₁ = (9·14 − 6·18)/20 = 18/20 = 0.9; x₂ = (4·18 − 6·9)/20 = 18/20 = 0.9.</p></div></li>
+            <li><div><p>Ax* = (0.9, 1.8, 2.7, 3.6); r* = (0.1, 0.2, −0.7, 0.4); ‖r*‖² = 0.7.</p></div></li>
+            <li><div><p class="risultato">x* = (0.9, 0.9): retta y = 0.9 + 0.9x. Verifica: Aᵀr* = (0.1+0.2−0.7+0.4, 0.2−1.4+1.2) = (0, 0) ✓</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>Formare AᵀA <strong>eleva al quadrato il numero di condizionamento</strong>: K₂(AᵀA) = K₂(A)². Se A è già mal condizionata (per esempio una Vandermonde di grado alto) le equazioni normali perdono molta precisione.</p></div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Metodo 2</span>
+        <h2>Soluzione con la SVD e pseudoinversa</h2>
+      </div>
+      <p>Con A = UΣVᵀ (U ortogonale conserva la norma) si pone y = Vᵀx e g = Uᵀb. Il problema si <strong>disaccoppia</strong>, perché Σ è diagonale:</p>
+      <p class="formula">‖Ax − b‖² = Σᵢ≤ₖ (σᵢyᵢ − gᵢ)² + Σᵢ&gt;ₖ gᵢ²   (k = rango)</p>
+      <p>Si annulla la prima somma con yᵢ = gᵢ/σᵢ = uᵢᵀb/σᵢ, e il residuo minimo è √(Σᵢ&gt;ₖ gᵢ²). Se k &lt; n, le componenti yₖ₊₁…yₙ sono libere (infinite soluzioni); per la <strong>norma minima</strong> si pongono a 0.</p>
+      <div class="def">
+        <span class="etichetta">Soluzione di norma minima</span>
+        <p><strong>x† = Σᵢ≤ₖ (uᵢᵀb / σᵢ) vᵢ = A⁺b</strong>, con A⁺ = VΣ⁺Uᵀ, la pseudoinversa di Moore–Penrose (1/σᵢ sui σ positivi, 0 altrove). Se k = n coincide con l'unica soluzione.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="python">
+x, res, rango, s = np.linalg.lstsq(A, b, rcond=None)   # metodo standard (usa la SVD)
+x = np.linalg.pinv(A) @ b                              # pseudoinversa
+L = np.linalg.cholesky(A.T @ A)                        # equazioni normali + Cholesky
+x = np.linalg.solve(L.T, np.linalg.solve(L, A.T @ b))
+</code></pre>
+      <aside class="nota">Nella pratica i σ "troppo piccoli" si trattano come zero, con una tolleranza ≈ max(m,n)·eps·σ₁: è il rango numerico del capitolo 4.</aside>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Riepilogo</span>
+        <h2>Confronto tra i metodi ed esercizi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Equazioni normali contro SVD</span>
+        <p><strong>Equazioni normali + Cholesky:</strong> semplici e veloci, ma formano AᵀA ed elevano al quadrato K. Richiedono rango massimo. · <strong>SVD:</strong> molto robusta, identifica il rango e dà la soluzione di norma minima anche con rango non massimo, ma è più costosa. · (QR: A = QR, poi Rx = Qᵀb, una via di mezzo stabile.)</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 6</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="mq-1">
+          <p class="testo">Il problema min ‖Ax − b‖₂ con A ∈ ℝ¹⁰⁰ˣ³ di rango 3…</p>
+          <div class="opz"><button>può non avere soluzione</button><button data-giusta>ha un'unica soluzione</button><button>ha infinite soluzioni</button></div>
+          <div class="perche" hidden><p>Una soluzione esiste sempre; con rango massimo per colonne (3 = n) è unica.</p></div>
+        </div>
+        <div class="domanda" data-id="mq-2">
+          <p class="testo">Nella soluzione ottima, il residuo r* = b − Ax* è…</p>
+          <div class="opz"><button>nullo</button><button data-giusta>ortogonale alle colonne di A</button><button>parallelo a b</button></div>
+          <div class="perche" hidden><p>Aᵀr* = 0: Ax* è la proiezione ortogonale di b su Im(A). Il residuo è nullo solo se b ∈ Im(A).</p></div>
+        </div>
+        <div class="domanda" data-id="mq-3">
+          <p class="testo">K₂(A) = 10⁴. Quanto vale K₂(AᵀA)?</p>
+          <div class="opz"><button>10²</button><button>10⁴</button><button data-giusta>10⁸</button></div>
+          <div class="perche" hidden><p>K₂(AᵀA) = K₂(A)²: le equazioni normali "bruciano" il doppio delle cifre.</p></div>
+        </div>
+        <div class="domanda" data-id="mq-4">
+          <p class="testo">Se A non ha rango massimo, quale metodo dà comunque la soluzione di norma minima?</p>
+          <div class="opz"><button>Equazioni normali con Cholesky</button><button data-giusta>SVD / pseudoinversa</button><button>LU senza pivoting</button></div>
+          <div class="perche" hidden><p>Con rango non massimo AᵀA è singolare e Cholesky fallisce. La SVD tratta i σ nulli e dà x† = A⁺b.</p></div>
+        </div>
+        <div class="domanda" data-id="mq-5">
+          <p class="testo">Retta y = θ₀ + θ₁x sui punti (0,0), (1,1), (2,4). Quanto vale AᵀA?</p>
+          <div class="opz"><button data-giusta>[[3, 3], [3, 5]]</button><button>[[3, 3], [3, 9]]</button><button>[[2, 3], [3, 5]]</button></div>
+          <div class="perche" hidden><p>A = [[1,0],[1,1],[1,2]]: AᵀA = [[n, Σx], [Σx, Σx²]] = [[3, 3], [3, 0+1+4]] = [[3, 3], [3, 5]].</p></div>
+        </div>
+      </div>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-mq">
+        <li><label><input type="checkbox" id="mq-c1"><span>Scrivere il problema e dire quando la soluzione è unica</span></label></li>
+        <li><label><input type="checkbox" id="mq-c2"><span>Ricavare le equazioni normali dall'ortogonalità del residuo</span></label></li>
+        <li><label><input type="checkbox" id="mq-c3"><span>Risolvere a mano una retta di regressione con 3–4 punti</span></label></li>
+        <li><label><input type="checkbox" id="mq-c4"><span>Scrivere x† = Σ (uᵢᵀb/σᵢ)vᵢ e spiegare la norma minima</span></label></li>
+        <li><label><input type="checkbox" id="mq-c5"><span>Confrontare equazioni normali e SVD (costo, stabilità, rango)</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «Il problema lineare dei minimi quadrati» (A.A. 2026/27). Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

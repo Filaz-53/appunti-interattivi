@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Approssimazione dei dati e regressione · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="07-regressione">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Modello e funzione di costo</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Regressione polinomiale</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Misure dell'errore</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Underfitting e overfitting</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Regolarizzazione</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Esercizi e ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 7</span>
+      <h1>Approssimazione dei dati e regressione</h1>
+      <p class="lede">I minimi quadrati applicati ai dati: si sceglie un modello, si stimano i parametri e si misura quanto è buono, senza farsi ingannare dall'overfitting. È il contenuto dell'HW2.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li>Costruire la <strong>matrice di Vandermonde</strong> (design matrix) per un grado d: dimensione n×(d+1).</li>
+        <li><strong>SSE, MSE, RMSE, R²</strong>: formule, unità di misura, significato; R² può essere negativo.</li>
+        <li><strong>Overfitting</strong>: l'errore di training cala sempre col grado, quello di test no. Con n punti, il grado n−1 interpola.</li>
+        <li><strong>Tikhonov</strong>: (XᵀX + λI)θ = Xᵀy; effetto di λ troppo piccolo o troppo grande.</li>
+        <li>All'<strong>orale (HW2)</strong>: split train/test, scelta del grado, interpretazione dei coefficienti.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Impostazione</span>
+        <h2>Modello, parametri e funzione di costo</h2>
+      </div>
+      <p>Si hanno dati D = {(xᵢ, yᵢ)}: x è la variabile <strong>indipendente</strong> (input), y quella <strong>dipendente</strong> (da prevedere). Le ipotesi sono due: <strong>1.</strong> esiste una f con un andamento riconoscibile; <strong>2.</strong> i dati sono affetti da <strong>rumore</strong>, cioè y = f(x) + e, con e normale.</p>
+      <p>Si sceglie una <strong>famiglia parametrica</strong> f(x; θ): una retta θ₀ + θ₁x, una parabola, ma anche θ₀ + θ₁e^(αx). Poi si cercano i parametri che minimizzano una <strong>funzione di costo</strong> (loss):</p>
+      <p class="formula">θ* = argmin L(θ),   L(θ) = Σᵢ (f(xᵢ; θ) − yᵢ)²  (perdita quadratica)</p>
+      <p>La funzione f(x; θ*) si chiama <strong>funzione di regressione</strong>. Costruire un modello predittivo diventa così un <strong>problema di minimo</strong>.</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Polinomi</span>
+        <h2>Regressione polinomiale e matrice di Vandermonde</h2>
+      </div>
+      <p>Un polinomio di grado k ha <strong>k+1 parametri</strong>: f(x; θ) = θ₀ + θ₁x + … + θₖxᵏ. Con la <strong>design matrix</strong> Φ ∈ ℝⁿˣ⁽ᵏ⁺¹⁾, la cui riga i è [1, xᵢ, xᵢ², …, xᵢᵏ], le previsioni sono ŷ = Φθ e:</p>
+      <p class="formula">L(θ) = ‖Φθ − y‖₂²   → minimi quadrati lineari (capitolo 6)</p>
+      <aside class="nota">"Lineare" si riferisce ai <em>parametri</em> θ, non a x: anche la regressione polinomiale è un problema di minimi quadrati lineari.</aside>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · pubblicità e vendite</span><h4>10 dati, retta di regressione</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Φ ha una colonna di 1 (per l'intercetta) e la colonna della spesa. Con lstsq: <strong>θ₀ = 12.458</strong> (intercetta), <strong>θ₁ = 1.636</strong> (pendenza).</p></div></li>
+            <li><div><p><strong>Interpretazione:</strong> θ₀ è il valore previsto con x = 0; θ₁ è la variazione media di y per un'unità in più di x. Vale solo nel dominio osservato: estrapolare è rischioso, e una correlazione non è una causalità.</p></div></li>
+          </ol>
+        </div>
+      </article>
+<pre class="codice largo" data-copia><code data-lang="python">
+A = np.vander(x, d + 1, increasing=True)              # colonne 1, x, x^2, ..., x^d
+theta, *_ = np.linalg.lstsq(A, y, rcond=None)
+y_pred = np.vander(x_nuovi, d + 1, increasing=True) @ theta
+</code></pre>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Metriche</span>
+        <h2>Misure dell'errore</h2>
+      </div>
+      <p>Il residuo è eᵢ = yᵢ − ŷᵢ: se è &gt; 0 il modello sottostima, se è &lt; 0 sovrastima. Sommare i residui non va bene, perché quelli di segno opposto si cancellano: si usano i quadrati.</p>
+      <div class="def">
+        <span class="etichetta">Le formule da sapere</span>
+        <p><strong>SSE</strong> = Σ eᵢ² (somma dei quadrati dei residui; è proprio ciò che si minimizza; dipende da quanti dati ci sono; unità²).<br>
+        <strong>MSE</strong> = SSE / m (media; unità²). Minimizzare SSE o MSE dà lo stesso modello.<br>
+        <strong>RMSE</strong> = √MSE (<strong>stessa unità di y</strong>: dà la scala tipica degli scarti).<br>
+        <strong>SST</strong> = Σ (yᵢ − ȳ)² (errore della previsione costante "uso sempre la media").<br>
+        <strong>R² = 1 − SSE/SST</strong> (adimensionale, più alto è meglio, al massimo 1).</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · continua</span><h4>Le metriche della retta pubblicità–vendite</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>SSE ≈ 9.603; m = 10, quindi MSE ≈ 0.960 e RMSE ≈ 0.980 (circa un'unità di vendita).</p></div></li>
+            <li><div><p>ȳ = 28, SST = 664.</p></div></li>
+            <li><div><p class="risultato">R² = 1 − 9.603/664 ≈ 0.9855: il modello riduce l'errore quadratico del 98.5% rispetto alla media</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="def">
+        <span class="etichetta">Come leggere R²</span>
+        <p><strong>R² = 1:</strong> SSE = 0, previsioni perfette. · <strong>0 &lt; R² &lt; 1:</strong> meglio della media. · <strong>R² = 0:</strong> errore pari a quello della media. · <strong>R² &lt; 0:</strong> peggio della media (possibile su dati di test o senza intercetta). Con i minimi quadrati con intercetta, sugli stessi dati di training, vale 0 ≤ R² ≤ 1.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Trappole</span><p>Un R² alto <strong>non è</strong> una percentuale di previsioni giuste, <strong>non prova</strong> un rapporto di causa-effetto e <strong>non garantisce</strong> buone previsioni su dati nuovi. Aumentando il grado, l'R² di training non diminuisce mai: le metriche vanno calcolate sul <strong>test set</strong>.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2–§3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="re-1">
+          <p class="testo">Regressione di grado 3 su 50 punti: qual è la dimensione della matrice di Vandermonde?</p>
+          <div class="opz"><button>50×3</button><button data-giusta>50×4</button><button>4×50</button></div>
+          <div class="perche" hidden><p>Un polinomio di grado 3 ha 4 coefficienti (θ₀…θ₃): una riga per punto, una colonna per coefficiente.</p></div>
+        </div>
+        <div class="domanda" data-id="re-2">
+          <p class="testo">y è misurata in euro. In che unità è la RMSE?</p>
+          <div class="opz"><button data-giusta>euro</button><button>euro²</button><button>adimensionale</button></div>
+          <div class="perche" hidden><p>MSE e SSE sono in euro², la RMSE (la radice) in euro, R² è adimensionale.</p></div>
+        </div>
+        <div class="domanda" data-id="re-3">
+          <p class="testo">SSE = 20 e SST = 80. Quanto vale R²?</p>
+          <div class="opz"><button>0.25</button><button data-giusta>0.75</button><button>4</button></div>
+          <div class="perche" hidden><p>R² = 1 − 20/80 = 0.75.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Generalizzazione</span>
+        <h2>Underfitting e overfitting</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizioni</span>
+        <p><strong>Underfitting:</strong> il modello è troppo rigido (grado troppo basso) e non cattura l'andamento. Il residuo è grande ed è <strong>facile da riconoscere</strong>. · <strong>Overfitting:</strong> il modello è troppo flessibile e insegue il <strong>rumore</strong>. Il residuo di training è piccolissimo, ma prevede male su dati nuovi. È <strong>difficile da riconoscere</strong> guardando solo il residuo.</p>
+      </div>
+      <p><strong>Esempio della prof:</strong> 11 punti da f(x) = 0.5 + 1.2x² con rumore. Il grado 1 è in underfit; il grado 2 segue bene l'andamento; il grado 10 (11 coefficienti per 11 punti) <strong>interpola</strong> tutti i punti ma oscilla molto, soprattutto agli estremi. L'errore di training del grado 10 è quasi nullo, ma l'errore di test è più alto di quello del grado 2.</p>
+      <aside class="nota">Con i minimi quadrati non regolarizzati, aumentando il grado l'errore di training non può crescere, perché ogni famiglia contiene le precedenti. L'errore di test invece sì.</aside>
+      <div class="def">
+        <span class="etichetta">Valutazione predittiva</span>
+        <p><strong>1.</strong> Separare training set e test set. <strong>2.</strong> Stimare i coefficienti solo sul training. <strong>3.</strong> Applicare il modello al test. <strong>4.</strong> Calcolare RMSE/R² sul test. Il grado d è un <strong>iperparametro</strong> da scegliere.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Rimedio</span>
+        <h2>Regolarizzazione di Tikhonov</h2>
+      </div>
+      <p>Idea: se si sceglie un grado troppo alto, si chiede ai coefficienti in più di essere <strong>il più piccoli possibile</strong>, così il modello si comporta come uno di grado più basso.</p>
+      <div class="def">
+        <span class="etichetta">Problema regolarizzato</span>
+        <p>min ½‖Xθ − y‖₂² + (λ/2)‖θ‖₂². Ponendo il gradiente uguale a zero, XᵀXθ − Xᵀy + λθ = 0, cioè:</p>
+        <p class="formula">(XᵀX + λI)θ = Xᵀy</p>
+        <p>È l'estensione delle equazioni normali: con <strong>λ = 0</strong> si ritrovano quelle classiche. Si risolve con LU/Cholesky o con la SVD.</p>
+      </div>
+      <p><strong>Effetto di λ:</strong> λ piccolo ma positivo smorza le oscillazioni e dà un buon modello anche con grado sbagliato. λ <strong>troppo grande</strong> fa dominare la regolarizzazione: coefficienti troppo piccoli, cioè <strong>underfit</strong>. Scegliere λ è più facile che scegliere il grado: il range di valori buoni è ampio. Inoltre XᵀX + λI con λ &gt; 0 è sempre definita positiva, quindi <strong>meglio condizionata</strong>.</p>
+<pre class="codice largo" data-copia><code data-lang="python">
+X = np.vander(x, d + 1, increasing=True)
+theta_tik = np.linalg.solve(X.T @ X + lmbda * np.eye(d + 1), X.T @ y)
+</code></pre>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4–§5</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="re-4">
+          <p class="testo">Aumentando il grado del polinomio da 3 a 8 (senza regolarizzazione), l'errore sul training set…</p>
+          <div class="opz"><button>aumenta sempre</button><button data-giusta>non aumenta</button><button>è sempre uguale a quello sul test</button></div>
+          <div class="perche" hidden><p>Il polinomio di grado 8 contiene quelli di grado 3 (basta mettere a 0 i coefficienti in più), quindi il minimo non può peggiorare.</p></div>
+        </div>
+        <div class="domanda" data-id="re-5">
+          <p class="testo">Nella regolarizzazione di Tikhonov, con λ molto grande si ottiene…</p>
+          <div class="opz"><button>overfitting</button><button data-giusta>underfitting</button><button>la soluzione dei minimi quadrati classici</button></div>
+          <div class="perche" hidden><p>Il termine λ‖θ‖² domina e schiaccia i coefficienti verso 0. Con λ = 0 si ritrovano i minimi quadrati classici.</p></div>
+        </div>
+        <div class="domanda" data-id="re-6">
+          <p class="testo">Quale sistema risolve la regressione regolarizzata alla Tikhonov?</p>
+          <div class="opz"><button>XᵀXθ = Xᵀy + λ</button><button data-giusta>(XᵀX + λI)θ = Xᵀy</button><button>(XᵀX − λI)θ = Xᵀy</button></div>
+          <div class="perche" hidden><p>Dal gradiente di ½‖Xθ − y‖² + (λ/2)‖θ‖².</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Allenamento</span>
+        <h2>Esercizi e ripasso</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.1 · stile orale HW2</span><h4>Scegliere il grado</h4></div>
+        <p>Sui dati Life Expectancy hai ottenuto R² sul test: grado 1 → 0.62, grado 2 → 0.71, grado 3 → 0.70. Quale modello scegli e perché?</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Passando dal grado 1 al 2 il test migliora nettamente: la relazione non è lineare, e il grado 1 era in underfitting.</p></div></li>
+            <li><div><p>Dal grado 2 al 3 il test non migliora (anzi peggiora di poco), anche se il training sicuramente migliora: è il segnale dell'overfitting.</p></div></li>
+            <li><div><p class="risultato">Si sceglie il grado 2: il modello più semplice con la migliore generalizzazione</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-re">
+        <li><label><input type="checkbox" id="re-c1"><span>Scrivere la design matrix per un grado d e dirne le dimensioni</span></label></li>
+        <li><label><input type="checkbox" id="re-c2"><span>Calcolare SSE, MSE, RMSE, R² e dirne le unità</span></label></li>
+        <li><label><input type="checkbox" id="re-c3"><span>Spiegare underfitting e overfitting e come riconoscerli</span></label></li>
+        <li><label><input type="checkbox" id="re-c4"><span>Descrivere la pipeline train/test</span></label></li>
+        <li><label><input type="checkbox" id="re-c5"><span>Ricavare (XᵀX + λI)θ = Xᵀy e dire l'effetto di λ</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «Il problema dei minimi quadrati nell'approssimazione dei dati. I modelli predittivi» (A.A. 2026/27); testo dell'HW2. Esercizio 6.1 e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

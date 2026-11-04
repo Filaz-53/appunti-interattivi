@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zeri di funzione · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="08-zeri">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Il problema f(x) = 0</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Ordine di convergenza</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Bisezione</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Punto fisso</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Newton</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Confronto ed esercizi</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 8</span>
+      <h1>Zeri di funzione</h1>
+      <p class="lede">Come si risolve f(x) = 0 quando non c'è una formula chiusa: tre metodi iterativi (bisezione, punto fisso, Newton), quando convergono e quanto velocemente. È l'argomento con più esercizi "da calcolatrice" dello scritto.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Calcolare a mano</strong> 1–3 iterazioni di bisezione o di Newton.</li>
+        <li><strong>Numero di iterazioni</strong> della bisezione per una data tolleranza.</li>
+        <li><strong>Convergenza del punto fisso:</strong> |g′(x*)| &lt; 1; dire quale g converge.</li>
+        <li><strong>Ordine:</strong> bisezione lineare (C = ½), punto fisso lineare, Newton quadratico (lineare su radici multiple).</li>
+        <li>Convergenza <strong>globale</strong> (bisezione) contro <strong>locale</strong> (Newton); costo per iterazione; criteri di arresto.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Il problema</span>
+        <h2>Il problema f(x) = 0</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teorema (esistenza, Bolzano)</span>
+        <p>Se f è continua in [a, b] e <strong>f(a)·f(b) &lt; 0</strong>, esiste almeno uno zero di f in (a, b).</p>
+      </div>
+      <p>Un'equazione non lineare può avere 0, 1, più o infinite soluzioni (x² + 1, x² − 1, sin x): conviene guardarne prima il grafico. Equazioni come cos x − x = 0 non hanno soluzione in forma chiusa.</p>
+      <div class="def">
+        <span class="etichetta">Molteplicità</span>
+        <p>α è radice di molteplicità m se f(x) = (x − α)ᵐ q(x), con q(α) ≠ 0. Con m = 1 è <strong>semplice</strong>, con m &gt; 1 è <strong>multipla</strong>. Con m <strong>pari</strong> la funzione tocca l'asse <strong>senza attraversarlo</strong>, quindi non c'è cambio di segno.</p>
+      </div>
+      <p>Non esistono metodi che trovano gli zeri di una funzione qualsiasi in un numero finito di passi: si usano <strong>metodi iterativi</strong> xₖ = G(xₖ₋₁), che generano una successione che deve convergere a x*.</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Velocità</span>
+        <h2>Ordine di convergenza</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>La successione converge a x* con <strong>ordine p ≥ 1</strong> se |xₖ₊₁ − x*| / |xₖ − x*|ᵖ → C. Con <strong>p = 1</strong> (lineare) serve 0 &lt; C &lt; 1, e C è il <strong>fattore di convergenza</strong>. Con <strong>p = 2</strong> (quadratica) basta C &gt; 0.</p>
+      </div>
+      <p>Esempio della prof, con errore iniziale 0.1: con la convergenza lineare (C = ½) l'errore dimezza a ogni passo (0.05, 0.025, …). Con quella quadratica le cifre corrette circa <strong>raddoppiano</strong> a ogni passo (2·10⁻², 8·10⁻⁴, 1.3·10⁻⁶, 3·10⁻¹²…).</p>
+      <p><strong>Convergenza globale:</strong> per ogni x₀ in [a,b]. <strong>Locale:</strong> solo se x₀ è abbastanza vicino a x* (in un intorno che non si conosce).</p>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Metodo 1</span>
+        <h2>Il metodo di bisezione</h2>
+      </div>
+      <p>Si parte da [a, b] con f(a)·f(b) &lt; 0. A ogni passo si calcola il punto medio cₖ = (aₖ + bₖ)/2 e si tiene la metà in cui f cambia segno. Se f(cₖ) = 0, cₖ è la radice.</p>
+      <div class="def">
+        <span class="etichetta">Convergenza e numero di iterazioni</span>
+        <p>L'ampiezza si dimezza a ogni passo: bₖ₊₁ − aₖ₊₁ = (b − a)/2ᵏ. Per avere errore &lt; δ:</p>
+        <p class="formula">(b − a)/2ᵏ &lt; δ  ⇒  k ≥ log₂((b − a)/δ)</p>
+        <p>La convergenza è <strong>globale</strong> e <strong>lineare con C = ½</strong>: si guadagna circa una cifra binaria per passo, cioè circa 3.3 passi per ogni cifra decimale. Il costo è <strong>1 valutazione di f per iterazione</strong>.</p>
+      </div>
+      <aside class="nota">Se come approssimazione si usa il punto medio, l'errore è metà dell'ampiezza, quindi serve un'iterazione in meno: k ≥ log₂((b−a)/(2δ)). All'esame conviene leggere bene come è definito l'errore.</aside>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof</span><h4>f(x) = x² − 2 su [1, 2]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>c₁ = 1.5, f = 0.25 &gt; 0 → [1, 1.5]</p></div></li>
+            <li><div><p>c₂ = 1.25, f = −0.4375 &lt; 0 → [1.25, 1.5]</p></div></li>
+            <li><div><p>c₃ = 1.375, f = −0.109 &lt; 0 → [1.375, 1.5]</p></div></li>
+            <li><div><p class="risultato">c₄ = 1.4375 … si converge lentamente a √2 ≈ 1.41421. Per tol = 10⁻¹² servono circa 40 iterazioni.</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="def">
+        <span class="etichetta">Pro e contro</span>
+        <p><strong>Pro:</strong> semplice, robusta, converge sempre se f è continua e cambia segno, usa solo il <em>segno</em> di f e non richiede derivate. · <strong>Contro:</strong> è lenta; con più radici nell'intervallo ne trova una sola; <strong>non trova le radici di molteplicità pari</strong>.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Accorgimenti in aritmetica finita</span><p>Si calcola c = a + (b − a)/2 invece di (a + b)/2, perché il secondo può cadere fuori da [a, b]. Il segno si controlla con sign(f(a)) ≠ sign(f(c)) invece di f(a)·f(c) &lt; 0, che può andare in underflow o overflow. Infine, il test di arresto va modificato in |b − a| &lt; ε + eps·max(|a|, |b|), altrimenti il ciclo può non finire mai.</p></div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Metodo 2</span>
+        <h2>Il metodo del punto fisso</h2>
+      </div>
+      <p>Si riscrive f(x) = 0 come <strong>x = g(x)</strong>, per esempio g(x) = x − φ(x)f(x) con φ ≠ 0. Uno zero di f è un <strong>punto fisso</strong> di g, cioè l'intersezione di y = x e y = g(x). L'iterazione è <strong>xₖ₊₁ = g(xₖ)</strong>.</p>
+      <div class="def">
+        <span class="etichetta">Teoremi di convergenza</span>
+        <p><strong>Contrazione:</strong> g è una contrazione in [a,b] se |g(x) − g(y)| ≤ L|x − y| con 0 ≤ L &lt; 1. Basta che <strong>|g′(x)| ≤ L &lt; 1</strong> in [a,b].<br>
+        <strong>Globale:</strong> se g è continua, g([a,b]) ⊆ [a,b] e g è una contrazione, esiste un unico punto fisso e l'iterazione converge per <strong>ogni</strong> x₀ ∈ [a,b], con |xₖ − x*| ≤ Lᵏ/(1 − L)·|x₁ − x₀|.<br>
+        <strong>Locale:</strong> se g è una contrazione in un intorno di x*, converge per x₀ abbastanza vicino. In pratica: <strong>|g′(x*)| &lt; 1 ⇒ convergenza locale</strong>, lineare con C = |g′(x*)|.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof</span><h4>cos x − x = 0 → x = cos x</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>x₀ = 1 → x₁ = cos 1 = 0.5403 → x₂ = 0.8576 → x₃ = 0.6543 → …</p></div></li>
+            <li><div><p>Gli iterati oscillano attorno alla soluzione, perché g′(x*) = −sin x* ≈ −0.67, negativo.</p></div></li>
+            <li><div><p class="risultato">x* ≈ 0.739085. Per tol = 10⁻¹² servono 69 iterazioni (|g′| ≈ 0.67 è vicino a 1, quindi è lento)</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <p><strong>Esempio della prof:</strong> x³ + 4x² − 10 = 0 su [1,2] ammette molte g diverse. g₁ = x − x³ − 4x² + 10 <strong>diverge</strong> (|g₁′| &gt; 1); g₂ non è ben definita; g₃ = ½(10 − x³)^(1/2) converge (|g₃′| ≈ 0.66); g₄ = (10/(x+4))^(1/2) converge più in fretta (|g₄′| ≤ 0.15); g₅ = x − f/f′ (Newton) è la più rapida. <strong>La scelta di g decide tutto.</strong></p>
+      <div class="def"><span class="etichetta">Criteri di arresto</span><p>Ci si ferma quando |f(xₖ)| ≤ ε₁ <strong>e</strong> |xₖ − xₖ₋₁| ≤ ε₂ (anche in forma relativa), oppure quando si raggiunge il numero massimo di iterazioni.</p></div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Metodo 3</span>
+        <h2>Il metodo di Newton</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Iterazione</span>
+        <p class="formula">xₖ₊₁ = xₖ − f(xₖ) / f′(xₖ)</p>
+        <p><strong>Geometria:</strong> si sostituisce f con la sua <strong>tangente</strong> in xₖ, y = f(xₖ) + f′(xₖ)(x − xₖ), e xₖ₊₁ è dove la tangente incontra l'asse x. È un punto fisso con g(x) = x − f(x)/f′(x).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teorema di convergenza locale</span>
+        <p>Se f è abbastanza regolare (fino alla derivata terza), con f′(x) ≠ 0 vicino a x* (radice <strong>semplice</strong>), allora per x₀ in un intorno opportuno Newton converge in modo <strong>quadratico</strong> (p = 2), con costante asintotica |f″(x*)/(2f′(x*))|.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · da calcolatrice</span><h4>f(x) = x² − 2, x₀ = 1</h4></div>
+        <div class="domanda" data-id="ze-1">
+          <p class="testo">Quanto vale x₂?</p>
+          <div class="opz"><button>1.5</button><button data-giusta>1.41667</button><button>1.41421</button></div>
+          <div class="perche" hidden><p>x₁ = 1 − (−1)/2 = 1.5; x₂ = 1.5 − 0.25/3 = 1.41667. Il valore 1.41421 è √2, che si raggiunge al passo 4–5.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>f′(x) = 2x. x₁ = 1 − (1 − 2)/(2·1) = <strong>1.5</strong></p></div></li>
+            <li><div><p>x₂ = 1.5 − (2.25 − 2)/3 = 1.5 − 0.0833 = <strong>1.416667</strong></p></div></li>
+            <li><div><p>x₃ = 1.414216, x₄ = 1.41421356237469, x₅ esatto alla precisione di macchina.</p></div></li>
+            <li><div><p class="risultato">I residui sono 2.5·10⁻¹, 6.9·10⁻³, 6·10⁻⁶, 4.5·10⁻¹²: le cifre raddoppiano, cioè convergenza quadratica</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <aside class="nota">Per f = x² − γ Newton diventa xₖ₊₁ = ½(xₖ + γ/xₖ): l'antico metodo babilonese per la radice quadrata.</aside>
+      <div class="avviso"><span class="etichetta">Trappole</span><p><strong>1.</strong> La convergenza è solo <strong>locale</strong>: con x₀ lontano Newton può divergere o oscillare. <strong>2.</strong> Se f′(xₖ) = 0 il metodo si blocca (tangente orizzontale). <strong>3.</strong> Su radici <strong>multiple</strong> f′(x*) = 0 e la convergenza diventa solo <strong>lineare</strong>. <strong>4.</strong> Ogni passo costa <strong>2 valutazioni</strong> (f e f′).</p></div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Riepilogo</span>
+        <h2>Confronto ed esercizi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Tabella di confronto</span>
+        <p><strong>Bisezione:</strong> convergenza globale (serve un cambio di segno), ordine 1 con C = ½, 1 valutazione per passo, non richiede derivate. · <strong>Punto fisso:</strong> convergenza locale (|g′(x*)| &lt; 1) o globale (contrazione su [a,b]), ordine 1 con C = |g′(x*)|, 1 valutazione di g. · <strong>Newton:</strong> convergenza locale, ordine 2 sulle radici semplici e 1 su quelle multiple, 2 valutazioni (f e f′).</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 8</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="ze-2">
+          <p class="testo">Bisezione su [0, 4] con tolleranza 10⁻². Quante iterazioni servono, secondo k ≥ log₂((b−a)/δ)?</p>
+          <div class="opz"><button>7</button><button data-giusta>9</button><button>400</button></div>
+          <div class="perche" hidden><p>log₂(4/0.01) = log₂ 400 ≈ 8.64, quindi 9.</p></div>
+        </div>
+        <div class="domanda" data-id="ze-3">
+          <p class="testo">Il punto fisso xₖ₊₁ = g(xₖ) con g′(x*) = 1.5…</p>
+          <div class="opz"><button>converge quadraticamente</button><button>converge linearmente con C = 1.5</button><button data-giusta>in generale non converge</button></div>
+          <div class="perche" hidden><p>Serve |g′(x*)| &lt; 1. Con 1.5 l'errore viene amplificato a ogni passo.</p></div>
+        </div>
+        <div class="domanda" data-id="ze-4">
+          <p class="testo">f(x) = (x − 1)² ha una radice doppia in 1. Quale metodo non può trovarla partendo da un intervallo?</p>
+          <div class="opz"><button data-giusta>Bisezione</button><button>Newton</button><button>Nessuno dei due</button></div>
+          <div class="perche" hidden><p>f ≥ 0 ovunque, quindi non c'è cambio di segno e la bisezione non parte. Newton converge, ma solo linearmente.</p></div>
+        </div>
+        <div class="domanda" data-id="ze-5">
+          <p class="testo">Newton su f(x) = x³ − 8 con x₀ = 3. Quanto vale x₁?</p>
+          <div class="opz"><button>2</button><button data-giusta>2.2963</button><button>2.6667</button></div>
+          <div class="perche" hidden><p>f(3) = 27 − 8 = 19, f′(x) = 3x², quindi f′(3) = 27. x₁ = 3 − 19/27 ≈ 3 − 0.7037 = 2.2963. Il valore 2 è la radice esatta, che si raggiunge solo dopo qualche passo.</p></div>
+        </div>
+        <div class="domanda" data-id="ze-6">
+          <p class="testo">Quale metodo ha convergenza globale ma lenta?</p>
+          <div class="opz"><button data-giusta>Bisezione</button><button>Newton</button><button>Punto fisso con |g′| = 0.1</button></div>
+          <div class="perche" hidden><p>La bisezione converge sempre se c'è un cambio di segno, ma solo linearmente con C = ½. Newton è veloce ma locale.</p></div>
+        </div>
+      </div>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-ze">
+        <li><label><input type="checkbox" id="ze-c1"><span>Enunciare Bolzano e definire la molteplicità</span></label></li>
+        <li><label><input type="checkbox" id="ze-c2"><span>Definire l'ordine di convergenza e il fattore C</span></label></li>
+        <li><label><input type="checkbox" id="ze-c3"><span>Fare 3 passi di bisezione e calcolare il numero di iterazioni</span></label></li>
+        <li><label><input type="checkbox" id="ze-c4"><span>Dire se un punto fisso converge guardando |g′(x*)|</span></label></li>
+        <li><label><input type="checkbox" id="ze-c5"><span>Fare 2 passi di Newton con la calcolatrice</span></label></li>
+        <li><label><input type="checkbox" id="ze-c6"><span>Confrontare i tre metodi (globale/locale, ordine, costo)</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «Risoluzione di equazioni non lineari» (A.A. 2026/27). Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ottimizzazione numerica · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="09-ottimizzazione">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Il problema di minimo</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Condizioni di ottimalità</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Il caso convesso</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Metodi di discesa</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Gradiente e passo</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Esercizi e ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 9</span>
+      <h1>Ottimizzazione numerica</h1>
+      <p class="lede">Trovare il minimo di una funzione di più variabili: come riconoscerlo (gradiente e Hessiana) e come raggiungerlo (metodi di discesa, gradiente, scelta del passo). Addestrare un modello di ML vuol dire esattamente questo: minimizzare la loss.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Classificare un punto stazionario</strong> dagli autovalori dell'Hessiana: minimo, massimo o sella.</li>
+        <li><strong>Calcolare il gradiente</strong> di una funzione semplice e trovare i punti stazionari.</li>
+        <li><strong>Convessità:</strong> minimo locale = globale; una quadratica è convessa ⟺ Q è semidefinita positiva.</li>
+        <li><strong>Direzione di discesa:</strong> pᵀ∇f &lt; 0; l'antigradiente lo è sempre.</li>
+        <li><strong>Passo:</strong> effetto di α troppo grande o troppo piccolo; condizione di Armijo e backtracking.</li>
+        <li>Probabilmente il prossimo <strong>homework</strong> riguarda il gradiente: va preparato anche per l'orale.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Formulazione</span>
+        <h2>Il problema di minimo</h2>
+      </div>
+      <p>Si cerca argmin_{x∈Ω} f(x), con f: Ω ⊆ ℝⁿ → ℝ. Il massimo si riconduce al minimo: argmax f = argmin (−f). Ω è l'insieme dei <strong>vincoli</strong>: con Ω = ℝⁿ il problema è <strong>non vincolato</strong> (quello che si fa nel corso), con Ω ⊂ ℝⁿ è vincolato. Se f è lineare il problema si dice lineare, se è quadratica si dice quadratico.</p>
+      <div class="def">
+        <span class="etichetta">Definizioni</span>
+        <p>x* è un <strong>minimo locale</strong> se f(x*) ≤ f(x) per ogni x in un intorno di x* (<strong>stretto</strong> se vale &lt; per x ≠ x*). È un <strong>minimo globale</strong> se f(x*) ≤ f(x) per ogni x ∈ ℝⁿ. Una funzione può avere minimi locali e nessun globale, nessun minimo, o entrambi i tipi.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Teoria</span>
+        <h2>Condizioni di ottimalità</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Primo ordine (necessaria)</span>
+        <p>Se x* è un minimo locale e f è differenziabile con continuità, allora <strong>∇f(x*) = 0</strong>. Un punto con ∇f = 0 si chiama <strong>stazionario</strong>. La condizione <strong>non è sufficiente</strong>: un punto stazionario può essere un minimo, un massimo o una sella.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Matrici definite e autovalori (A simmetrica)</span>
+        <p><strong>Definita positiva:</strong> xᵀAx &gt; 0 ⟺ tutti gli autovalori &gt; 0. · <strong>Semidefinita positiva:</strong> autovalori ≥ 0. · <strong>Definita negativa:</strong> autovalori &lt; 0. · <strong>Indefinita:</strong> autovalori di segno discorde.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Secondo ordine</span>
+        <p><strong>Necessaria:</strong> se x* è un minimo locale, allora ∇f(x*) = 0 e ∇²f(x*) è <strong>semidefinita positiva</strong>.<br>
+        <strong>Sufficiente:</strong> se ∇f(x*) = 0 e l'Hessiana ∇²f(x*) è <strong>definita positiva</strong> si ha un <strong>minimo locale stretto</strong>; se è <strong>definita negativa</strong> un <strong>massimo locale stretto</strong>; se è <strong>indefinita</strong> una <strong>sella</strong>.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>Se l'Hessiana è solo semidefinita, per esempio nulla, <strong>non si può concludere</strong>. Esempi: x⁴, x³ e −x⁴ hanno tutte f′(0) = 0 e f″(0) = 0, ma in 0 hanno rispettivamente un minimo, un flesso e un massimo.</p></div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio della prof · classificare</span><h4>f₁ = x² + 4y², f₂ = x² − y², f₃ = −x² − y²</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Tutte hanno ∇f = 0 solo in (0, 0): ∇f₁ = (2x, 8y), ∇f₂ = (2x, −2y), ∇f₃ = (−2x, −2y).</p></div></li>
+            <li><div><p>Hessiane: f₁ → diag(2, 8), autovalori &gt; 0, <strong>minimo</strong>. f₂ → diag(2, −2), segni discordi, <strong>sella</strong>. f₃ → diag(−2, −2), autovalori &lt; 0, <strong>massimo</strong>.</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Convessità</span>
+        <h2>Il caso convesso</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione e teorema</span>
+        <p>f è <strong>convessa</strong> se f(αx + (1−α)y) ≤ αf(x) + (1−α)f(y) per ogni α ∈ [0,1] (strettamente con &lt;).<br>
+        Se f è convessa, <strong>ogni minimo locale è globale</strong>. Se è strettamente convessa, il minimo globale (se esiste) è <strong>unico</strong>. Se è convessa e differenziabile, <strong>ogni punto stazionario è un minimo globale</strong>.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Quadratiche</span>
+        <p>q(x) = ½xᵀQx + cᵀx + b, con Q simmetrica: ∇q = Qx + c e ∇²q = Q. q è <strong>convessa ⟺ Q è semidefinita positiva</strong>, strettamente convessa ⟺ Q è definita positiva. Il minimo risolve <strong>Qx = −c</strong>: minimizzare una quadratica equivale a risolvere un sistema lineare. Anche i minimi quadrati ‖Ax − b‖² sono una quadratica, con Q = 2AᵀA.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Algoritmi</span>
+        <h2>Metodi di discesa</h2>
+      </div>
+      <p>A partire da x₀ si genera <strong>xₖ₊₁ = xₖ + αₖpₖ</strong>, con pₖ <strong>direzione di ricerca</strong> e αₖ &gt; 0 <strong>lunghezza del passo</strong> (<em>learning rate</em>), scelti in modo che f(xₖ₊₁) &lt; f(xₖ).</p>
+      <div class="def">
+        <span class="etichetta">Direzione di discesa</span>
+        <p>p è di discesa in x se f(x + αp) &lt; f(x) per ogni α ∈ (0, ᾱ]. <strong>Proposizione:</strong> se <strong>pᵀ∇f(x) &lt; 0</strong> (angolo ottuso con il gradiente) p è di discesa. Se pᵀ∇f &gt; 0 è di salita. Se pᵀ∇f = 0 non si può dire niente.</p>
+      </div>
+      <p><strong>L'antigradiente</strong> p = −∇f(x) è sempre di discesa se ∇f ≠ 0, perché pᵀ∇f = −‖∇f‖² &lt; 0. È la direzione di massima discesa.</p>
+      <div class="avviso"><span class="etichetta">Trappola (esempio della prof)</span><p>f(x₁,x₂) = x₁³ + x₂² − 3x₁ in x = (−1, 0) con p = (−1, 0): il gradiente è (0, 0), quindi pᵀ∇f = 0, eppure f(x + tp) = −t³ + cost decresce: <strong>p è di discesa anche se pᵀ∇f = 0</strong>. La condizione pᵀ∇f &lt; 0 è sufficiente, non necessaria.</p></div>
+      <div class="avviso"><span class="etichetta">Scendere non basta</span><p>Con min x², x₀ = −3, pₖ = 1 e αₖ = 2⁻ᵏ ogni passo scende, ma xₖ → −1, che <strong>non è stazionario</strong>. Se i passi si accorciano troppo in fretta ci si ferma prima del minimo: il passo va scelto bene.</p></div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Gradiente</span>
+        <h2>Il metodo del gradiente e la scelta del passo</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Metodo del gradiente</span>
+        <p class="formula">xₖ₊₁ = xₖ − αₖ∇f(xₖ)</p>
+        <p>Ci si ferma quando ‖∇f(xₖ)‖ &lt; tol (anche relativo, ‖∇f(xₖ)‖/‖∇f(x₀)‖), oppure quando si raggiunge il massimo numero di iterazioni. Con una ricerca del passo adeguata il teorema di Zoutendijk garantisce la convergenza a un punto stazionario.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Passo costante α</span>
+        <p>È semplice ma dipende dalla scala del problema. <strong>α troppo piccolo:</strong> gli iterati "stallano" e servono moltissime iterazioni. <strong>α troppo grande:</strong> gli iterati <strong>oscillano</strong> tra le pareti della valle e non convergono (o divergono). <strong>α giusto:</strong> converge a un punto stazionario.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Ricerca in linea inesatta: Armijo e backtracking</span>
+        <p><strong>Condizione di Armijo</strong> (decrescita sufficiente): f(xₖ + αpₖ) ≤ f(xₖ) + c₁·α·∇f(xₖ)ᵀpₖ, con 0 &lt; c₁ &lt; 1. Insieme alla condizione di curvatura forma le <strong>condizioni di Wolfe</strong>.<br>
+        <strong>Backtracking:</strong> si parte da α = α₀ (di solito 1) e lo si <strong>riduce</strong> (per esempio α ← α/2) finché Armijo è soddisfatta. Con il backtracking, Armijo da sola basta a garantire la convergenza.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="python">
+def backtracking(f, grad, x, p, alpha=1.0, c1=1e-4, rho=0.5):
+    while f(x + alpha * p) > f(x) + c1 * alpha * grad(x) @ p:
+        alpha *= rho
+    return alpha
+
+def gradiente(f, grad, x0, tol=1e-6, maxit=1000):
+    x = x0
+    for k in range(maxit):
+        g = grad(x)
+        if np.linalg.norm(g) < tol: break
+        p = -g
+        x = x + backtracking(f, grad, x, p) * p
+    return x, k
+</code></pre>
+      <p>Il gradiente converge solo <strong>linearmente</strong>. Nel ML si usa la versione <strong>stocastica</strong>: si calcola il gradiente della loss su un sottoinsieme di dati (mini-batch) per risparmiare.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 9</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="ot-1">
+          <p class="testo">In un punto stazionario l'Hessiana ha autovalori 4 e 1. Il punto è…</p>
+          <div class="opz"><button data-giusta>un minimo locale stretto</button><button>una sella</button><button>un massimo locale</button></div>
+          <div class="perche" hidden><p>Tutti gli autovalori &gt; 0 vuol dire Hessiana definita positiva, quindi minimo locale stretto.</p></div>
+        </div>
+        <div class="domanda" data-id="ot-2">
+          <p class="testo">f(x, y) = x² + 2y² − 4x. Dov'è il punto stazionario?</p>
+          <div class="opz"><button>(0, 0)</button><button data-giusta>(2, 0)</button><button>(4, 0)</button></div>
+          <div class="perche" hidden><p>∇f = (2x − 4, 4y) = 0 dà x = 2, y = 0. Hessiana diag(2, 4), definita positiva: è il minimo globale (f è convessa).</p></div>
+        </div>
+        <div class="domanda" data-id="ot-3">
+          <p class="testo">∇f(x) = (2, −1) e p = (−1, 1). p è una direzione di discesa?</p>
+          <div class="opz"><button data-giusta>Sì, perché pᵀ∇f = −3 &lt; 0</button><button>No, perché pᵀ∇f &gt; 0</button><button>Non si può dire</button></div>
+          <div class="perche" hidden><p>pᵀ∇f = (−1)(2) + (1)(−1) = −3 &lt; 0, quindi è di discesa.</p></div>
+        </div>
+        <div class="domanda" data-id="ot-4">
+          <p class="testo">Se f è convessa e differenziabile, un punto con ∇f = 0 è…</p>
+          <div class="opz"><button>sempre una sella</button><button data-giusta>un minimo globale</button><button>solo un minimo locale</button></div>
+          <div class="perche" hidden><p>Nel caso convesso ogni punto stazionario è un minimo globale.</p></div>
+        </div>
+        <div class="domanda" data-id="ot-5">
+          <p class="testo">Nel backtracking, se la condizione di Armijo non è soddisfatta…</p>
+          <div class="opz"><button>si aumenta α</button><button data-giusta>si riduce α</button><button>si cambia direzione</button></div>
+          <div class="perche" hidden><p>Si parte da un passo grande e lo si accorcia (α ← ρα) finché la decrescita è sufficiente.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Allenamento</span>
+        <h2>Esercizi e ripasso</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.1 · un passo di gradiente a mano</span><h4>f(x, y) = x² + 4y², x₀ = (2, 1), α = 0.1</h4></div>
+        <div class="domanda" data-id="ot-6">
+          <p class="testo">Quanto vale x₁?</p>
+          <div class="opz"><button data-giusta>(1.6, 0.2)</button><button>(1.8, 0.6)</button><button>(2.4, 1.8)</button></div>
+          <div class="perche" hidden><p>∇f = (2x, 8y) = (4, 8). x₁ = (2, 1) − 0.1·(4, 8) = (1.6, 0.2). (2.4, 1.8) si ottiene andando nella direzione del gradiente, cioè salendo.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>∇f(x, y) = (2x, 8y), quindi ∇f(2, 1) = (4, 8).</p></div></li>
+            <li><div><p>x₁ = x₀ − α∇f = (2 − 0.4, 1 − 0.8) = (1.6, 0.2).</p></div></li>
+            <li><div><p class="risultato">f(x₀) = 4 + 4 = 8 e f(x₁) = 2.56 + 0.16 = 2.72: la funzione è scesa ✓</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-ot">
+        <li><label><input type="checkbox" id="ot-c1"><span>Definire minimo locale, globale e stretto</span></label></li>
+        <li><label><input type="checkbox" id="ot-c2"><span>Enunciare le condizioni del primo e del secondo ordine</span></label></li>
+        <li><label><input type="checkbox" id="ot-c3"><span>Classificare un punto stazionario dagli autovalori dell'Hessiana</span></label></li>
+        <li><label><input type="checkbox" id="ot-c4"><span>Spiegare perché nel caso convesso locale = globale</span></label></li>
+        <li><label><input type="checkbox" id="ot-c5"><span>Verificare se p è di discesa con pᵀ∇f</span></label></li>
+        <li><label><input type="checkbox" id="ot-c6"><span>Fare un passo di gradiente a mano e spiegare Armijo e backtracking</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «Ottimizzazione numerica» (A.A. 2026/27). Esercizio 6.1 e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

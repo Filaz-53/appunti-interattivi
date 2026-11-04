@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Homework e orale · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="homework">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Com'è l'orale</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>HW1 · SVD per classificare</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>HW1 · Compressione con diadi</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>HW1 · Sistemi lineari</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>HW2 · Dati sintetici</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>HW2 · Dati reali e regressione multipla</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Checklist prima dell'orale</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · homework del laboratorio</span>
+      <h1>Homework e orale</h1>
+      <p class="lede">Per ogni esercizio degli homework: cosa deve fare il codice, quali risultati aspettarsi, la teoria collegata e le domande probabili all'orale. Va usata insieme al proprio codice.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Formato</span>
+        <h2>Com'è l'orale</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Dalla scheda 2026/27</span>
+        <p>Discussione degli homework: si consegna il <strong>codice non commentato</strong> e un <strong>report con soli risultati</strong>. Il voto va <strong>da 4 a 12</strong> e valuta l'efficienza e la comprensione del codice, i risultati e la spiegazione della teoria collegata. È ammesso un uso limitato e non sostanziale dell'IA.</p>
+      </div>
+      <p>Per ogni riga bisogna saper rispondere a tre domande: <strong>cosa fa? perché questo risultato? quale teoria c'è dietro?</strong></p>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · HW1, es. 1</span>
+        <h2>SVD per classificare le cifre</h2>
+      </div>
+      <p><strong>Consegna:</strong> classificare immagini di cifre (prima "0" contro "1", poi altre coppie come "3" contro "8") usando basi di k vettori singolari, calcolare l'accuratezza e vedere come cambia con k e con la coppia.</p>
+      <div class="def">
+        <span class="etichetta">L'idea</span>
+        <p>Per ogni classe c si mettono le immagini di training (vettorizzate) come <strong>colonne</strong> di Aᶜ, si calcola Aᶜ = UΣVᵀ e si tengono le prime k colonne Uₖᶜ: una base ortonormale del "sottospazio della cifra". Una nuova immagine y si proietta su ciascun sottospazio, e vince la classe con il residuo più piccolo:</p>
+        <p class="formula">classe(y) = argmin_c ‖y − Uₖᶜ(Uₖᶜ)ᵀy‖₂</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="python">
+U0 = np.linalg.svd(A0, full_matrices=False)[0][:, :k]   # base della classe "0"
+U1 = np.linalg.svd(A1, full_matrices=False)[0][:, :k]
+r0 = np.linalg.norm(Y - U0 @ (U0.T @ Y), axis=0)         # residui per tutte le immagini di test
+r1 = np.linalg.norm(Y - U1 @ (U1.T @ Y), axis=0)
+pred = np.where(r0 &lt; r1, 0, 1);  acc = np.mean(pred == y_test)
+</code></pre>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Domande d'orale · es. 1</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="hw-1">
+          <p class="testo">Perché si usano le colonne di U e non quelle di V?</p>
+          <div class="opz"><button data-giusta>Sono una base ortonormale dello spazio delle colonne di A, cioè delle immagini</button><button>Sono gli autovalori di A</button><button>Sono più veloci da calcolare</button></div>
+          <div class="perche" hidden><p>Le immagini sono le colonne di A, quindi vivono in Im(A) = span{u₁…uᵣ}. V riguarda lo spazio delle righe (le "combinazioni" delle immagini).</p></div>
+        </div>
+        <div class="domanda" data-id="hw-2">
+          <p class="testo">Perché UₖUₖᵀy è una proiezione?</p>
+          <div class="opz"><button>Perché U è quadrata</button><button data-giusta>Perché le colonne di Uₖ sono ortonormali, quindi UₖUₖᵀ è il proiettore ortogonale sul loro span</button><button>Perché y ha norma 1</button></div>
+          <div class="perche" hidden><p>Con UₖᵀUₖ = I, la matrice P = UₖUₖᵀ è simmetrica e P² = P.</p></div>
+        </div>
+        <div class="domanda" data-id="hw-3">
+          <p class="testo">Perché "3" contro "8" ha un'accuratezza più bassa di "0" contro "1"?</p>
+          <div class="opz"><button>Perché ci sono meno immagini</button><button data-giusta>Perché le cifre si somigliano: i sottospazi si sovrappongono di più</button><button>Perché k è troppo grande</button></div>
+          <div class="perche" hidden><p>"3" e "8" hanno tratti comuni, quindi i residui di proiezione sono simili e la decisione è più incerta.</p></div>
+        </div>
+      </div>
+      <aside class="nota">Effetto di k: con k troppo piccolo la base è povera e non rappresenta bene la cifra; aumentando k l'accuratezza sale e poi si stabilizza. Con k troppo grande si cattura anche il rumore e i sottospazi si sovrappongono.</aside>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · HW1, es. 2</span>
+        <h2>Compressione con le diadi</h2>
+      </div>
+      <p><strong>Consegna:</strong> caricare <code>data.camera()</code> di skimage normalizzata in [0,1], graficare i valori singolari (<code>plot</code> e <code>semilogy</code>), approssimare con k diadi, calcolare l'errore relativo in norma di Frobenius, mostrare le prime 4 diadi, poi variare k e ripetere con <code>coffee</code> e <code>coins</code>.</p>
+      <div class="def">
+        <span class="etichetta">Risultati attesi e teoria</span>
+        <p><strong>Grafico dei σ:</strong> con <code>plot</code> si vedono solo i primi; con <code>semilogy</code> si vede il decadimento su più ordini di grandezza. Un decadimento rapido vuol dire immagine comprimibile.<br>
+        <strong>Errore relativo:</strong> ‖A − Aₖ‖_F/‖A‖_F = √(Σ_{i&gt;k}σᵢ²)/√(Σσᵢ²). Scende al crescere di k (Eckart–Young).<br>
+        <strong>Compressione:</strong> k(m+n+1) numeri contro mn. Per 512×512 con k = 50 sono 51 250 contro 262 144, cioè un fattore ≈ 5.1.<br>
+        <strong>Le prime diadi</strong> rappresentano la struttura "a grandi blocchi"; quelle successive aggiungono i dettagli.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Efficienza (valutata!)</span><p>Si ricostruisce con <code>U[:, :k] @ np.diag(s[:k]) @ Vt[:k, :]</code> (oppure <code>(U[:, :k] * s[:k]) @ Vt[:k]</code>), <strong>non</strong> con un ciclo for che somma diadi. Inoltre si usa <code>full_matrices=False</code>. <code>data.coffee()</code> è a colori (3 canali): va convertita in scala di grigi, ad esempio con <code>rgb2gray</code>, oppure trattata canale per canale.</p></div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · HW1, es. 3</span>
+        <h2>Sistemi lineari: A1, A2 e Hilbert</h2>
+      </div>
+      <p><strong>Consegna:</strong> per le matrici date e per Hilbert con n ∈ {2, 5, 15, 100}: problema test con x = vettore di 1 e b = Ax; calcolare K(A) (<code>np.linalg.cond</code>); fattorizzare con LU con pivoting e con Cholesky (se si può); calcolare l'errore di fattorizzazione; risolvere con <code>lu_factor</code>/<code>lu_solve</code> e con Cholesky; calcolare l'errore relativo sulla soluzione.</p>
+      <div class="def">
+        <span class="etichetta">Risultati attesi</span>
+        <p>La matrice 5×5 del testo (diagonale 10, 9, 7, 8, 6) è <strong>simmetrica e a diagonale strettamente dominante</strong> con diagonale positiva, quindi è definita positiva: Cholesky va bene, K è piccolo e l'errore è ≈ 10⁻¹⁶.<br>
+        Per <strong>Hilbert</strong> K esplode: ≈ 19 (n = 2), ≈ 5·10⁵ (n = 5), ≈ 10¹⁷ (n = 15). L'errore relativo sulla soluzione segue ≈ K·eps: piccolo per n = 2, ≈ 10⁻¹¹ per n = 5, di ordine 1 o peggio per n = 15 e 100.<br>
+        <strong>L'errore di fattorizzazione resta piccolo</strong> anche quando la soluzione è sbagliata: l'algoritmo è stabile, il <strong>problema</strong> è mal condizionato.<br>
+        <strong>Cholesky su Hilbert</strong> per n grande può fallire con <code>LinAlgError</code>: in teoria è definita positiva, ma in aritmetica finita perde la positività.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Domande d'orale · es. 3</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="hw-4">
+          <p class="testo">Cos'è <code>piv</code> restituito da <code>lu_factor</code>?</p>
+          <div class="opz"><button>Il vettore dei pivot diagonali di U</button><button data-giusta>Gli scambi di righe del pivoting parziale</button><button>Il numero di condizionamento</button></div>
+          <div class="perche" hidden><p>piv[i] dice con quale riga è stata scambiata la riga i: è la permutazione P in forma compatta.</p></div>
+        </div>
+        <div class="domanda" data-id="hw-5">
+          <p class="testo">Perché la soluzione esatta del test è il vettore di 1?</p>
+          <div class="opz"><button>Perché è la soluzione di ogni sistema</button><button data-giusta>Per conoscere la soluzione esatta e poter calcolare l'errore relativo</button><button>Perché rende la matrice ben condizionata</button></div>
+          <div class="perche" hidden><p>Costruendo b = A·1 la soluzione esatta è nota, quindi ‖x_calc − 1‖/‖1‖ misura l'errore vero.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · HW2, es. 1</span>
+        <h2>Minimi quadrati su dati sintetici</h2>
+      </div>
+      <p><strong>Consegna:</strong> 6 città (x = qualità della vita tra 60 e 85, y = affitto medio). Si fanno modelli di grado 0, 1, 2, 3 con la Vandermonde e <code>np.linalg.lstsq</code>, si confrontano residui e generalizzazione su [0, 100], e si confrontano i β ottenuti con le equazioni normali + Cholesky e con la SVD/pseudoinversa.</p>
+      <div class="def">
+        <span class="etichetta">Risultati attesi e teoria</span>
+        <p><strong>Il residuo cala sempre</strong> al crescere del grado, perché ogni modello contiene i precedenti. Sul dominio intero [0, 100] però il grado 3 (4 parametri per 6 punti) <strong>oscilla</strong> fuori da [60, 85]: è overfitting ed estrapolazione.<br>
+        <strong>Confronto tra metodi:</strong> con x tra 60 e 85 elevati al cubo le colonne di Vandermonde sono quasi parallele, quindi K(A) è grande e K(AᵀA) = K(A)². Per questo con Cholesky sulle equazioni normali i β possono differire visibilmente da quelli di lstsq/SVD. Va spiegato come effetto del condizionamento, non come un bug.</p>
+      </div>
+      <aside class="nota">Un'idea da proporre all'orale: centrare o scalare le x (per esempio x/100 oppure x − media) migliora molto il condizionamento della Vandermonde.</aside>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · HW2, es. 2–3</span>
+        <h2>Dati reali e regressione multipla</h2>
+      </div>
+      <p><strong>Es. 2 (Life Expectancy):</strong> <code>pd.read_csv</code> → shape e <code>head</code> → <code>drop</code> delle colonne non numeriche → <code>scatter_matrix</code> per scegliere una x correlata con <code>Life_expectancy</code> → split train/test → Vandermonde sul train → lstsq di grado 1, 2, 3 → modello sul dominio + punti di train → predizioni sul test → residui, <strong>R² e MSE</strong>. Poi si ripete con un'altra feature.</p>
+      <p><strong>Es. 3 (housing):</strong> X = tutte le feature, y = <code>median_house_value</code> → split → <code>LinearRegression().fit</code> → analisi di <code>coef_</code> → test, R² e MSE. Poi lo stesso su Life Expectancy.</p>
+      <div class="def">
+        <span class="etichetta">Interpretare i coefficienti</span>
+        <p>Ogni coefficiente è la variazione prevista di y per un'unità in più di quella feature, <strong>a parità delle altre</strong>. Segno + vuol dire che il prezzo aumenta, segno − che diminuisce, un valore ≈ 0 che non incide. <strong>Attenzione:</strong> si possono confrontare le grandezze solo se le feature hanno la <strong>stessa scala</strong>; altrimenti vanno standardizzate prima. La regressione multipla equivale ai minimi quadrati con la matrice [1 | X].</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Domande d'orale · HW2</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="hw-6">
+          <p class="testo">Perché si calcolano R² e MSE sul test set e non sul training?</p>
+          <div class="opz"><button data-giusta>Per misurare la capacità di generalizzare su dati non visti</button><button>Perché sul training sono sempre zero</button><button>Perché il test set è più grande</button></div>
+          <div class="perche" hidden><p>Sul training le metriche migliorano sempre aumentando la complessità; solo il test rivela l'overfitting.</p></div>
+        </div>
+        <div class="domanda" data-id="hw-7">
+          <p class="testo">Un coefficiente vale 0.00001 per la feature "population". Si può concludere che non incide?</p>
+          <div class="opz"><button>Sì, sempre</button><button data-giusta>Non necessariamente: dipende dalla scala della feature</button><button>No, vuol dire che incide moltissimo</button></div>
+          <div class="perche" hidden><p>Se la popolazione vale migliaia, 0.00001·10⁴ = 0.1 per unità di y potrebbe contare. Standardizzando le feature si possono confrontare i coefficienti.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Prima dell'orale</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="checklist-orale">
+        <li><label><input type="checkbox" id="hw-c1"><span>So spiegare ogni riga del mio codice senza commenti</span></label></li>
+        <li><label><input type="checkbox" id="hw-c2"><span>Il report contiene solo risultati: grafici con titolo e assi, tabelle di errori e accuratezze</span></label></li>
+        <li><label><input type="checkbox" id="hw-c3"><span>Collego ogni risultato a una formula (K(A), Eckart–Young, Aᵀr = 0, overfitting)</span></label></li>
+        <li><label><input type="checkbox" id="hw-c4"><span>Ho sostituito i cicli inutili con operazioni vettoriali di NumPy</span></label></li>
+        <li><label><input type="checkbox" id="hw-c5"><span>So rispondere a "cosa succede se cambio k / n / il grado?"</span></label></li>
+        <li><label><input type="checkbox" id="hw-c6"><span>Ho preparato anche gli homework successivi (ottimizzazione)</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: testi dell'HW1 e dell'HW2 del laboratorio (morottie.github.io/Metodi-per-analisi-dati-2026), scheda dell'insegnamento 2026/27. Risultati attesi e domande ricavati dalla teoria del corso: vanno confrontati con il proprio codice. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>
