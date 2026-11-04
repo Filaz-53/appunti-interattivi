@@ -6,8 +6,8 @@ La home è una **libreria**: ogni materia è un quaderno sullo scaffale. Aprendo
 
 | Materia | Argomenti |
 |---|---|
-| **Algoritmi e Strutture di Dati** | Progetto SCC: componenti fortemente connesse (specifica A.A. 2025–2026, Kosaraju, Tarjan, StackOverflow, consegna, 10 esercizi risolti sulla complessità) |
-| **Metodi** | vuota, pronta per i prossimi appunti |
+| **Algoritmi e Strutture di Dati** | Progetto SCC: componenti fortemente connesse (specifica A.A. 2025–2026, Kosaraju, Tarjan, StackOverflow, consegna, 10 esercizi risolti sulla complessità) · Mappa degli esami: analisi degli scritti 2024–2026 |
+| **Metodi Numerici per l'Analisi dei Dati** | Formulario e quiz per lo scritto (numeri finiti, fattorizzazioni, sistemi, minimi quadrati, zeri, ottimizzazione) |
 
 ## Aprire gli appunti
 

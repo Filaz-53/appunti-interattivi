@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mappa degli esami · Algoritmi e Strutture di Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="mappa-esami">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>La struttura dello scritto</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Es. 1 · Complessità</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Es. 2 · Strutture dati</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Es. 3 · Array</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Es. 4 · Grafi</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Priorità e checklist</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · 18 scritti, dal 01/2024 al 09/2026</span>
+      <h1>Mappa degli esami</h1>
+      <p class="lede">Cosa esce davvero allo scritto e con che frequenza, ricavato dai 18 scritti con soluzione dal 10/01/2024 al 10/09/2026 pubblicati su <a href="https://risorse.vercel.app/algoritmi-e-strutture-di-dati/prove?from=informatica">risorse.vercel.app</a>. Serve per decidere su cosa allenarsi prima.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Formato</span>
+        <h2>Quattro esercizi, sempre gli stessi tipi</h2>
+      </div>
+      <p>Lo scritto dura <strong>2 ore</strong>, senza appunti né calcolatrice. Gli esercizi 1–2 e 3–4 si consegnano su fogli separati. Il progetto Java facoltativo vale da 0 a 3 punti in più.</p>
+      <div class="def">
+        <span class="etichetta">Lo schema fisso</span>
+        <p><strong>1.</strong> Complessità di <code>mystery1</code>/<code>mystery2</code> (18/18) · <strong>2.</strong> Strutture dati (18/18) · <strong>3.</strong> Progettazione su array: DP, heap, ricerca binaria (18/18) · <strong>4.</strong> Grafi (18/18)</p>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Come si scrive una soluzione</span>
+        <p>Spiegazione a parole → pseudocodice commentato → complessità con tutti i passaggi. Una soluzione più efficiente o più semplice prende più punti. Se si riusa un algoritmo noto, come Dijkstra, basta richiamarlo e spiegare cosa si modifica.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Esercizio 1</span>
+        <h2>Complessità: 18 su 18</h2>
+      </div>
+      <p>C'è sempre una <code>mystery1</code> che usa una <code>mystery2</code> ricorsiva. Le ricorrenze sono del tipo divide et impera, da risolvere con il <strong>Master Theorem</strong>, oppure "per sottrazione", da risolvere sommando.</p>
+      <aside class="nota">La trappola del 2025–26: un ciclo fa k = 2k per n volte, poi chiama mystery2(k). Il costo dipende da log k = n!</aside>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="c-1">
+          <p class="testo">T(n) = T(n/2) + 1. Quanto vale?</p>
+          <div class="opz"><button>Θ(n)</button><button data-giusta>Θ(log n)</button><button>Θ(1)</button></div>
+          <div class="perche" hidden><p>a = 1, b = 2, quindi α = log₂1 = 0 = β (il grado di f(n) = 1). Caso "uguale": Θ(n⁰ log n) = Θ(log n). È la <code>mystery2</code> del 04/02/2026.</p></div>
+        </div>
+        <div class="domanda" data-id="c-2">
+          <p class="testo">Quanto vale Σ_{i=1..n} log i?</p>
+          <div class="opz"><button>Θ(log n)</button><button>Θ(n)</button><button data-giusta>Θ(n log n)</button></div>
+          <div class="perche" hidden><p>Σ log i = log(n!) = Θ(n log n). Si usa quando un ciclo for chiama un costo logaritmico su i.</p></div>
+        </div>
+        <div class="domanda" data-id="c-3">
+          <p class="testo">Un ciclo esegue <code>k = 2·k</code> per n volte (partendo da k = 1), poi chiama <code>mystery2(k)</code> con costo Θ(log k). Quanto costa la chiamata?</p>
+          <div class="opz"><button>Θ(log n)</button><button data-giusta>Θ(n)</button><button>Θ(2ⁿ)</button></div>
+          <div class="perche" hidden><p>Alla fine k = 2ⁿ, quindi log k = n. Bisogna sempre chiedersi quanto vale l'argomento passato alla funzione, non solo quante volte la si chiama.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Esercizio 2</span>
+        <h2>Strutture dati</h2>
+      </div>
+      <ul>
+        <li><strong>Tabella hash</strong>, con m = 11 e k mod m, in indirizzamento aperto e concatenamento, anche con delete: <strong>3 volte</strong> (06/2024, 06/2025, 09/2026)</li>
+        <li><strong>Ricostruire un albero</strong> dalle visite pre-ordine e post-ordine, anche un BST: <strong>3 volte</strong> (01/2024, 07/2025, 07/2026)</li>
+        <li><strong>AVL</strong>, insert/delete con rotazioni: 2 volte (07/2024 e 02/2026, sullo stesso albero!)</li>
+        <li>Algoritmo ricorsivo su albero (è una lista? specchiato?): 2 volte · ordinare con N valori distinti: 2 · liste concatenate: 2 · altro: 5</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Esercizio 3</span>
+        <h2>Progettazione su array</h2>
+      </div>
+      <ul>
+        <li><strong>Programmazione dinamica tipo zaino o subset-sum: 7 volte.</strong> Zaino a mano, caramelle con budget, casse, bottiglie, numero minimo di addendi, somma in [min, max].</li>
+        <li><strong>Heap: 5 volte.</strong> Heapify a mano, deleteMax, i m più grandi in O(n).</li>
+        <li><strong>Ricerca binaria e divide et impera: 5 volte.</strong> Minimo ≥ K, occorrenze in O(log n), elementi fuori da [A,B], elemento comune a due array ordinati.</li>
+        <li>Huffman: 1 volta.</li>
+      </ul>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4</h3><span class="etichetta">1 domanda</span></div>
+        <div class="domanda" data-id="a-1">
+          <p class="testo">Quanto costa <code>heapify</code> (costruire un heap da un array di n elementi)?</p>
+          <div class="opz"><button data-giusta>O(n)</button><button>O(n log n)</button><button>O(log n)</button></div>
+          <div class="perche" hidden><p>Costruire un heap dal basso costa O(n). Per questo i m più grandi si trovano in O(n + m log n), che è O(n) se m log n = O(n). È l'esercizio del 10/09/2026.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Esercizio 4</span>
+        <h2>Grafi: 18 su 18</h2>
+      </div>
+      <ul>
+        <li><strong>BFS: 7 volte.</strong> Distanza in numero di archi, cammino minimo, raggiungibili, grafo connesso.</li>
+        <li><strong>Dijkstra: 3 volte</strong>, sempre <em>modificato</em>: pesi sui nodi, tappe intermedie, entro una distanza D.</li>
+        <li><strong>DFS: 3 volte.</strong> Cicli, tempi di scoperta e di fine, ciclo di lunghezza K.</li>
+        <li><strong>Ordinamento topologico / DAG: 3 volte</strong>, anche travestito da "sistema di disequazioni xᵢ &lt; xⱼ": c'è soluzione ⟺ il grafo è aciclico.</li>
+        <li>Bellman-Ford: 1 · Floyd-Warshall a mano: 1 · SCC: 1.</li>
+      </ul>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §5</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="g-1">
+          <p class="testo">Serve il cammino con il minimo numero di archi in un grafo non pesato. Quale algoritmo usi?</p>
+          <div class="opz"><button>DFS</button><button data-giusta>BFS, O(n + m)</button><button>Dijkstra, O(m log n)</button></div>
+          <div class="perche" hidden><p>La BFS visita per livelli, quindi la distanza in archi è il livello. Dijkstra funzionerebbe, ma è più costoso: all'esame prenderebbe meno punti.</p></div>
+        </div>
+        <div class="domanda" data-id="g-2">
+          <p class="testo">Grafo con pesi negativi, senza cicli negativi. Quale algoritmo usi per le distanze da v?</p>
+          <div class="opz"><button>Dijkstra</button><button>BFS</button><button data-giusta>Bellman-Ford, O(n·m)</button></div>
+          <div class="perche" hidden><p>Dijkstra richiede pesi non negativi. È l'esercizio del 03/09/2024.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Piano</span>
+        <h2>Priorità e checklist degli scritti</h2>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Mai usciti negli ultimi 18 scritti</span>
+        <p>MST (Prim, Kruskal), union-find, P/NP, counting sort e radix sort. Sono in programma, quindi vanno ripassati, ma in fretta.</p>
+      </div>
+      <p><strong>Ordine consigliato:</strong> complessità → BFS/DFS/Dijkstra/ordinamento topologico → DP zaino → heap e ricerca binaria → hash, AVL e visite → ripasso del resto.</p>
+      <ul class="checklist" data-id="scritti">
+        <li><label><input type="checkbox" id="e-240110"><span>10/01/2024</span></label></li>
+        <li><label><input type="checkbox" id="e-240124"><span>24/01/2024</span></label></li>
+        <li><label><input type="checkbox" id="e-240610"><span>10/06/2024</span></label></li>
+        <li><label><input type="checkbox" id="e-240625"><span>25/06/2024</span></label></li>
+        <li><label><input type="checkbox" id="e-240711"><span>11/07/2024</span></label></li>
+        <li><label><input type="checkbox" id="e-240903"><span>03/09/2024</span></label></li>
+        <li><label><input type="checkbox" id="e-250116"><span>16/01/2025</span></label></li>
+        <li><label><input type="checkbox" id="e-250130"><span>30/01/2025</span></label></li>
+        <li><label><input type="checkbox" id="e-250605"><span>05/06/2025</span></label></li>
+        <li><label><input type="checkbox" id="e-250630"><span>30/06/2025</span></label></li>
+        <li><label><input type="checkbox" id="e-250714"><span>14/07/2025</span></label></li>
+        <li><label><input type="checkbox" id="e-250916"><span>16/09/2025</span></label></li>
+        <li><label><input type="checkbox" id="e-260109"><span>09/01/2026</span></label></li>
+        <li><label><input type="checkbox" id="e-260204"><span>04/02/2026</span></label></li>
+        <li><label><input type="checkbox" id="e-260616"><span>16/06/2026</span></label></li>
+        <li><label><input type="checkbox" id="e-260702"><span>02/07/2026</span></label></li>
+        <li><label><input type="checkbox" id="e-260729"><span>29/07/2026</span></label></li>
+        <li><label><input type="checkbox" id="e-260910"><span>10/09/2026</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: scritti con soluzione dal 2024 al 2026 (risorse.vercel.app / cartabinaria), scheda dell'insegnamento 2026/27. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

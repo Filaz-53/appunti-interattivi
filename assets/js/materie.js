@@ -50,15 +50,28 @@ window.MATERIE = [
         titolo: "Progetto SCC",
         sottotitolo: "Componenti fortemente connesse: la specifica del progetto spiegata sezione per sezione, con simulatori, animazioni ed esercizi risolti sulla complessità.",
         fonte: "Specifiche Progetto ASD A.A. 2025–2026 e libreria del corso"
+      },
+      {
+        id: "mappa-esami",
+        titolo: "Mappa degli esami",
+        sottotitolo: "Cosa esce allo scritto e con che frequenza: analisi dei 18 scritti 2024–2026, priorità di studio e checklist.",
+        fonte: "Scritti con soluzione 2024–2026 (risorse.vercel.app)"
       }
     ]
   },
   {
     id: "metodi",
-    nome: "Metodi",
+    nome: "Metodi Numerici per l'Analisi dei Dati",
     breve: "Metodi",
     tinta: 152,
-    descrizione: "Seconda materia, pronta da riempire con i prossimi appunti.",
-    argomenti: []
+    descrizione: "Numeri finiti, fattorizzazioni, minimi quadrati, zeri e ottimizzazione: formulario e quiz a 3 opzioni come allo scritto.",
+    argomenti: [
+      {
+        id: "formulario-quiz",
+        titolo: "Formulario e quiz",
+        sottotitolo: "Tutto quello che serve per lo scritto a risposta multipla, con 16 quiz a 3 opzioni divisi per argomento.",
+        fonte: "Dispense Loli Piccolomini 2026/27, lezioni m3–m12"
+      }
+    ]
   }
 ];

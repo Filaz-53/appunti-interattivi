@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Formulario e quiz · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="formulario-quiz">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Com'è l'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Numeri finiti</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Norme e fattorizzazioni</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Sistemi lineari</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Minimi quadrati</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Zeri di funzione</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Ottimizzazione</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · lezioni m3–m12, A.A. 2026/27</span>
+      <h1>Formulario e quiz per lo scritto</h1>
+      <p class="lede">I fatti e i calcoli che si prestano a domande a risposta multipla, presi dal materiale della prof.ssa Loli Piccolomini. Ogni sezione ha i suoi quiz a 3 opzioni, come all'esame. Le domande sono scritte da noi: non vengono da quiz ufficiali.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Formato</span>
+        <h2>Com'è l'esame</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Dalla scheda 2026/27</span>
+        <p><strong>Scritto su Virtuale:</strong> 20 domande a 3 opzioni, di teoria ed esercizi semplici. È ammessa solo la calcolatrice, ogni risposta giusta vale 1 punto e <strong>servono almeno 14 punti</strong> per l'orale. <strong>Orale:</strong> discussione degli homework (codice senza commenti e report con i soli risultati), con voto da 4 a 12. Il voto finale è la somma delle due parti.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · m3</span>
+        <h2>Numeri finiti ed errori</h2>
+      </div>
+      <p>𝔽(β, t, L, U): x = ±(0.d₁…dₜ)·β^p, con d₁ ≠ 0 e L ≤ p ≤ U. Contiene <strong>2(β−1)β^(t−1)(U−L+1) + 1</strong> numeri. La precisione di macchina è <strong>eps = ½β^(1−t)</strong> con l'arrotondamento. In doppia precisione si usano 64 bit: 52+1 di mantissa e 11 di esponente.</p>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>Il <strong>condizionamento</strong> è una proprietà del <em>problema</em>, la <strong>stabilità</strong> è una proprietà dell'<em>algoritmo</em>.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="f-1">
+          <p class="testo">Quanti numeri contiene 𝔽(2, 3, −1, 2), zero compreso?</p>
+          <div class="opz"><button>32</button><button data-giusta>33</button><button>17</button></div>
+          <div class="perche" hidden><p>2·(2−1)·2²·(2−(−1)+1) + 1 = 2·1·4·4 + 1 = 33. È l'esempio fatto a lezione.</p></div>
+        </div>
+        <div class="domanda" data-id="f-2">
+          <p class="testo">Nel sistema floating point i numeri rappresentabili sono…</p>
+          <div class="opz"><button>equispaziati su tutta la retta</button><button data-giusta>equispaziati solo tra potenze successive di β</button><button>più fitti lontano dallo zero</button></div>
+          <div class="perche" hidden><p>In ogni intervallo [β^p, β^(p+1)] ci sono gli stessi numeri, quindi sono fitti vicino a 0 e radi per valori grandi. L'errore <em>relativo</em> resta uniforme.</p></div>
+        </div>
+        <div class="domanda" data-id="f-3">
+          <p class="testo">Sottrarre due numeri macchina molto vicini tra loro provoca…</p>
+          <div class="opz"><button>overflow</button><button>underflow</button><button data-giusta>cancellazione numerica</button></div>
+          <div class="perche" hidden><p>Le cifre significative uguali si annullano e restano quelle affette da errore, quindi l'errore relativo esplode.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · m5–m7</span>
+        <h2>Norme e fattorizzazioni</h2>
+      </div>
+      <p>‖A‖₁ = massima somma per <strong>colonne</strong> · ‖A‖∞ = massima somma per <strong>righe</strong> · ‖A‖₂ = σ₁ · ‖A‖_F = √Σaᵢⱼ².</p>
+      <p><strong>LU</strong> costa O(n³). <strong>PA = LU</strong> esiste per ogni A non singolare. <strong>Cholesky A = LLᵀ</strong> si usa solo se A è simmetrica e definita positiva, e costa circa metà della LU. La <strong>SVD A = UΣVᵀ</strong> esiste sempre, il rango è il numero di σᵢ &gt; 0, e Aₖ = Σᵢ≤ₖ σᵢuᵢvᵢᵀ è la migliore approssimazione di rango k.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="f-4">
+          <p class="testo">A = [[1, −2], [3, 4]]. Quanto vale ‖A‖∞?</p>
+          <div class="opz"><button>6</button><button data-giusta>7</button><button>5</button></div>
+          <div class="perche" hidden><p>Si sommano i moduli per righe: |1|+|−2| = 3 e |3|+|4| = 7, il massimo è 7. (‖A‖₁ va per colonne: 4 e 6, quindi 6.)</p></div>
+        </div>
+        <div class="domanda" data-id="f-5">
+          <p class="testo">Quale fattorizzazione esiste per <em>ogni</em> matrice, anche rettangolare?</p>
+          <div class="opz"><button>LU</button><button>Cholesky</button><button data-giusta>SVD</button></div>
+          <div class="perche" hidden><p>La SVD esiste sempre. La LU senza pivoting può non esistere, Cholesky richiede una matrice simmetrica definita positiva.</p></div>
+        </div>
+        <div class="domanda" data-id="f-6">
+          <p class="testo">Un'immagine 512×512 approssimata con k = 10 diadi richiede di memorizzare…</p>
+          <div class="opz"><button>2 621 440 numeri</button><button data-giusta>10 250 numeri</button><button>5 120 numeri</button></div>
+          <div class="perche" hidden><p>Ogni diade richiede σ, u e v, cioè 1 + 512 + 512 = 1025 numeri, e 10 diadi fanno 10 250. L'originale ne ha 262 144, quindi il fattore di compressione è circa 25.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · m8</span>
+        <h2>Sistemi lineari e condizionamento</h2>
+      </div>
+      <p>Le sostituzioni in avanti e all'indietro costano <strong>O(n²)</strong>, la fattorizzazione <strong>O(n³)</strong>. Con il pivoting si risolve Ly = <strong>Pb</strong> e poi Ux = y. <strong>K(A) = ‖A‖‖A⁻¹‖ ≥ 1</strong> e ‖δx‖/‖x‖ ≤ K(A)·‖δb‖/‖b‖. La matrice di Hilbert è molto mal condizionata.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §3</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="f-7">
+          <p class="testo">K(A) = 10¹⁰ e si lavora in doppia precisione (eps ≈ 10⁻¹⁶). Quante cifre corrette ci si aspetta nella soluzione, circa?</p>
+          <div class="opz"><button>16</button><button data-giusta>6</button><button>10</button></div>
+          <div class="perche" hidden><p>L'errore relativo è al massimo circa K·eps = 10⁻⁶, quindi restano circa 6 cifre corrette: se ne perdono log₁₀K = 10.</p></div>
+        </div>
+        <div class="domanda" data-id="f-8">
+          <p class="testo">Perché per risolvere Ax = b non si calcola A⁻¹?</p>
+          <div class="opz"><button data-giusta>Costa di più e introduce più errori della fattorizzazione</button><button>Perché A⁻¹ non esiste mai</button><button>Perché A⁻¹b non è la soluzione</button></div>
+          <div class="perche" hidden><p>Se A non è singolare x = A⁻¹b è corretto in teoria, ma in pratica calcolare l'inversa costa più operazioni, più memoria e più errori di arrotondamento.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · m9–m10</span>
+        <h2>Minimi quadrati</h2>
+      </div>
+      <p>min‖Ax − b‖₂². Il residuo ottimo è ortogonale alle colonne di A: <strong>Aᵀ(b − Ax*) = 0</strong>, da cui le <strong>equazioni normali AᵀAx = Aᵀb</strong>, che si risolvono con Cholesky se A ha rango massimo. Attenzione: <strong>K(AᵀA) = K(A)²</strong>. La SVD/pseudoinversa funziona anche se il rango non è massimo. Per la regressione di grado d si usa la Vandermonde n×(d+1).</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="f-9">
+          <p class="testo">Con 6 punti, quale grado del polinomio dà residuo nullo sui dati di training?</p>
+          <div class="opz"><button>3</button><button data-giusta>5</button><button>6</button></div>
+          <div class="perche" hidden><p>Con n punti il polinomio di grado n−1 = 5 interpola esattamente. Residuo nullo però non vuol dire buon modello: è overfitting.</p></div>
+        </div>
+        <div class="domanda" data-id="f-10">
+          <p class="testo">Risolvere i minimi quadrati con le equazioni normali…</p>
+          <div class="opz"><button>migliora il condizionamento</button><button data-giusta>eleva al quadrato il numero di condizionamento</button><button>non cambia il condizionamento</button></div>
+          <div class="perche" hidden><p>K₂(AᵀA) = K₂(A)². Per questo la SVD e la QR sono più stabili.</p></div>
+        </div>
+        <div class="domanda" data-id="f-11">
+          <p class="testo">Sul test set un modello ha R² = 0.95 e un altro, di grado più alto, R² = 0.80. Cosa si conclude?</p>
+          <div class="opz"><button data-giusta>Il secondo è probabilmente in overfitting</button><button>Il secondo è migliore perché è più complesso</button><button>R² non serve sul test set</button></div>
+          <div class="perche" hidden><p>Più complessità e meno generalizzazione è il segnale tipico dell'overfitting. R² va calcolato proprio sul test set.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · m11</span>
+        <h2>Zeri di funzione</h2>
+      </div>
+      <p><strong>Bisezione:</strong> converge sempre, linearmente con C = ½. Servono k ≥ log₂((b−a)/δ) iterazioni. <strong>Punto fisso:</strong> converge se |g′(x*)| &lt; 1. <strong>Newton:</strong> x_{k+1} = x_k − f(x_k)/f′(x_k), converge localmente, quadraticamente sulle radici semplici e linearmente su quelle multiple.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §5</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="f-12">
+          <p class="testo">Bisezione su [0, 1] con tolleranza 10⁻³. Quante iterazioni servono al minimo?</p>
+          <div class="opz"><button>3</button><button data-giusta>10</button><button>1000</button></div>
+          <div class="perche" hidden><p>k ≥ log₂(1/10⁻³) = log₂1000 ≈ 9.97, quindi 10.</p></div>
+        </div>
+        <div class="domanda" data-id="f-13">
+          <p class="testo">Newton su f(x) = x² − 2 con x₀ = 1. Quanto vale x₁?</p>
+          <div class="opz"><button data-giusta>1.5</button><button>1.4167</button><button>2</button></div>
+          <div class="perche" hidden><p>x₁ = 1 − (1−2)/(2·1) = 1 + 0.5 = 1.5. Il passo successivo dà x₂ = 1.5 − 0.25/3 ≈ 1.4167.</p></div>
+        </div>
+        <div class="domanda" data-id="f-14">
+          <p class="testo">Su una radice doppia, Newton converge…</p>
+          <div class="opz"><button>quadraticamente</button><button data-giusta>linearmente</button><button>non converge mai</button></div>
+          <div class="perche" hidden><p>Sulle radici multiple f′(x*) = 0 e l'ordine scende a 1. (La bisezione addirittura non vede le radici di molteplicità pari, perché non c'è cambio di segno.)</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · m12</span>
+        <h2>Ottimizzazione</h2>
+      </div>
+      <p>Un punto stazionario ha ∇f = 0. È un minimo se l'Hessiana è definita positiva, una sella se è indefinita. Se f è convessa, ogni minimo locale è globale. <strong>Gradiente:</strong> x_{k+1} = x_k − α∇f(x_k). Il passo si sceglie con il backtracking e la condizione di Armijo, e ci si ferma quando ‖∇f‖ &lt; tol.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §6</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="f-15">
+          <p class="testo">∇f(x*) = 0 e l'Hessiana in x* ha autovalori 3 e −1. Che punto è x*?</p>
+          <div class="opz"><button>minimo</button><button>massimo</button><button data-giusta>sella</button></div>
+          <div class="perche" hidden><p>Autovalori di segno discorde vogliono dire Hessiana indefinita, quindi x* è un punto di sella.</p></div>
+        </div>
+        <div class="domanda" data-id="f-16">
+          <p class="testo">Nel metodo del gradiente con passo α fisso troppo grande…</p>
+          <div class="opz"><button>la convergenza diventa quadratica</button><button data-giusta>il metodo può oscillare o divergere</button><button>il metodo trova sempre il minimo globale</button></div>
+          <div class="perche" hidden><p>Si "scavalca" il minimo. Per questo il passo si sceglie con il backtracking (Armijo).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini (elenaloli.github.io/metodi-analisi-dati-2026), scheda dell'insegnamento 2026/27. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>
