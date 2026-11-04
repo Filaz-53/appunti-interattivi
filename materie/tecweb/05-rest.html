@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>API REST · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="05-rest">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>API web e REST</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>CRUD e i quattro principi</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Individui, collezioni, URI</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Verbi su collezioni e individui</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Progettare un'API: esercizio</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 5 · slide «API REST»</span>
+      <h1>API REST</h1>
+      <p class="lede">Come si progetta un'API web "come si deve": risorse con URI, operazioni con i metodi HTTP, rappresentazioni in JSON. Serve per lo scritto e soprattutto per il progetto. Negli scritti 2025 c'era da progettare gli endpoint di un servizio.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="03-uri.html">URI</a> (path e query) e <a href="04-http.html#s5">i metodi HTTP con le loro proprietà</a>. <strong>JSON</strong> è il formato dei dati: oggetti tra graffe con coppie <code>"chiave": valore</code>, liste tra quadre, es. <code>{"nome": "Rossi", "tel": ["051 1", "051 2"]}</code>.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Progettare gli endpoint</strong> di un servizio (metodo + URI) partendo da una descrizione.</li>
+        <li>Distinguere <strong>collezioni</strong> (plurale, slash finale) e <strong>individui</strong>.</li>
+        <li><strong>POST su una collezione</strong> contro <strong>PUT su un individuo</strong> per creare.</li>
+        <li>Perché REST è <strong>stateless</strong> e cosa ci guadagna (cache, scalabilità).</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Concetti</span>
+        <h2>API web e REST</h2>
+      </div>
+      <p>Un'<strong>API web</strong> è un'interfaccia HTTP che permette ad altre applicazioni (automatiche, oppure web app con form e menu) di usare i servizi di un'applicazione.</p>
+      <div class="def">
+        <span class="etichetta">REST · REpresentational State Transfer</span>
+        <p>È il modello architetturale del web "ben fatto". Le API non-REST inventano le loro funzioni e nascondono il protocollo di trasporto. Un'API <strong>REST usa direttamente HTTP (i metodi) e gli URI (i nomi)</strong> come interfaccia generica. L'obiettivo sono API <strong>consistenti, prevedibili e facili da usare</strong>.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Principi</span>
+        <h2>Il modello CRUD e i quattro principi</h2>
+      </div>
+      <p><strong>CRUD:</strong> quasi tutte le operazioni sui dati sono Create, Read (di un individuo o di una lista filtrata), Update, Delete.</p>
+      <div class="def">
+        <span class="etichetta">I quattro punti di REST</span>
+        <p><strong>1.</strong> Ogni concetto rilevante è una <strong>risorsa</strong>. <strong>2.</strong> Ogni risorsa ha un <strong>URI</strong> come identificatore. <strong>3.</strong> Le operazioni si esprimono con i <strong>verbi HTTP</strong> (GET legge, PUT/POST creano o modificano, DELETE cancella). <strong>4.</strong> Lo stato della risorsa viaggia come <strong>rappresentazione</strong> in un Content-Type preciso (JSON, XML…).</p>
+      </div>
+      <p>Il body di una richiesta o risposta <strong>non è la risorsa</strong> ma una sua <strong>rappresentazione</strong>.</p>
+<pre class="codice largo" data-copia><code>
+PUT /clients/1234 HTTP/1.1
+Host: www.sito.com
+Content-Type: application/json; charset=utf-8
+
+{ "nome": "Rossi S.p.A.", "tel": "051 654321", "citta": "Bologna" }
+</code></pre>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Naming</span>
+        <h2>Individui, collezioni e URI gerarchici</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le regole sugli URI</span>
+        <p>Ci sono due tipi di risorsa: <strong>individui</strong> (un cliente) e <strong>collezioni</strong> (tutti i clienti), entrambi con un URI. Le collezioni sono <strong>plurali</strong> e si riconoscono dallo <strong>slash finale</strong>; gli individui sono singolari. Gli URI sono <strong>gerarchici</strong>, così rendono esplicite le relazioni.</p>
+        <p><code>/customers/</code> → collezione dei clienti<br>
+        <code>/customers/abc123</code> → il cliente abc123<br>
+        <code>/customers/abc123/</code> → le sotto-risorse del cliente<br>
+        <code>/customers/abc123/addresses/1</code> → il primo indirizzo del cliente</p>
+      </div>
+      <p><strong>Filtri:</strong> quelli frequenti possono stare nella gerarchia (<code>/regions/ER/customers/</code>); gli altri vanno nella <strong>query</strong> della collezione: <code>/customers/?tel=0511234567</code>, <code>/customers/?search=sales&amp;value=100000&amp;op=gt</code>.</p>
+      <div class="def">
+        <span class="etichetta">Altri consigli delle slide</span>
+        <p>Usa nomi coerenti; non copiare la struttura interna del database; prevedi parametri per <strong>filtrare e paginare</strong>; per le operazioni lunghe rispondi <strong>202 Accepted</strong> con l'URL per controllarne lo stato. Per documentare un'API servono: gli endpoint (separando collezioni e individui), i metodi, esempi di input e output e i casi di errore.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Verbi</span>
+        <h2>Verbi su collezioni e individui</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">La tabella delle slide</span>
+        <p>Elencare tutti i clienti → <strong>GET /customers/</strong><br>
+        Leggere il cliente abc123 → <strong>GET /customers/abc123</strong><br>
+        Creare un cliente, <strong>l'id lo decide il server</strong> → <strong>POST /customers/</strong> (sulla collezione)<br>
+        Creare un cliente, <strong>l'id lo decide il client</strong> → <strong>PUT /customers/abc123</strong><br>
+        Modificare <strong>tutti</strong> i dati di abc123 → <strong>PUT /customers/abc123</strong><br>
+        Aggiungere un telefono ad abc123 → <strong>POST /customers/abc123/telephones/</strong><br>
+        Cancellare abc123 → <strong>DELETE /customers/abc123</strong></p>
+      </div>
+      <aside class="nota">Semantica di POST: le vecchie specifiche dicevano "crea un subordinato della collezione". Dal 2014 (RFC 7231) POST vuol dire "elabora questa rappresentazione secondo la semantica della risorsa": è il verbo jolly, purché non si sovrapponga agli altri.</aside>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §3–§4</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="re-1">
+          <p class="testo">Vuoi creare un nuovo ordine e l'identificativo lo genera il server. Quale richiesta?</p>
+          <div class="opz"><button>PUT /orders/</button><button data-giusta>POST /orders/</button><button>GET /orders/new</button><button>POST /orders/123</button></div>
+          <div class="perche" hidden><p>POST sulla collezione: il server crea l'individuo, sceglie l'id e risponde 201 Created con Location: /orders/&lt;id&gt;.</p></div>
+        </div>
+        <div class="domanda" data-id="re-2">
+          <p class="testo">Quale URI rappresenta una collezione secondo le linee guida REST?</p>
+          <div class="opz"><button>/student/42</button><button data-giusta>/students/42/exams/</button><button>/getExams?id=42</button><button>/exam</button></div>
+          <div class="perche" hidden><p>Plurale e slash finale: la collezione degli esami dello studente 42. /getExams è uno stile "a funzioni", non REST.</p></div>
+        </div>
+        <div class="domanda" data-id="re-3">
+          <p class="testo">Come chiedi i clienti di Bologna con un filtro non previsto dalla gerarchia?</p>
+          <div class="opz"><button data-giusta>GET /customers/?city=Bologna</button><button>POST /customers/Bologna</button><button>GET /Bologna/</button><button>DELETE /customers/?city=Bologna</button></div>
+          <div class="perche" hidden><p>I filtri generici vanno nella query della collezione. Se fosse un filtro molto frequente si potrebbe esporre come /cities/bologna/customers/.</p></div>
+        </div>
+        <div class="domanda" data-id="re-4">
+          <p class="testo">Perché REST si integra bene con le cache HTTP?</p>
+          <div class="opz"><button>Perché usa solo POST</button><button data-giusta>Perché le letture sono GET su URI stabili e stateless: una cache può riconoscere e riusare le risposte</button><button>Perché disattiva la cache</button><button>Perché usa XML</button></div>
+          <div class="perche" hidden><p>GET è sicuro e ogni risorsa ha il suo URI, quindi proxy e browser possono memorizzare le risposte. Con API "tutto POST" questo non è possibile.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Esercizio d'esame</span>
+        <h2>Progettare gli endpoint di un servizio</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Scritto 10/01/2025 · REST</span><h4>Piattaforma di streaming musicale</h4></div>
+        <p>Progetta metodo e URL per: (1) tutte le categorie musicali; (2) tutte le canzoni di una categoria, es. World Music; (3) il testo di una canzone specifica, es. "The Botanist" di C'mon Tigre.</p>
+        <div class="soluzione"><span class="etichetta">Una soluzione possibile</span>
+          <ol class="passi">
+            <li><div><p>Si identificano le risorse: le <strong>categorie</strong> (collezione), le <strong>canzoni</strong> di una categoria (sotto-collezione), il <strong>testo</strong> di una canzone (sotto-risorsa dell'individuo).</p></div></li>
+            <li><div><p><code>GET https://api.musica.it/categories/</code></p></div></li>
+            <li><div><p><code>GET https://api.musica.it/categories/world-music/songs/</code></p></div></li>
+            <li><div><p><code>GET https://api.musica.it/songs/the-botanist/lyrics</code> (oppure <code>/artists/cmon-tigre/songs/the-botanist/lyrics</code>, se i titoli non sono unici)</p></div></li>
+            <li><div><p class="risultato">Tutte GET, perché sono letture (sicure e idempotenti). Nomi plurali per le collezioni, slash finale, identificatori leggibili. Nessun verbo nell'URI.</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="avviso"><span class="etichetta">Errori tipici da evitare</span><p>Verbi negli URI (<code>/getSongs</code>, <code>/deleteUser?id=3</code>) · GET che modificano dati · tutte le operazioni in POST · collezioni al singolare · URI che espongono tabelle o file del server (<code>/db/tbl_songs.php</code>).</p></div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-re">
+        <li><label><input type="checkbox" id="re-c1"><span>Definire REST e i suoi quattro principi</span></label></li>
+        <li><label><input type="checkbox" id="re-c2"><span>Collegare CRUD ai metodi HTTP</span></label></li>
+        <li><label><input type="checkbox" id="re-c3"><span>Scrivere URI per collezioni, individui e sotto-risorse</span></label></li>
+        <li><label><input type="checkbox" id="re-c4"><span>Spiegare POST su collezione contro PUT su individuo</span></label></li>
+        <li><label><input type="checkbox" id="re-c5"><span>Progettare gli endpoint di un servizio a partire da una descrizione</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: slide «API REST» (A. Di Iorio, corso di Tecnologie Web A.A. 2026/27); esercizio dallo scritto del 10/01/2025. Soluzione e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

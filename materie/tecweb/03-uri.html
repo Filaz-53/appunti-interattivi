@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>URI · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="03-uri">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Risorse e URI</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>URL e URN</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>La sintassi</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Caratteri e percent-encoding</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Risolvere gli URI relativi</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Schemi, route, approfondimenti</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 3 · slide «URI»</span>
+      <h1>URI</h1>
+      <p class="lede">Gli indirizzi del web: come sono fatti, cosa significa ogni parte, come si trasforma un link relativo in un indirizzo completo. Esercizio quasi sicuro allo scritto: risolvere un URI relativo.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="01-architettura.html">Il capitolo 1</a> (client, server, i tre pilastri) e, per §4, <a href="02-codifica-caratteri.html#s1">l'esadecimale e UTF-8 del capitolo 2</a>. Pensa a come sono organizzate le cartelle sul tuo computer: gli URI gerarchici funzionano allo stesso modo.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Risolvere un URI relativo</strong> (<code>../img/logo.png</code>, <code>/a/b</code>, <code>//host/x</code>, <code>#frag</code>) rispetto a un URI base. È uscito nel 2026.</li>
+        <li><strong>URL contro URN</strong> (locator e names) e il concetto di <strong>risorsa</strong>.</li>
+        <li>Le parti: <strong>schema, authority, path, query, fragment</strong>.</li>
+        <li>Il <strong>percent-encoding</strong> e la differenza tra / e %2F.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Concetti</span>
+        <h2>Risorse e URI</h2>
+      </div>
+      <p>Il web ha tre ingredienti: <strong>identificazione</strong> (ogni cosa d'interesse è una <em>risorsa</em> con un identificatore globale, l'URI), <strong>interazione</strong> (HTTP per scambiare messaggi) e <strong>formato</strong> (HTML, JPEG, PNG… da riconoscere correttamente).</p>
+      <div class="def">
+        <span class="etichetta">Risorsa</span>
+        <p>Qualunque cosa sia oggetto di scambio sul web, <strong>indipendentemente da come è memorizzata</strong>. Può essere un file, ma anche un record di un database (l'URI è la chiave), il risultato di un'elaborazione (l'URI ne contiene i parametri), un oggetto fisico (un libro, una persona) o un concetto astratto. Per questo si dice "risorsa" e non "file".</p>
+      </div>
+      <p>Gli URI sono probabilmente il motivo del successo del web: una <strong>sintassi universale</strong>, indipendente dal protocollo, facile da scrivere e scambiare.</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Locator e names</span>
+        <h2>URL e URN</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le due facce degli URI</span>
+        <p><strong>URL (Locator):</strong> contiene le informazioni per <strong>accedere</strong> subito alla risorsa (protocollo, host, percorso). È comodo ma <strong>fragile</strong>: se la cartella cambia nome, il link si rompe.<br>
+        <strong>URN o names:</strong> un nome <strong>stabile e permanente</strong> della risorsa, senza informazioni di accesso. Per usarlo serve un servizio che lo traduca nell'URL attuale (da aggiornare a ogni spostamento). Esempio: un codice ISBN di un libro.</p>
+      </div>
+      <p><strong>Visione moderna:</strong> più che la distinzione URL/URN conta lo <strong>schema</strong> (la parte prima dei due punti). Alcuni schemi sono per natura persistenti, altri contengono informazioni di accesso: dipende dallo schema.</p>
+      <aside class="nota">URL permanenti (purl.archive.org, i permalink dei blog): un sistema server-side prende l'URL "virtuale" e restituisce la risorsa (dereferenziazione) oppure risponde con un <em>redirect</em> verso l'URL fisico di oggi.</aside>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Sintassi</span>
+        <h2>La sintassi di un URI</h2>
+      </div>
+      <p class="formula">schema : [ // authority ] path [ ? query ] [ # fragment ]</p>
+      <p class="formula">authority = [ userinfo @ ] host [ : port ]</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio scomposto</span><h4>https://mario@www.uni.it:8080/corsi/tw/lez.html?anno=2026&amp;lang=it#esercizi</h4></div>
+        <div class="soluzione"><span class="etichetta">Le parti</span>
+          <ol class="passi">
+            <li><div><p><strong>schema</strong> = https (registrato presso IANA; negli URL è di fatto il protocollo)</p></div></li>
+            <li><div><p><strong>authority</strong> = mario@www.uni.it:8080: userinfo mario (sconsigliato, è un rischio di sicurezza), host www.uni.it (nome DNS o indirizzo IP), porta 8080 (si omette se è quella standard: 80 per http, 443 per https)</p></div></li>
+            <li><div><p><strong>path</strong> = /corsi/tw/lez.html (gerarchico, a livelli separati da /)</p></div></li>
+            <li><div><p><strong>query</strong> = anno=2026&amp;lang=it (parametri, di solito nella forma nome=valore uniti da &amp;)</p></div></li>
+            <li><div><p class="risultato"><strong>fragment</strong> = esercizi (una sotto-parte della risorsa; la gestisce il client e il server non lo riceve nemmeno)</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="def">
+        <span class="etichetta">Principi di progettazione</span>
+        <p><strong>Trascrivibili:</strong> pochi caratteri, per poterli scrivere anche su carta. · <strong>Identificazione, non interazione:</strong> l'URI dice <em>cosa</em>, non quale operazione fare (quella la dice HTTP). · <strong>Gerarchici:</strong> <code>:</code> separa lo schema, <code>/</code> i livelli, <code>?</code> la query, <code>#</code> il frammento.</p>
+      </div>
+      <p>Altri schemi: <code>mailto:a@b.it</code> · <code>file:///percorso</code> (file locali, niente HTTP) · <code>data:image/png;base64,iVBOR…</code> (non punta a una risorsa ma la <strong>contiene</strong>: si usa per piccole immagini inline) · <code>ftp://</code> (porta 21, ormai non più supportato da molti browser).</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Caratteri</span>
+        <h2>Caratteri ammessi e percent-encoding</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Tre categorie</span>
+        <p><strong>Non riservati:</strong> lettere, cifre e <code>- . _ ~</code>, che si usano liberamente.<br>
+        <strong>Riservati:</strong> <code>: / ? # [ ] @</code> e <code>! $ &amp; ' ( ) * + , ; =</code>. Hanno una funzione di delimitatore: si usano così quando svolgono quella funzione, altrimenti vanno codificati.<br>
+        <strong>Percent-encoded</strong> <code>%XX</code>, con XX il byte in esadecimale. Servono per i caratteri non ASCII (si codificano in UTF-8 e poi ogni byte diventa %XX), per i caratteri di controllo, per lo spazio e <code>&lt; &gt; " { } | \ ^ `</code>, e per i riservati usati come testo.</p>
+      </div>
+      <p>Esempi: lo spazio è <code>%20</code>; "è" (C3 A8 in UTF-8) è <code>%C3%A8</code>.</p>
+      <div class="avviso"><span class="etichetta">Trappola</span><p><code>…/uno/due/tre</code> e <code>…/uno/due%2Ftre</code> <strong>non sono uguali</strong>. Nel primo lo slash separa due livelli; nel secondo %2F è un carattere del nome, e l'ultimo segmento si chiama letteralmente "due/tre".</p></div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · L'esercizio tipico</span>
+        <h2>Risolvere un URI relativo</h2>
+      </div>
+      <p>Un <strong>URI reference</strong> (relativo) riporta solo una parte dell'URI, tagliando da sinistra, e si interpreta rispetto a un <strong>URI base</strong> (di solito quello della pagina che lo contiene). <strong>Risoluzione</strong> = ottenere l'URI assoluto. <strong>Dereferenziazione</strong> = ottenere la risorsa.</p>
+      <div class="def">
+        <span class="etichetta">L'algoritmo (base = http://www.site.com/dir1/doc1.html)</span>
+        <p><strong>1.</strong> Inizia con <code>#</code>: frammento dello stesso documento. <code>#a1</code> → http://www.site.com/dir1/doc1.html#a1<br>
+        <strong>2.</strong> Inizia con uno <strong>schema</strong>: è già assoluto.<br>
+        <strong>3.</strong> Inizia con <code>//</code>: stesso schema della base, il resto è nuovo. <code>//www.b.com/x.html</code> → http://www.b.com/x.html (https se la base è https).<br>
+        <strong>4.</strong> Inizia con <code>/</code>: path assoluto sullo stesso host. <code>/dir3/doc3.html</code> → http://www.site.com/dir3/doc3.html<br>
+        <strong>5.</strong> Altrimenti: si prende il path della base <strong>togliendo l'ultimo elemento</strong> (/dir1/), si aggiunge il relativo e si semplifica: <code>./</code> si cancella, <code>../</code> si cancella <strong>insieme al livello precedente</strong>.<br>
+        <code>doc4.html</code> → http://www.site.com/dir1/doc4.html · <code>../doc7.html</code> → http://www.site.com/doc7.html</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempi della prof · base http://www.sito.com/uno/due/tre</span><h4>Risolvi ciascun riferimento</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzioni</span>
+          <ol class="passi">
+            <li><div><p><code>pippo</code> e <code>./pippo</code> → http://www.sito.com/uno/due/pippo (tre è l'ultimo elemento, e viene tolto)</p></div></li>
+            <li><div><p><code>#pluto</code> → http://www.sito.com/uno/due/tre#pluto · <code>pippo#pluto</code> → …/uno/due/pippo#pluto</p></div></li>
+            <li><div><p><code>.</code> e <code>./</code> → http://www.sito.com/uno/due/ · <code>..</code> e <code>../</code> → http://www.sito.com/uno/</p></div></li>
+            <li><div><p><code>../pippo</code> → http://www.sito.com/uno/pippo · <code>../..</code> → http://www.sito.com/ · <code>../../pippo</code> → http://www.sito.com/pippo</p></div></li>
+            <li><div><p class="risultato"><code>pippo:pluto</code> → pippo:pluto (inizia con uno schema, "pippo:", quindi è già assoluto!)</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · risoluzione</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="ur-1">
+          <p class="testo">Base https://example.com/a/b/pagina.html, link <code>../img/logo.png</code>. Risultato?</p>
+          <div class="opz"><button data-giusta>https://example.com/a/img/logo.png</button><button>https://example.com/img/logo.png</button><button>https://example.com/a/b/img/logo.png</button><button>https://example.com/a/b/pagina.html/../img/logo.png</button></div>
+          <div class="perche" hidden><p>Si toglie pagina.html e resta /a/b/; .. sale a /a/; si aggiunge img/logo.png. È la domanda del 12/02/2026.</p></div>
+        </div>
+        <div class="domanda" data-id="ur-2">
+          <p class="testo">Base http://www.uni.it/corsi/tw/index.html, link <code>/esami.html</code>. Risultato?</p>
+          <div class="opz"><button>http://www.uni.it/corsi/tw/esami.html</button><button data-giusta>http://www.uni.it/esami.html</button><button>http://esami.html</button><button>http://www.uni.it/corsi/esami.html</button></div>
+          <div class="perche" hidden><p>Lo slash iniziale vuol dire path assoluto sullo stesso host: si riparte dalla radice.</p></div>
+        </div>
+        <div class="domanda" data-id="ur-3">
+          <p class="testo">Base https://a.it/x/y.html, link <code>//cdn.it/lib.js</code>. Risultato?</p>
+          <div class="opz"><button>https://a.it/cdn.it/lib.js</button><button data-giusta>https://cdn.it/lib.js</button><button>http://cdn.it/lib.js</button><button>https://a.it//cdn.it/lib.js</button></div>
+          <div class="perche" hidden><p>Il doppio slash vuol dire nuovo host con lo stesso schema della base (https). Era usato per i link che dovevano funzionare sia in http sia in https.</p></div>
+        </div>
+        <div class="domanda" data-id="ur-4">
+          <p class="testo">Quando chiedi http://sito.it/pagina.html#cap3, cosa riceve il server?</p>
+          <div class="opz"><button>Solo il frammento cap3</button><button data-giusta>La richiesta di /pagina.html, senza il frammento</button><button>Una richiesta con il frammento come parametro di query</button><button>Niente, la gestisce il DNS</button></div>
+          <div class="perche" hidden><p>Il fragment è gestito dal client: il browser scarica tutta la pagina e poi scorre fino a #cap3.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Server e approfondimenti</span>
+        <h2>Route, rewriting e sicurezza</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Route</span>
+        <p>Una route associa il path di un URI a una risorsa del server. <strong>File-system route</strong> (il vecchio approccio di Apache): la radice del path corrisponde a una cartella e ogni file diventa un URI. <strong>Managed route</strong> (Node.js ed Express): il programmatore associa ogni path a una funzione che restituisce la risorsa, statica o calcolata.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+const router = require("express").Router();
+router.get("/name",  (req, res) =&gt; res.send("&lt;p&gt;Fabio&lt;/p&gt;"));     // http://example.com/name
+router.get("/email", (req, res) =&gt; res.send("fabio.vitali@unibo.it"));
+app.use("/css", express.static("css"));   // file statici della cartella css/
+</code></pre>
+      <p><strong>URL rewriting</strong> (es. mod_rewrite di Apache): espone <code>/Argomento</code> al posto di <code>/wiki/index.php?title=Argomento</code>. Nasconde i dettagli tecnici e rende i nomi duraturi e "semantici". <strong>URI template</strong> (RFC 6570): schemi con segnaposto, come <code>/users{/id}{?q,lang}</code>, che l'applicazione riempie (sono usati nelle API e nel routing dei framework).</p>
+      <div class="avviso"><span class="etichetta">Sicurezza · open redirect</span><p>Se un template <code>/{lang}/{username}</code> riceve lang vuoto e username "evil.org", si ottiene <code>//evil.org</code>, cioè un URI che punta a un altro host, e i dati del form finiscono lì. Scrivendo il template come <code>./{lang}/{username}</code> si ottiene invece una pagina inesistente sullo stesso sito.</p></div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Ripasso</span>
+        <h2>Verifica finale e checklist</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="ur-5">
+          <p class="testo">Qual è la differenza tra URL e URN?</p>
+          <div class="opz"><button>Sono sinonimi</button><button data-giusta>L'URL dice come accedere alla risorsa ed è fragile; l'URN è un nome permanente che va tradotto nell'URL attuale</button><button>L'URN contiene sempre http</button><button>L'URL non può contenere una query</button></div>
+          <div class="perche" hidden><p>Locator contro names. Entrambi sono URI.</p></div>
+        </div>
+        <div class="domanda" data-id="ur-6">
+          <p class="testo">Come si scrive uno spazio dentro un URI?</p>
+          <div class="opz"><button>Con uno spazio normale</button><button data-giusta>%20</button><button>&amp;nbsp;</button><button>\s</button></div>
+          <div class="perche" hidden><p>Lo spazio (0x20) non è ammesso e va percent-encoded. Nella query string dei form si vede spesso anche il + al suo posto.</p></div>
+        </div>
+        <div class="domanda" data-id="ur-7">
+          <p class="testo">Cosa fa uno URI con schema <code>data:</code>?</p>
+          <div class="opz"><button>Punta a un database</button><button data-giusta>Contiene direttamente i dati della risorsa (es. un'immagine in Base64)</button><button>Apre un file locale</button><button>Indica un server di dati</button></div>
+          <div class="perche" hidden><p>Esempio: data:image/png;base64,iVBOR…: l'immagine sta nell'URI stesso, senza una richiesta HTTP separata.</p></div>
+        </div>
+      </div>
+      <ul class="checklist" data-id="ripasso-ur">
+        <li><label><input type="checkbox" id="ur-c1"><span>Definire risorsa e spiegare perché non è "file"</span></label></li>
+        <li><label><input type="checkbox" id="ur-c2"><span>Distinguere URL e URN</span></label></li>
+        <li><label><input type="checkbox" id="ur-c3"><span>Scomporre un URI in schema, authority, path, query, fragment</span></label></li>
+        <li><label><input type="checkbox" id="ur-c4"><span>Spiegare percent-encoding e la differenza tra / e %2F</span></label></li>
+        <li><label><input type="checkbox" id="ur-c5"><span>Risolvere qualsiasi URI relativo (#, //, /, ./, ../)</span></label></li>
+        <li><label><input type="checkbox" id="ur-c6"><span>Spiegare route, URL rewriting e open redirect</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: slide del prof. Vitali «URI» (A.A. 2026/27). Quiz scritti da noi; gli esempi di risoluzione sono quelli delle slide. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

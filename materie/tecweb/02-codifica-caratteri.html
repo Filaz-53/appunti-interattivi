@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Codifica dei caratteri · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="02-codifica-caratteri">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Binario ed esadecimale</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Il problema e i termini</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>ASCII, code page, Latin-1</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Unicode e i suoi principi</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>UCS, piani, UTF-16</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>UTF-8</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>BOM e mojibake</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Content encoding e Base64</span></a></li>
+        <li><a href="#s9"><span class="n">§9</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 2 · slide «I set di caratteri»</span>
+      <h1>Codifica dei caratteri</h1>
+      <p class="lede">Come un testo diventa una sequenza di byte, e perché a volte vediamo "Ã©" al posto di "é". È uno degli argomenti preferiti del prof: allo scritto 2026 ci sono state 3–4 domande solo su questo.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p>Saper leggere i numeri in <strong>binario</strong> ed <strong>esadecimale</strong>: c'è tutto in §1, parti da lì se non ti è familiare. Un <strong>bit</strong> è una cifra 0 o 1; un <strong>byte</strong> sono 8 bit.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Leggere i byte UTF-8</strong>: dai primi bit capire quanti byte ha il carattere, e riconoscere un byte di continuazione (10xxxxxx).</li>
+        <li>Cos'è il <strong>BMP</strong> e cosa sono i piani di Unicode.</li>
+        <li>I <strong>principi di Unicode</strong>: caratteri e non glifi, semantica (perché due caratteri simili di alfabeti diversi hanno codici diversi), unificazione, stabilità.</li>
+        <li>Differenza tra <strong>UTF-8 e ISO Latin-1</strong>, e il <strong>mojibake</strong>.</li>
+        <li><strong>Base64</strong>: a cosa serve, e che non è crittografia.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Basi</span>
+        <h2>Binario ed esadecimale in 5 minuti</h2>
+      </div>
+      <p>I numeri si possono scrivere in basi diverse; la matematica è la stessa, cambia solo la scrittura. In <strong>binario</strong> (prefisso 0b) si usano solo 0 e 1, e ogni posizione vale una potenza di 2. In <strong>esadecimale</strong> (prefisso 0x) si usano 16 cifre, 0–9 e A–F (A = 10 … F = 15).</p>
+      <div class="def">
+        <span class="etichetta">Il trucco: 4 bit = 1 cifra esadecimale</span>
+        <p>Siccome 16 = 2⁴, ogni gruppo di 4 bit corrisponde a una cifra esadecimale, quindi <strong>un byte sono 2 cifre esadecimali</strong>. Esempio: 0b<strong>1100</strong> <strong>1110</strong>: 1100 = 12 = C e 1110 = 14 = E, quindi 0xCE = 12·16 + 14 = <strong>206</strong>.</p>
+        <p>Quanti valori ci stanno: 7 bit → 128 · 8 bit → 256 · 16 bit → 65 536 · 32 bit → circa 4 miliardi.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="cc-1">
+          <p class="testo">Quanto vale 0x41 in decimale?</p>
+          <div class="opz"><button>41</button><button data-giusta>65</button><button>16</button><button>101</button></div>
+          <div class="perche" hidden><p>4·16 + 1 = 65. È il codice di "A" in ASCII.</p></div>
+        </div>
+        <div class="domanda" data-id="cc-2">
+          <p class="testo">Come si scrive 0b10100101 in esadecimale?</p>
+          <div class="opz"><button data-giusta>0xA5</button><button>0x5A</button><button>0x95</button><button>0xA4</button></div>
+          <div class="perche" hidden><p>1010 = 10 = A; 0101 = 5, quindi 0xA5.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Concetti</span>
+        <h2>Il problema e i termini</h2>
+      </div>
+      <p>Per digitalizzare un testo si assegna <strong>un numero univoco a ogni carattere</strong>: il testo diventa la sequenza dei numeri dei suoi caratteri. Bisogna identificare i caratteri, scegliere lo spazio dei numeri (quanti bit) e fissare il mapping in uno standard.</p>
+      <div class="def">
+        <span class="etichetta">Tre aspetti di un carattere</span>
+        <p><strong>Natura</strong> (cos'è: in italiano A e À sono la stessa lettera, in danese A e Å no) · <strong>forma o glifo</strong> (come appare: dipende dal font; P è una lettera diversa in latino e in greco) · <strong>codice numerico</strong> (il numero che gli assegna una tabella).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Regole di un buon mapping</span>
+        <p><strong>Ordine:</strong> i numeri seguono l'ordine alfabetico. · <strong>Contiguità:</strong> non ci sono buchi. · <strong>Raggruppamento:</strong> i gruppi si riconoscono dai bit (in ASCII i controlli sono 00xxxxx, le maiuscole 10xxxxx, le minuscole 11xxxxx).<br>
+        <strong>Codici di controllo:</strong> servono alla trasmissione, non sono testo. · <strong>Codici liberi:</strong> non assegnati, e se compaiono di solito c'è un errore. · <strong>Shift:</strong> un codice che cambia tabella da lì in avanti.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Prima di Unicode</span>
+        <h2>ASCII, code page e ISO Latin-1</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">ASCII (1968)</span>
+        <p><strong>128 caratteri, 7 bit</strong> (l'ottavo bit era pensato come bit di parità). 33 codici di controllo (0–31 e 127) e 95 stampabili: lettere latine maiuscole e minuscole, cifre, punteggiatura. È contiguo e ordinato, senza codici liberi. Ha doppioni storici che vengono dalle telescriventi: <strong>CR</strong> (13, ritorno carrello) e <strong>LF</strong> (10, a capo), <strong>BS</strong> (8) e <strong>DEL</strong> (127, che vale 1111111, tutti i buchi della scheda perforata).</p>
+      </div>
+      <p><strong>Code page:</strong> estensioni di ASCII che usano i codici 128–255, diverse per ogni alfabeto (greco, cirillico, arabo…), a centinaia. <strong>Il file non dice quale code page usa</strong>: bisogna saperlo da fuori. Le lingue CJK (cinese, giapponese, coreano) hanno troppi caratteri per 8 bit e usano codifiche a 16 bit o più.</p>
+      <div class="def">
+        <span class="etichetta">ISO 8859-1 (ISO Latin-1)</span>
+        <p>L'unica estensione a 8 bit <strong>standard</strong>: aggiunge ai codici 128–255 i caratteri degli alfabeti dell'Europa occidentale (accentate, umlaut…). È compatibile con ASCII, perché i codici 0–127 sono identici.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Unicode</span>
+        <h2>Unicode e ISO/IEC 10646</h2>
+      </div>
+      <p>Due commissioni (ISO 10646 dal 1989 e Unicode dal 1991) hanno creato lo standard unico, e oggi assegnano gli stessi codici agli stessi caratteri. Unicode 18 (2026) ha circa <strong>172 800 caratteri in 175 script</strong> (moderni, antichi e simboli), più circa 140 000 posizioni ad uso privato (<strong>PUA</strong>). Il Klingon è stato rifiutato nel 2001 e vive nelle PUA.</p>
+      <div class="def">
+        <span class="etichetta">I principi di Unicode (domande frequenti!)</span>
+        <p><strong>Repertorio universale:</strong> tutti gli alfabeti. · <strong>Efficienza:</strong> nessuno shift, parsing veloce. · <strong>Caratteri, non glifi:</strong> c'è una sola "A", indipendente dai font. · <strong>Semantica:</strong> ogni carattere ha un significato e delle proprietà (direzione, spaziatura…), quindi caratteri <em>visivamente simili ma di alfabeti diversi</em> hanno codici diversi (la "A" latina e la "А" cirillica sono caratteri diversi). · <strong>Testo semplice:</strong> niente grassetto o stili. · <strong>Ordine logico.</strong> · <strong>Unificazione:</strong> i caratteri condivisi tra lingue hanno un codice solo (gli ideogrammi Han comuni a CJK). · <strong>Composizione dinamica:</strong> à = a + accento combinante, ma per i casi frequenti esiste anche un codice unico equivalente. · <strong>Stabilità:</strong> un codice assegnato non cambia mai. · <strong>Convertibilità</strong> con le codifiche precedenti.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2–§4</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="cc-3">
+          <p class="testo">Perché Unicode assegna codici diversi alla "A" latina e alla "А" cirillica, che sembrano identiche?</p>
+          <div class="opz"><button>Per errore storico</button><button data-giusta>Perché codifica caratteri con la loro semantica, non glifi: appartengono ad alfabeti diversi con proprietà diverse</button><button>Perché hanno font diversi</button><button>Perché la cirillica è più recente</button></div>
+          <div class="perche" hidden><p>Principio "caratteri, non glifi" e principio di semantica: conta cosa è il carattere, non come appare. Serve per ordinare, cercare, convertire maiuscole e minuscole correttamente.</p></div>
+        </div>
+        <div class="domanda" data-id="cc-4">
+          <p class="testo">Quanti caratteri definisce ASCII?</p>
+          <div class="opz"><button data-giusta>128 (7 bit)</button><button>256 (8 bit)</button><button>65 536</button><button>95</button></div>
+          <div class="perche" hidden><p>128, di cui 95 stampabili e 33 di controllo. 256 è il massimo di un byte, sfruttato dalle code page e da Latin-1.</p></div>
+        </div>
+        <div class="domanda" data-id="cc-5">
+          <p class="testo">Qual è il problema principale delle code page?</p>
+          <div class="opz"><button>Usano 16 bit</button><button data-giusta>Lo stesso codice significa caratteri diversi a seconda della code page, e il file non dice quale usa</button><button>Non includono ASCII</button><button>Sono proprietarie di Unicode</button></div>
+          <div class="perche" hidden><p>Il byte 0xE9 è "é" in Latin-1 ma un'altra lettera in una code page greca o cirillica: senza un'informazione esterna non si può sapere.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Spazio dei codici</span>
+        <h2>UCS, i piani e UTF-16</h2>
+      </div>
+      <p><strong>UCS-2:</strong> 2 byte fissi per carattere (65 536 posizioni). <strong>UCS-4:</strong> 4 byte (31 bit), divisi in gruppi, <strong>piani</strong> da 65 536 caratteri, righe e celle.</p>
+      <div class="def">
+        <span class="etichetta">I piani</span>
+        <p><strong>Piano 0 · BMP (Basic Multilingual Plane):</strong> U+0000–U+FFFF, gli <strong>alfabeti moderni</strong>; equivale a UCS-2. · Piano 1 (SMP): alfabeti antichi, ma anche emoji e simboli. · Piano 2 (SIP) e 3 (TIP): ideogrammi CJK rari e antichi. · Piano 14: tag. · Piani 15 e 16: <strong>uso privato</strong>. In tutto 17 piani (0–16) = <strong>1 112 064 code point</strong>.</p>
+      </div>
+      <p><strong>UTF-16</strong> (1996): i caratteri del BMP occupano 2 byte, come in UCS-2. Per i piani 1–16 si usa una <strong>coppia di surrogati</strong> (4 byte), cioè due valori riservati da 16 bit. Java, JavaScript e Windows usano internamente UTF-16.</p>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Il cuore</span>
+        <h2>UTF-8</h2>
+      </div>
+      <p>Quasi tutti i testi usano un solo alfabeto, e moltissimi sono in ASCII: usare 4 byte per ogni carattere sarebbe uno spreco. <strong>UTF-8 usa da 1 a 4 byte</strong> a seconda del carattere ed è la codifica standard del web.</p>
+      <div class="def">
+        <span class="etichetta">La tabella da sapere a memoria</span>
+        <p><code>0xxxxxxx</code> → carattere completo di <strong>1 byte</strong>, identico ad ASCII (U+0000–U+007F)<br>
+        <code>110xxxxx</code> → primo byte di un carattere da <strong>2 byte</strong>: alfabeti non ideografici, latino accentato, greco, cirillico, arabo… (fino a U+07FF)<br>
+        <code>1110xxxx</code> → primo byte di uno da <strong>3 byte</strong>: il resto del BMP, ideogrammi, € (fino a U+FFFF)<br>
+        <code>11110xxx</code> → primo byte di uno da <strong>4 byte</strong>: fuori dal BMP (emoji, alfabeti antichi)<br>
+        <code>10xxxxxx</code> → <strong>byte di continuazione</strong>: porta 6 bit del carattere, <strong>non è mai il primo</strong></p>
+        <p><strong>Regola:</strong> il primo byte ha tanti 1 iniziali quanti sono i byte del carattere; i byte successivi iniziano tutti con 10. Se si trova un 10xxxxxx dove dovrebbe iniziare un carattere, il flusso è <strong>malformato</strong> (o lo si sta leggendo da metà) e si saltano i byte fino al primo inizio valido.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof</span><h4>"é" (U+00E9) in UTF-8</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>U+00E9 = 0b000 1110 1001: sta tra U+0080 e U+07FF, quindi servono 2 byte con schema 110yyyyy 10xxxxxx.</p></div></li>
+            <li><div><p>Gli 11 bit utili sono 00011 101001: si mettono 00011 nel primo byte e 101001 nel secondo.</p></div></li>
+            <li><div><p class="risultato">11000011 10101001 = 0xC3 0xA9</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §5–§6</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="cc-6">
+          <p class="testo">Un byte UTF-8 vale <code>1110 0010</code>. Cosa significa?</p>
+          <div class="opz"><button>È un carattere ASCII</button><button>È un byte di continuazione</button><button data-giusta>È il primo byte di un carattere da 3 byte</button><button>È il primo byte di un carattere da 2 byte</button></div>
+          <div class="perche" hidden><p>Tre 1 iniziali, poi uno 0: carattere da 3 byte. È per esempio l'inizio di € (E2 82 AC).</p></div>
+        </div>
+        <div class="domanda" data-id="cc-7">
+          <p class="testo">Quanti byte occupa un'emoji come 😀 (U+1F600) in UTF-8?</p>
+          <div class="opz"><button>1</button><button>2</button><button>3</button><button data-giusta>4</button></div>
+          <div class="perche" hidden><p>È fuori dal BMP (sopra U+FFFF), quindi servono 4 byte, con il primo che inizia per 11110. In UTF-16 è una coppia di surrogati.</p></div>
+        </div>
+        <div class="domanda" data-id="cc-8">
+          <p class="testo">Cosa contiene il Basic Multilingual Plane?</p>
+          <div class="opz"><button>Solo i caratteri ASCII</button><button data-giusta>I code point da U+0000 a U+FFFF, cioè gli alfabeti moderni</button><button>Le Private Use Area</button><button>Solo gli ideogrammi cinesi</button></div>
+          <div class="perche" hidden><p>È il piano 0, uguale a UCS-2: 65 536 posizioni. Le PUA principali sono nei piani 15 e 16 (più un blocco dentro il BMP).</p></div>
+        </div>
+        <div class="domanda" data-id="cc-9">
+          <p class="testo">Un testo in inglese semplice (solo ASCII) salvato in UTF-8 e in ISO Latin-1…</p>
+          <div class="opz"><button data-giusta>è identico byte per byte</button><button>in UTF-8 occupa il doppio</button><button>in Latin-1 non si può salvare</button><button>in UTF-8 richiede il BOM</button></div>
+          <div class="perche" hidden><p>Per i codici 0–127 le due codifiche coincidono con ASCII. Le differenze arrivano con gli accenti: 2 byte in UTF-8, 1 in Latin-1.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Problemi</span>
+        <h2>Ordine dei byte, BOM e mojibake</h2>
+      </div>
+      <p><strong>Big-endian e little-endian:</strong> alcuni processori scrivono prima il byte più significativo, altri il meno significativo. Il carattere 4F52 in UCS-2 diventa 4F 52 (big-endian) oppure 52 4F (little-endian). Il nome viene dai <em>Viaggi di Gulliver</em> di Swift.</p>
+      <div class="def">
+        <span class="etichetta">BOM · Byte Order Mark</span>
+        <p>All'inizio di un flusso UTF-16 o UCS-2 si mette U+FEFF (Zero-Width No-Break Space, un carattere "invisibile"). Chi legge FE FF sa che il flusso è big-endian; chi legge FF FE sa che è little-endian, perché U+FFFE è <strong>vietato</strong> in Unicode proprio per questo. In <strong>UTF-8 l'ordine dei byte non conta</strong>, quindi il BOM non serve: HTML lo sconsiglia e JSON lo vieta.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Mojibake (文字化け, "trasformazione di caratteri")</span>
+        <p>È il testo storpiato perché letto con la codifica sbagliata. "é" in UTF-8 è C3 A9; letto come Latin-1 diventa due caratteri, <strong>"Ã©"</strong>. Al contrario, un file Latin-1 letto come UTF-8 produce byte non validi, mostrati come �. Colpisce quasi solo le lettere accentate, perché la parte ASCII è uguale nelle due codifiche.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Trasporto</span>
+        <h2>Content encoding, MIME e Base64</h2>
+      </div>
+      <p>Molti ambienti non accettano tutti i caratteri: alcuni sono "speciali" in un linguaggio, e alcuni canali sono solo a 7 bit. Ci sono due rimedi: l'<strong>escaping</strong>, cioè precedere o sostituire il carattere vietato (<code>\"</code> in C, <code>&amp;quot;</code> in HTML), e l'<strong>encoding</strong>, cioè scriverne il codice con una sintassi speciale (<code>à</code>, <code>&amp;#xE0;</code>, <code>&amp;#224;</code> per "à").</p>
+      <p><strong>SMTP</strong> (la posta, 1982) accetta solo ASCII a 7 bit, messaggi corti e un CRLF ogni 1000 caratteri: non può trasportare file binari. <strong>MIME</strong> lo aggira codificando il messaggio in ASCII e aggiungendo due header: <code>Content-Type</code> (tipo/sottotipo e charset, es. <code>text/plain; charset=ISO-8859-1</code>) e <code>Content-Transfer-Encoding</code> (7bit, 8bit, binary, quoted-printable, base64). Permette anche messaggi multi-parte, come testo più allegato.</p>
+      <div class="def">
+        <span class="etichetta">Base64</span>
+        <p>Usa 64 caratteri ASCII "sicuri": A–Z, a–z, 0–9, + e /. Si prendono <strong>3 byte (24 bit)</strong>, si dividono in <strong>4 gruppi da 6 bit</strong> e ogni gruppo diventa un carattere, quindi <strong>la dimensione cresce di circa un terzo</strong>. Si va a capo ogni 76 caratteri.<br>
+        Esempio: "Man" → 01001101 01100001 01101110 → 010011 010110 000101 101110 = 19, 22, 5, 46 → <strong>"TWFu"</strong>.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Trappola</span><p><strong>Base64 NON è crittografia:</strong> la decodifica è banale e non usa chiavi. Serve solo a trasportare dati binari su canali di testo.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §7–§8</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="cc-10">
+          <p class="testo">In una pagina vedi "perchÃ©" al posto di "perché". Cosa è successo?</p>
+          <div class="opz"><button data-giusta>Un testo UTF-8 è stato letto come ISO Latin-1</button><button>Un testo Latin-1 è stato letto come UTF-8</button><button>Manca il font</button><button>Il file è stato compresso</button></div>
+          <div class="perche" hidden><p>"é" in UTF-8 è C3 A9; in Latin-1 C3 = Ã e A9 = ©. Due byte diventano due caratteri.</p></div>
+        </div>
+        <div class="domanda" data-id="cc-11">
+          <p class="testo">Perché in UTF-8 il BOM non serve?</p>
+          <div class="opz"><button>Perché UTF-8 è a 16 bit</button><button data-giusta>Perché UTF-8 lavora byte per byte e l'ordine dei byte non dipende dal processore</button><button>Perché UTF-8 è solo per l'inglese</button><button>Perché il BOM è vietato in HTML</button></div>
+          <div class="perche" hidden><p>Il BOM risolve il problema big/little-endian delle codifiche a 16 e 32 bit. In UTF-8 la sequenza di byte è fissata dallo standard.</p></div>
+        </div>
+        <div class="domanda" data-id="cc-12">
+          <p class="testo">Un file di 300 KB viene codificato in Base64. Quanto diventa grande, circa?</p>
+          <div class="opz"><button>300 KB</button><button data-giusta>400 KB</button><button>600 KB</button><button>150 KB</button></div>
+          <div class="perche" hidden><p>Ogni 3 byte diventano 4 caratteri: +33%, quindi 300 · 4/3 = 400 KB (un po' di più con gli a capo).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s9">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§9 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-cc">
+        <li><label><input type="checkbox" id="cc-c1"><span>Convertire tra binario, esadecimale e decimale un byte</span></label></li>
+        <li><label><input type="checkbox" id="cc-c2"><span>Raccontare ASCII, code page e Latin-1 e i loro limiti</span></label></li>
+        <li><label><input type="checkbox" id="cc-c3"><span>Elencare i principi di Unicode e spiegare "caratteri, non glifi"</span></label></li>
+        <li><label><input type="checkbox" id="cc-c4"><span>Dire cosa sono BMP, piani, PUA e surrogati UTF-16</span></label></li>
+        <li><label><input type="checkbox" id="cc-c5"><span>Leggere i bit iniziali di un byte UTF-8 e codificare un carattere a 2 byte</span></label></li>
+        <li><label><input type="checkbox" id="cc-c6"><span>Spiegare BOM, endianness e mojibake</span></label></li>
+        <li><label><input type="checkbox" id="cc-c7"><span>Spiegare escaping, encoding, MIME e Base64 (e che non è cifratura)</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: slide del prof. Vitali «I set di caratteri» (A.A. 2026/27). Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

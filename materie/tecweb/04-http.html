@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HTTP · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="04-http">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Le caratteristiche di HTTP</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Richiesta e risposta</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Codici di stato</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Gli header</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>I metodi</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 4 · slide «HyperText Transfer Protocol»</span>
+      <h1>HTTP</h1>
+      <p class="lede">Il protocollo con cui browser e server si parlano: com'è fatta una richiesta, com'è fatta una risposta, cosa vogliono dire i metodi e i codici di stato. Allo scritto 2026 sono uscite domande su idempotenza, GET "sicuro", 201, Accept e Content-Length.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="03-uri.html">Il capitolo 3 sugli URI</a> (le richieste HTTP chiedono risorse identificate da URI) e <a href="02-codifica-caratteri.html#s8">MIME e Content-Type del capitolo 2</a>. Puoi vedere HTTP dal vivo: nel browser apri gli <strong>Strumenti per sviluppatori → Rete</strong> e ricarica una pagina.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li>HTTP è <strong>client-server, generico, stateless</strong>: cosa vuol dire ciascuna parola, e perché lo stato sta nel client.</li>
+        <li>Metodi <strong>sicuri</strong> e <strong>idempotenti</strong>: la tabella va saputa a memoria.</li>
+        <li>Le <strong>classi dei codici di stato</strong> e i codici principali (200, 201, 301, 400, 401, 403, 404, 500).</li>
+        <li>Header importanti: Content-Type, <strong>Content-Length</strong> (obbligatorio con connessioni persistenti), <strong>Accept</strong>, Host, User-Agent.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Definizione</span>
+        <h2>Le caratteristiche di HTTP</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Client-server, generico, stateless</span>
+        <p><strong>Client-server:</strong> il client apre la connessione e chiede; il server accetta, eventualmente identifica chi chiede, e risponde.<br>
+        <strong>Generico:</strong> è indipendente dal formato dei dati trasmessi (HTML, immagini, eseguibili, JSON…).<br>
+        <strong>Stateless:</strong> il server <strong>non conserva informazioni</strong> tra una richiesta e l'altra. È il client che deve ricreare ogni volta il contesto necessario, per esempio inviando un cookie o un token. Ecco perché "lo stato dell'applicazione sta nel client".</p>
+      </div>
+      <p><strong>Risorse e rappresentazioni:</strong> HTTP scambia <em>rappresentazioni</em> di risorse identificate da URI. La stessa risorsa può avere più rappresentazioni (HTML, JSON, inglese, italiano…), e il client può chiedere quella che preferisce: è la <strong>content negotiation</strong>. HTTP ha anche meccanismi di <strong>caching</strong>: copie su proxy e gateway con controllo della validità.</p>
+      <div class="def">
+        <span class="etichetta">Connessioni</span>
+        <p>Le connessioni sono <strong>persistenti</strong>: una connessione TCP porta più richieste e risposte. Con il <strong>pipelining</strong> si inviano più richieste senza aspettare le risposte, che però tornano nello stesso ordine. Con il <strong>multiplexing</strong> (HTTP/2) richieste e risposte sono intrecciate e possono tornare in qualsiasi ordine. HTTP/2 introduce anche il server push e la compressione degli header.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Messaggi</span>
+        <h2>Richiesta e risposta</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Struttura</span>
+        <p><strong>Richiesta:</strong> riga di richiesta (<code>METODO URI VERSIONE</code>) + header (generali, di richiesta, di entità) + riga vuota + body opzionale (un messaggio MIME).<br>
+        <strong>Risposta:</strong> riga di stato (<code>VERSIONE CODICE MESSAGGIO</code>) + header (generali, di risposta, di entità) + riga vuota + body.</p>
+      </div>
+<pre class="codice largo" data-copia><code>
+GET /beta.html HTTP/1.1
+Host: www.alpha.com:80
+User-Agent: Mozilla/5.0 (Macintosh)
+Referer: http://www.alpha.com/alpha.html
+Accept: text/html, image/png, */*
+Accept-Encoding: gzip
+Accept-Language: it, en
+Connection: keep-alive
+
+HTTP/1.1 200 OK
+Date: Wed, 04 Nov 2026 10:00:00 GMT
+Server: nginx
+Content-Type: text/html; charset=utf-8
+Content-Length: 3357
+
+&lt;!doctype html&gt; …
+</code></pre>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Status code</span>
+        <h2>I codici di stato</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le cinque classi (la prima cifra)</span>
+        <p><strong>1xx informativi</strong> (risposta provvisoria) · <strong>2xx successo</strong> · <strong>3xx redirezione</strong> (serve un'altra azione del client) · <strong>4xx errore del client</strong> (richiesta sbagliata o non autorizzata) · <strong>5xx errore del server</strong> (richiesta forse corretta, ma il server ha un problema interno).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">I codici da sapere</span>
+        <p><strong>200</strong> OK · <strong>201</strong> Created (risorsa creata, con PUT o POST; spesso con l'header Location) · <strong>202</strong> Accepted (accettata ma non ancora completata, per le operazioni asincrone) · <strong>204</strong> No Content · <strong>301</strong> Moved Permanently (la risorsa ha un nuovo URI) · <strong>302</strong> redirect temporaneo · <strong>304</strong> Not Modified (usa la copia in cache) · <strong>400</strong> Bad Request (errore di sintassi) · <strong>401</strong> Unauthorized (manca l'autenticazione) · <strong>403</strong> Forbidden (autenticato ma senza permesso) · <strong>404</strong> Not Found · <strong>405</strong> metodo non ammesso · <strong>409</strong> Conflict · <strong>500</strong> Internal Server Error (di solito un errore nel codice server-side).</p>
+      </div>
+      <p>Usare bene i codici rende le API chiare: il client capisce l'esito <strong>senza leggere il body</strong>, e cache e proxy sanno come comportarsi.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Header</span>
+        <h2>Gli header</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Quattro famiglie</span>
+        <p><strong>Generali</strong> (sul messaggio): Date, Connection (keep-alive o close), Cache-Control, Transfer-Encoding.<br>
+        <strong>Di entità</strong> (sul body): <strong>Content-Type</strong> (il tipo MIME, obbligatorio se c'è un body), <strong>Content-Length</strong> (la lunghezza in byte), Content-Encoding, Content-Language.<br>
+        <strong>Di richiesta:</strong> <strong>Host</strong> (dominio e porta, obbligatorio in HTTP/1.1), User-Agent, Referer (la pagina da cui si arriva), <strong>Accept</strong>, Accept-Language, Accept-Encoding, Authorization.<br>
+        <strong>Di risposta:</strong> Server, WWW-Authenticate, Location.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Le due domande d'esame</span><p><strong>Perché Content-Length è cruciale con le connessioni persistenti?</strong> Perché la connessione non si chiude dopo la risposta: senza la lunghezza, il client non saprebbe dove finisce un body e dove inizia la risposta successiva (l'alternativa è il transfer-encoding chunked).<br>
+      <strong>A cosa serve Accept?</strong> Il client dice quali formati di risposta preferisce (es. <code>application/json</code>): è la content negotiation. Il formato del body che il client <em>invia</em> sta invece in Content-Type.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1–§4</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="ht-1">
+          <p class="testo">Cosa vuol dire che HTTP è stateless?</p>
+          <div class="opz"><button>Che non usa TCP</button><button data-giusta>Che il server non conserva il contesto tra una richiesta e l'altra: ogni richiesta deve portarsi dietro quello che serve</button><button>Che non può usare i cookie</button><button>Che le risposte non hanno codici di stato</button></div>
+          <div class="perche" hidden><p>I cookie esistono proprio per questo: il client li rimanda a ogni richiesta, così ricostruisce il contesto.</p></div>
+        </div>
+        <div class="domanda" data-id="ht-2">
+          <p class="testo">Un utente senza permessi chiede una pagina riservata, ma è autenticato. Codice corretto?</p>
+          <div class="opz"><button>401</button><button data-giusta>403</button><button>404</button><button>500</button></div>
+          <div class="perche" hidden><p>401 vuol dire che manca l'autenticazione (chi sei?). 403 vuol dire che sei identificato ma non hai il permesso.</p></div>
+        </div>
+        <div class="domanda" data-id="ht-3">
+          <p class="testo">Un errore nel codice PHP del server produce tipicamente…</p>
+          <div class="opz"><button>400</button><button>404</button><button data-giusta>500</button><button>301</button></div>
+          <div class="perche" hidden><p>5xx è un problema del server, 4xx un problema della richiesta del client.</p></div>
+        </div>
+        <div class="domanda" data-id="ht-4">
+          <p class="testo">Quale header deve essere presente in ogni messaggio che ha un body?</p>
+          <div class="opz"><button>User-Agent</button><button data-giusta>Content-Type</button><button>Referer</button><button>Accept</button></div>
+          <div class="perche" hidden><p>Senza Content-Type il destinatario non sa come interpretare i byte. Insieme a Content-Length dice cos'è e quanto è lungo.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Verbi</span>
+        <h2>I metodi e le loro proprietà</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Due proprietà</span>
+        <p><strong>Sicuro</strong> (niente a che fare con password o hacker!): <strong>non cambia lo stato del server</strong>, a parte i log. Può essere eseguito anche da una cache senza danni.<br>
+        <strong>Idempotente:</strong> fare la stessa richiesta <strong>N volte</strong> ha lo <strong>stesso effetto di farla una volta</strong>. Si può ripetere senza danni, per esempio dopo un timeout.<br>
+        Ogni metodo sicuro è anche idempotente, non viceversa.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">La tabella</span>
+        <p><strong>GET</strong>: chiede una risorsa (click su un link, URL nella barra) · sicuro ✓ idempotente ✓<br>
+        <strong>HEAD</strong>: come GET ma solo gli header, senza body, per controllare esistenza e cache · sicuro ✓ idempotente ✓<br>
+        <strong>OPTIONS</strong>: chiede le opzioni e i requisiti del server (usato nel CORS) · sicuro ✓ idempotente ✓<br>
+        <strong>PUT</strong>: crea o <strong>sostituisce</strong> la risorsa a quell'URI; un GET successivo deve restituire ciò che hai messo · sicuro ✗ idempotente ✓<br>
+        <strong>DELETE</strong>: rimuove la risorsa; dopo, GET dà 404, e fare DELETE su una risorsa che non c'è non è un errore · sicuro ✗ idempotente ✓<br>
+        <strong>POST</strong>: invia dati al server, che li elabora secondo la semantica della risorsa (form, creazione in una collezione…) · sicuro ✗ idempotente ✗<br>
+        <strong>PATCH</strong>: modifica <strong>parziale</strong> di una risorsa · sicuro ✗ idempotente ✗</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Ragionamento tipo</span><h4>Perché PUT è idempotente e POST no?</h4></div>
+        <div class="soluzione"><span class="etichetta">Spiegazione</span>
+          <ol class="passi">
+            <li><div><p><code>PUT /courses/1678 {...}</code> dice "la risorsa 1678 <em>deve essere</em> così". Mandarla tre volte lascia comunque la 1678 in quello stato.</p></div></li>
+            <li><div><p><code>POST /courses/ {...}</code> dice "<em>aggiungi</em> un corso alla collezione". Mandarla tre volte crea tre corsi.</p></div></li>
+            <li><div><p class="risultato">Se un PUT viene ripetuto per errore, lo stato finale è identico a quello di un solo PUT. È la domanda del 28/01/2026</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §5</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="ht-5">
+          <p class="testo">Quale metodo è idempotente ma non sicuro?</p>
+          <div class="opz"><button>GET</button><button>POST</button><button data-giusta>DELETE</button><button>HEAD</button></div>
+          <div class="perche" hidden><p>DELETE cambia lo stato (non è sicuro), ma ripeterlo non cambia ulteriormente niente (è idempotente). Lo stesso vale per PUT.</p></div>
+        </div>
+        <div class="domanda" data-id="ht-6">
+          <p class="testo">Vuoi solo sapere se una risorsa esiste e quanto è grande, senza scaricarla. Quale metodo usi?</p>
+          <div class="opz"><button data-giusta>HEAD</button><button>GET</button><button>OPTIONS</button><button>PATCH</button></div>
+          <div class="perche" hidden><p>HEAD restituisce gli header (Content-Length, Last-Modified…) senza il body.</p></div>
+        </div>
+        <div class="domanda" data-id="ht-7">
+          <p class="testo">Che differenza c'è tra PUT e PATCH?</p>
+          <div class="opz"><button>Nessuna</button><button data-giusta>PUT sostituisce l'intera risorsa; PATCH ne modifica solo una parte</button><button>PATCH crea, PUT cancella</button><button>PUT non ha body</button></div>
+          <div class="perche" hidden><p>Con PUT mandi la rappresentazione completa; con PATCH solo le modifiche, ad esempio {"cfu": 6}.</p></div>
+        </div>
+        <div class="domanda" data-id="ht-8">
+          <p class="testo">Perché GET si dice "sicuro"?</p>
+          <div class="opz"><button>Perché è cifrato con HTTPS</button><button data-giusta>Perché non deve modificare lo stato del server</button><button>Perché richiede la password</button><button>Perché non lascia log</button></div>
+          <div class="perche" hidden><p>Per questo un link (GET) non deve mai cancellare o modificare dati: un crawler o una cache potrebbero "cliccarlo".</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-ht">
+        <li><label><input type="checkbox" id="ht-c1"><span>Spiegare client-server, generico, stateless</span></label></li>
+        <li><label><input type="checkbox" id="ht-c2"><span>Scrivere a memoria una richiesta e una risposta HTTP</span></label></li>
+        <li><label><input type="checkbox" id="ht-c3"><span>Classi dei codici di stato e i codici principali</span></label></li>
+        <li><label><input type="checkbox" id="ht-c4"><span>Le quattro famiglie di header; Content-Type, Content-Length, Accept, Host</span></label></li>
+        <li><label><input type="checkbox" id="ht-c5"><span>La tabella metodi × sicuro × idempotente</span></label></li>
+        <li><label><input type="checkbox" id="ht-c6"><span>Persistenza, pipelining, multiplexing</span></label></li>
+      </ul>
+      <aside class="nota">Le slide citano anche cookie, CORS, caching, autenticazione e HTTP/3 come argomenti collegati: li riprendiamo nei capitoli su Ajax e sicurezza.</aside>
+    </section>
+
+    <footer class="piede"><p>Fonte: slide «HyperText Transfer Protocol» (A. Di Iorio, corso di Tecnologie Web A.A. 2026/27). Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

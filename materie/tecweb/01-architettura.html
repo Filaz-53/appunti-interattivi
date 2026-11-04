@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Architettura del Web · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="01-architettura">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Cos'è il WWW</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Reti a livelli e TCP/IP</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Breve storia</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Le parole chiave del web moderno</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Browser e server oggi</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Verifica e ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 1 · slide «Introduzione al WWW»</span>
+      <h1>Architettura del Web</h1>
+      <p class="lede">Come è fatto il World Wide Web: chi parla con chi, su quali protocolli, e da dove vengono le tecnologie che usiamo oggi. È la mappa di tutto il corso: ogni concetto qui ha poi un capitolo suo.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p>Niente di particolare. Due parole che ritornano sempre: un <strong>protocollo</strong> è un insieme di regole condivise su come due programmi si scambiano messaggi; il <strong>client</strong> è il programma che chiede (il browser), il <strong>server</strong> è quello che risponde (il programma sul computer che ospita il sito).</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li>I <strong>tre pilastri</strong> del WWW: URI, HTTP, HTML.</li>
+        <li>Cosa fanno <strong>IP</strong>, <strong>TCP</strong>, <strong>UDP</strong> e <strong>DNS</strong>.</li>
+        <li>Definizioni brevi dei termini moderni: CDN, Ajax, SPA, responsive, SSR, PWA, framework a componenti, Node.js, WebAssembly. Una CDN è uscita come domanda aperta nel 2026.</li>
+        <li>I temi del prof: <strong>dichiarativo contro procedurale</strong>, aperto contro proprietario, markup presentazionale contro semantico.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Definizione</span>
+        <h2>Cos'è il World Wide Web</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Il WWW è un sistema per presentare a schermo documenti multimediali e navigarli con <strong>link ipertestuali</strong>, distribuito su tutta Internet. Funziona con due ruoli:</p>
+        <p><strong>Client (browser):</strong> visualizza documenti ipertestuali e multimediali e ha un linguaggio di programmazione interno, JavaScript, per controlli sui dati o applicazioni intere.<br>
+        <strong>Server:</strong> dà accesso a risorse locali (file, record di database) e le trasmette su TCP, individuate da un identificatore univoco. Può fare da tramite verso applicazioni lato server, così il browser diventa l'interfaccia dell'applicazione.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">I tre protocolli fondamentali</span>
+        <p><strong>URI:</strong> lo standard per identificare le risorse di rete e citarle nei documenti (capitolo 3).<br>
+        <strong>HTTP:</strong> il protocollo client-server e <strong>stateless</strong> per accedere alle risorse (capitolo 4).<br>
+        <strong>HTML:</strong> il linguaggio per scrivere i documenti ipertestuali, nato da SGML (capitolo 6).</p>
+      </div>
+      <aside class="nota">Il web è stato creato nel 1991 da Tim Berners-Lee al CERN di Ginevra per far scambiare documenti ai fisici. Nel 1994 ha fondato il W3C.</aside>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Reti</span>
+        <h2>Le reti a livelli e TCP/IP</h2>
+      </div>
+      <p>Una rete è progettata <strong>a livelli</strong>: ognuno svolge un compito preciso e si appoggia su quello sotto. Dal basso: il mezzo fisico (onde radio, rame, fibra), il livello fisico, il collegamento (Wi-Fi, Ethernet, 4G/5G), la <strong>rete</strong> (IP), il <strong>trasporto</strong> (TCP o UDP) e l'<strong>applicazione</strong> (HTTP, HTTPS…). Qualunque sia la connessione fisica, dall'alto il web vede sempre IP, TCP e HTTP.</p>
+      <div class="def">
+        <span class="etichetta">Chi fa cosa</span>
+        <p><strong>IP:</strong> indirizza e instrada i pacchetti (datagrammi). Ogni pacchetto può seguire percorsi diversi, quindi può arrivare in ritardo, fuori ordine o perdersi.<br>
+        <strong>TCP:</strong> costruisce sopra IP una <strong>connessione affidabile</strong>: numera i pacchetti, ritrasmette quelli persi, li rimette in ordine e gestisce le <strong>porte</strong> (quale applicazione riceve i dati).<br>
+        <strong>UDP:</strong> rinuncia alle garanzie per avere meno latenza: va bene per chiamate VoIP, video in diretta, giochi.<br>
+        <strong>DNS:</strong> traduce i nomi di dominio (facili da ricordare) negli indirizzi IP (che servono alla rete).</p>
+      </div>
+      <p><strong>Argomento end-to-end:</strong> affidabilità, ordine e sicurezza si verificano agli estremi, negli host che usano davvero i dati. I router intermedi restano "stupidi" e si limitano a instradare pacchetti, mentre l'intelligenza sta agli estremi.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1–§2</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="ar-1">
+          <p class="testo">Quale livello garantisce che i pacchetti arrivino tutti e nell'ordine giusto?</p>
+          <div class="opz"><button>IP</button><button data-giusta>TCP</button><button>UDP</button><button>DNS</button></div>
+          <div class="perche" hidden><p>IP consegna "al meglio", senza garanzie. TCP aggiunge numerazione, ritrasmissione e riordino. UDP rinuncia apposta alle garanzie.</p></div>
+        </div>
+        <div class="domanda" data-id="ar-2">
+          <p class="testo">Cosa fa il DNS?</p>
+          <div class="opz"><button>Cifra le connessioni</button><button data-giusta>Traduce un nome di dominio nell'indirizzo IP corrispondente</button><button>Assegna le porte alle applicazioni</button><button>Comprime le pagine</button></div>
+          <div class="perche" hidden><p>www.unibo.it è un nome per esseri umani; la rete ha bisogno dell'indirizzo IP del server.</p></div>
+        </div>
+        <div class="domanda" data-id="ar-3">
+          <p class="testo">Quali sono i tre standard su cui si basa il WWW?</p>
+          <div class="opz"><button>TCP, IP, DNS</button><button data-giusta>URI, HTTP, HTML</button><button>HTML, CSS, JavaScript</button><button>SMTP, FTP, HTTP</button></div>
+          <div class="perche" hidden><p>URI per identificare le risorse, HTTP per trasferirle, HTML per scrivere i documenti. TCP/IP sta sotto il web, non è "il web".</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Storia</span>
+        <h2>Breve storia (solo quello che serve)</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le tappe</span>
+        <p><strong>1986</strong> SGML (IBM, standard ISO): il linguaggio di markup dichiarativo da cui nascerà HTML. · <strong>1991</strong> Berners-Lee e Cailliau creano il WWW al CERN. · <strong>1993</strong> Mosaic, il primo browser con immagini, da cui nasce Netscape. · <strong>1994–97</strong> prima guerra dei browser (Netscape contro Microsoft), nascono JavaScript e i linguaggi lato server (Perl, PHP…). <strong>1994</strong> nasce il W3C. · <strong>1996</strong> nasce il <strong>CSS</strong>: separazione tra struttura e presentazione. · <strong>1997</strong> XML. · <strong>1998</strong> Netscape rilascia il codice, da cui Mozilla e Firefox; nasce Google. · <strong>2004</strong> i produttori di browser fondano il WHATWG: HTML5 diventa un "living standard" (dal 2019 lo gestisce solo il WHATWG). · <strong>2005–</strong> Ajax e Web 2.0. · <strong>2007–08</strong> iPhone, Android, Chrome. · <strong>2013–</strong> framework a componenti: Angular (Google), React (Facebook), Vue. · <strong>2016–</strong> Web Components, ritorno del rendering lato server (Next, Nuxt). · <strong>2023–</strong> gli LLM scrivono bene il codice web, e restano centrali le scelte umane su strutture dati, API e astrazioni.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">I tre temi trasversali del prof</span>
+        <p><strong>1. Aperto contro proprietario:</strong> TCP/IP, HTML, Linux e Firefox hanno vinto o resistito perché aperti. <strong>2. Dichiarativo contro procedurale:</strong> nel dichiarativo dico <em>cosa</em> voglio (HTML, CSS, SQL), nel procedurale <em>come</em> ottenerlo passo per passo (JavaScript). <strong>3.</strong> Il web come campo di battaglia costruito sulle macerie delle battaglie precedenti.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Glossario</span>
+        <h2>Le parole chiave del web moderno</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Da sapere definire in una riga</span>
+        <p><strong>Template e CMS:</strong> un template è un documento HTML completo ma vuoto di contenuti, che un motore riempie dal database. Un CMS (WordPress, Drupal) è un motore di template molto sofisticato.<br>
+        <strong>LAMP:</strong> Linux, Apache, MySQL, PHP/Perl/Python, la pila open source per i siti dinamici. <strong>MEAN/MERN:</strong> MongoDB, Express, Angular o React, Node.js.<br>
+        <strong>Architettura a tre livelli:</strong> interfaccia utente, logica applicativa, memorizzazione dei dati.<br>
+        <strong>Ajax</strong> (Asynchronous JavaScript And XML): la pagina chiede dati al server in background e si aggiorna senza ricaricarsi.<br>
+        <strong>Node.js:</strong> esegue JavaScript lato server con il motore V8 di Chrome; con npm ha un ecosistema enorme di moduli.<br>
+        <strong>Responsive design:</strong> la pagina si adatta a qualunque schermo. <strong>Mobile first:</strong> si progetta prima per smartphone.<br>
+        <strong>SPA</strong> (Single Page Application): un'unica pagina che carica dati e viste senza cambiare indirizzo.<br>
+        <strong>Framework a componenti:</strong> ogni componente racchiude il suo HTML (template), CSS e JavaScript. <strong>Opinionated:</strong> quanto un framework impone un modello (Angular molto, React poco).<br>
+        <strong>SSR</strong> (Server-Side Rendering): l'HTML viene generato sul server; con il <strong>CSR</strong> lo costruisce il browser. <strong>Static site generator:</strong> genera in anticipo un sito statico.<br>
+        <strong>PWA</strong> (Progressive Web App): un'app web che su mobile si comporta come un'app nativa (offline, notifiche) grazie ai <strong>Service Worker</strong>.<br>
+        <strong>WebAssembly:</strong> codice binario compilato (da C, C++…) che gira nel browser a velocità quasi nativa, accanto a JavaScript.<br>
+        <strong>TypeScript:</strong> JavaScript con i tipi, che viene tradotto ("transpilato") in JS. <strong>Bundler</strong> (Webpack, Vite): impacchettano l'applicazione e le sue dipendenze.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">CDN · Content Delivery Network</span>
+        <p>Una rete di server distribuiti geograficamente che tengono copie di risorse statiche (librerie JS e CSS, immagini, video). Vantaggi: <strong>meno latenza</strong>, perché risponde il server più vicino; <strong>meno carico</strong> sul server d'origine; <strong>cache condivisa</strong> tra siti; resistenza ai picchi e agli attacchi DDoS. Esempi: jsDelivr, cdnjs, unpkg (da cui si includono Bootstrap e Tailwind), Cloudflare, Akamai.</p>
+      </div>
+      <aside class="nota">Il prof usa anche il termine «enshittification» (Doctorow): un servizio prima cattura gli utenti, poi i fornitori, poi peggiora la qualità per massimizzare il profitto.</aside>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Oggi</span>
+        <h2>Browser e server oggi</h2>
+      </div>
+      <p>Ogni browser ha un <strong>motore di rendering</strong> (disegna HTML e CSS) e un <strong>interprete JavaScript</strong>: Chrome, Edge e Opera usano Blink e V8; Firefox usa Gecko e SpiderMonkey; Safari usa WebKit e Nitro. Su iOS <strong>tutti</strong> i browser usano WebKit.</p>
+      <p><strong>Lato server</strong> ci sono i <strong>server HTTP</strong> (Apache, Nginx, IIS, Caddy), gli <strong>application server</strong> (Node, Deno, Bun, PHP-FPM, Tomcat), i <strong>framework e CMS</strong> (Laravel, Django, WordPress, Strapi) e il <strong>cloud</strong> (Docker per impacchettare in container, Kubernetes per orchestrarli, Lambda per eseguire funzioni su richiesta).</p>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Allenamento</span>
+        <h2>Verifica e ripasso</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 1</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="ar-4">
+          <p class="testo">Quale di questi è un linguaggio dichiarativo?</p>
+          <div class="opz"><button>JavaScript</button><button data-giusta>CSS</button><button>C</button><button>Python</button></div>
+          <div class="perche" hidden><p>Con il CSS dico <em>cosa</em> voglio ("questo titolo è rosso"), non <em>come</em> disegnarlo. JavaScript, C e Python descrivono i passi.</p></div>
+        </div>
+        <div class="domanda" data-id="ar-5">
+          <p class="testo">Cos'è un'applicazione Ajax?</p>
+          <div class="opz"><button>Un'applicazione che funziona solo offline</button><button data-giusta>Una pagina che scambia dati con il server in background e si aggiorna senza ricaricarsi</button><button>Un server scritto in XML</button><button>Un CMS</button></div>
+          <div class="perche" hidden><p>Asynchronous JavaScript And XML. Oggi i dati viaggiano quasi sempre in JSON, ma il nome è rimasto.</p></div>
+        </div>
+        <div class="domanda" data-id="ar-6">
+          <p class="testo">Con il Server-Side Rendering…</p>
+          <div class="opz"><button data-giusta>l'HTML della pagina viene generato sul server prima di essere inviato</button><button>il browser costruisce tutto il DOM con JavaScript</button><button>non serve un server</button><button>la pagina non può avere JavaScript</button></div>
+          <div class="perche" hidden><p>È il contrario del Client-Side Rendering. SSR dà una prima visualizzazione più veloce e pagine indicizzabili dai motori di ricerca.</p></div>
+        </div>
+        <div class="domanda" data-id="ar-7">
+          <p class="testo">Perché il prof cita la nascita del CSS (1996) come una tappa fondamentale?</p>
+          <div class="opz"><button>Perché ha introdotto JavaScript</button><button data-giusta>Perché separa in modo dichiarativo la struttura del documento dalla sua presentazione</button><button>Perché ha sostituito HTTP</button><button>Perché ha reso il web proprietario</button></div>
+          <div class="perche" hidden><p>Prima si usavano "trucchi" presentazionali dentro l'HTML (&lt;font&gt;, tabelle di layout, immagini di testo). Con il CSS l'HTML descrive cosa sono le parti, il CSS come appaiono.</p></div>
+        </div>
+      </div>
+      <span class="etichetta">Checklist</span>
+      <ul class="checklist" data-id="ripasso-ar">
+        <li><label><input type="checkbox" id="ar-c1"><span>Spiegare i ruoli di client e server e i tre pilastri URI, HTTP, HTML</span></label></li>
+        <li><label><input type="checkbox" id="ar-c2"><span>Dire cosa fanno IP, TCP, UDP, DNS</span></label></li>
+        <li><label><input type="checkbox" id="ar-c3"><span>Definire in una riga CDN, Ajax, SPA, SSR, PWA, responsive, framework a componenti</span></label></li>
+        <li><label><input type="checkbox" id="ar-c4"><span>Spiegare dichiarativo contro procedurale con un esempio</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: slide del prof. Vitali «Introduzione al WWW» (A.A. 2026/27). Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>
