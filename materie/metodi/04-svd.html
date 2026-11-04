@@ -40,6 +40,11 @@
       </div>
     </header>
 
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="00-basi.html#s2">vettori ortogonali e lunghezza (cap. 0 §2)</a> · <a href="00-basi.html#s4">prodotto tra matrici e trasposta (cap. 0 §4)</a> · <a href="00-basi.html#s7">rango, immagine e nucleo (cap. 0 §7)</a> · <a href="00-basi.html#s8">autovalori (cap. 0 §8)</a> · <a href="03-fattorizzazioni.html">il capitolo 3</a> (matrici ortogonali e simmetriche). Se qualcosa non ti è chiaro, parti da lì: questo capitolo lo dà per scontato.</p>
+    </div>
+
     <section class="sez" id="s0">
       <div class="titolo-sez largo">
         <span class="num-sez">§0 · Orientamento</span>
@@ -72,6 +77,7 @@
         <span class="etichetta">Teorema</span>
         <p>Per <strong>ogni</strong> A ∈ ℝᵐˣⁿ esistono U ∈ ℝᵐˣᵐ e V ∈ ℝⁿˣⁿ <strong>ortogonali</strong> e Σ ∈ ℝᵐˣⁿ <strong>diagonale</strong> tali che <strong>A = UΣVᵀ</strong>. Sulla diagonale di Σ ci sono i <strong>valori singolari</strong> σ₁ ≥ σ₂ ≥ … ≥ σₚ ≥ 0, con p = min(m, n).</p>
       </div>
+      <aside class="nota">«Σ diagonale» anche se rettangolare: i numeri stanno solo in posizione (1,1), (2,2), … e il resto è zero. Per A 3×2: Σ = [[σ₁, 0], [0, σ₂], [0, 0]]. «U ortogonale» vuol dire che le sue colonne hanno lunghezza 1 e sono perpendicolari tra loro (cap. 0 §2).</aside>
       <p>Le colonne uᵢ di U sono i <strong>vettori singolari sinistri</strong> e sono una base ortonormale di ℝᵐ. Le colonne vᵢ di V sono i <strong>vettori singolari destri</strong> e sono una base ortonormale di ℝⁿ. Valgono le relazioni:</p>
       <p class="formula">Avᵢ = σᵢuᵢ    Aᵀuᵢ = σᵢvᵢ</p>
       <p>Quindi A manda la direzione vᵢ nella direzione uᵢ e ne moltiplica la lunghezza per σᵢ.</p>

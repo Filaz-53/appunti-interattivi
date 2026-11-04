@@ -39,6 +39,11 @@
       </div>
     </header>
 
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="00-basi.html#s4">prodotto e trasposta, in particolare AᵀA (cap. 0 §4)</a> · <a href="00-basi.html#s7">rango, immagine e indipendenza lineare (cap. 0 §7)</a> · <a href="00-basi.html#s2">vettori ortogonali (cap. 0 §2)</a> · <a href="04-svd.html">il capitolo 4</a> (SVD) e <a href="05-sistemi-lineari.html">il capitolo 5</a>. Se qualcosa non ti è chiaro, parti da lì: questo capitolo lo dà per scontato.</p>
+    </div>
+
     <section class="sez" id="s0">
       <div class="titolo-sez largo">
         <span class="num-sez">§0 · Orientamento</span>
@@ -77,6 +82,7 @@
       </div>
       <p><strong>Geometria:</strong> Ax sta sempre in Im(A) = span delle colonne di A. La soluzione sceglie Ax* come il punto di Im(A) <strong>più vicino a b</strong>, cioè la <strong>proiezione ortogonale</strong> di b su Im(A). Nel punto più vicino il residuo è <strong>ortogonale</strong> a tutte le colonne:</p>
       <p class="formula">Aᵀr* = 0  ⟺  Aᵀ(b − Ax*) = 0</p>
+      <aside class="nota">Immagina Im(A) come un piano e b come un punto fuori dal piano. Il punto del piano più vicino a b si trova "scendendo in perpendicolare": quella è la proiezione Ax*. Il residuo b − Ax* è il segmento perpendicolare, quindi è ortogonale a ogni colonna di A, e "ortogonale a tutte le colonne" si scrive proprio Aᵀr = 0 (ogni riga di Aᵀ è una colonna di A).</aside>
     </section>
 
     <section class="sez" id="s3">
@@ -94,7 +100,7 @@
         <div class="soluzione"><span class="etichetta">Soluzione</span>
           <ol class="passi">
             <li><div><p class="formula">AᵀA = [[4, 6], [6, 14]]    Aᵀb = (1+2+2+4, 0+2+4+12) = (9, 18)</p></div></li>
-            <li><div><p>det = 4·14 − 36 = 20. Con Cramer: x₁ = (9·14 − 6·18)/20 = 18/20 = 0.9; x₂ = (4·18 − 6·9)/20 = 18/20 = 0.9.</p></div></li>
+            <li><div><p>È un sistema 2×2: lo risolvo come in cap. 0 §5–§6. det = 4·14 − 6·6 = 20. Con la regola di Cramer (ogni incognita = det della matrice con quella colonna sostituita da Aᵀb, diviso det): x₁ = (9·14 − 6·18)/20 = 18/20 = 0.9; x₂ = (4·18 − 6·9)/20 = 18/20 = 0.9.</p></div></li>
             <li><div><p>Ax* = (0.9, 1.8, 2.7, 3.6); r* = (0.1, 0.2, −0.7, 0.4); ‖r*‖² = 0.7.</p></div></li>
             <li><div><p class="risultato">x* = (0.9, 0.9): retta y = 0.9 + 0.9x. Verifica: Aᵀr* = (0.1+0.2−0.7+0.4, 0.2−1.4+1.2) = (0, 0) ✓</p></div></li>
           </ol>

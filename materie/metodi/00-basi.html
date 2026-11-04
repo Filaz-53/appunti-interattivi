@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le basi che servono · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="00-basi">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Come usare questo capitolo</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>I simboli</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Vettori</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Matrici</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Prodotto tra matrici</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Sistemi lineari</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Determinante e inversa</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Indipendenza e rango</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Autovalori e autovettori</span></a></li>
+        <li><a href="#s9"><span class="n">§9</span><span>Derivate e gradiente</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 0</span>
+      <h1>Le basi che servono</h1>
+      <p class="lede">Tutta l'algebra lineare e l'analisi che il corso dà per scontate, spiegate da zero e solo nella misura in cui servono per gli altri capitoli. Si legge una volta all'inizio, poi ci si torna quando un capitolo rimanda qui.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Come usare questo capitolo</h2>
+      </div>
+      <p>Ogni sezione dice <strong>dove serve</strong> nel corso, spiega l'idea con un esempio numerico e chiude con un paio di domande. Non ci sono dimostrazioni. Se una domanda ti blocca, rileggi l'esempio della sezione: le domande usano gli stessi passaggi.</p>
+      <aside class="nota">Tieni carta e penna: le matrici si capiscono facendo i conti a mano almeno una volta.</aside>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Notazione</span>
+        <h2>I simboli che trovi negli appunti</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Vocabolario</span>
+        <p><strong>ℝ</strong>: i numeri reali. · <strong>ℝⁿ</strong>: i vettori con n numeri (ℝ³ = terne come (1, 2, 3)). · <strong>ℝᵐˣⁿ</strong>: le matrici con m righe e n colonne. · <strong>x ∈ A</strong>: x appartiene ad A. · <strong>∀</strong>: per ogni. · <strong>∃</strong>: esiste.<br>
+        <strong>⇒</strong>: implica (se vale a sinistra vale a destra). · <strong>⟺</strong>: se e solo se (sono equivalenti). · <strong>≈</strong>: circa uguale. · <strong>≪</strong>: molto più piccolo di.<br>
+        <strong>Σᵢ₌₁ⁿ aᵢ</strong> = a₁ + a₂ + … + aₙ (sommatoria). Esempio: Σᵢ₌₁³ i² = 1 + 4 + 9 = 14.<br>
+        <strong>|x|</strong>: valore assoluto (|−3| = 3). · <strong>‖x‖</strong>: norma, cioè la "lunghezza" di un vettore (capitolo 2).<br>
+        <strong>min f(x)</strong>: il valore più piccolo che f raggiunge. · <strong>argmin f(x)</strong>: il punto x in cui lo raggiunge. Esempio: per f(x) = (x − 3)² + 1, min = 1 e argmin = 3.<br>
+        <strong>O(n³)</strong>: il costo cresce come n³ (se raddoppi n, il costo si moltiplica circa per 8).</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="ba-1">
+          <p class="testo">Quanto vale Σᵢ₌₁⁴ 2i?</p>
+          <div class="opz"><button>8</button><button data-giusta>20</button><button>10</button></div>
+          <div class="perche" hidden><p>2·1 + 2·2 + 2·3 + 2·4 = 2 + 4 + 6 + 8 = 20.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-2">
+          <p class="testo">f(x) = (x + 2)² + 5. Quanto vale argmin f?</p>
+          <div class="opz"><button>5</button><button data-giusta>−2</button><button>2</button></div>
+          <div class="perche" hidden><p>Il quadrato è minimo (= 0) quando x + 2 = 0, cioè x = −2: quello è l'argmin. Il valore minimo (min) invece è 5.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Vettori</span>
+        <h2>Vettori e prodotto scalare</h2>
+      </div>
+      <p><strong>Dove serve:</strong> ovunque. Un dato (un cliente, un'immagine) è un vettore; la soluzione di un sistema è un vettore.</p>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Un <strong>vettore</strong> x ∈ ℝⁿ è una lista ordinata di n numeri: x = (x₁, x₂, …, xₙ). xᵢ è la sua <strong>i-esima componente</strong>. Negli appunti i vettori sono pensati "in colonna", cioè scritti in verticale.</p>
+      </div>
+      <p><strong>Operazioni:</strong> la somma si fa componente per componente: (1, 2) + (3, 5) = (4, 7). Un vettore per un numero moltiplica ogni componente: 3·(1, 2) = (3, 6).</p>
+      <div class="def">
+        <span class="etichetta">Prodotto scalare</span>
+        <p><strong>xᵀy = x₁y₁ + x₂y₂ + … + xₙyₙ</strong>. Moltiplica componente per componente e somma: il risultato è un <strong>numero</strong>. Si scrive anche x·y.<br>
+        Se xᵀy = 0 i vettori sono <strong>ortogonali</strong> (perpendicolari). La "lunghezza" euclidea è √(xᵀx).</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio</span><h4>x = (1, 2, 3), y = (4, −1, 0)</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p class="formula">xᵀy = 1·4 + 2·(−1) + 3·0 = 4 − 2 + 0 = 2</p></div></li>
+            <li><div><p class="formula">lunghezza di x = √(1 + 4 + 9) = √14 ≈ 3.74</p></div></li>
+            <li><div><p class="risultato">(1, 1) e (1, −1) sono ortogonali: 1·1 + 1·(−1) = 0</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="ba-3">
+          <p class="testo">Quanto vale il prodotto scalare tra (2, 0, −1) e (3, 5, 4)?</p>
+          <div class="opz"><button data-giusta>2</button><button>10</button><button>(6, 0, −4)</button></div>
+          <div class="perche" hidden><p>2·3 + 0·5 + (−1)·4 = 6 + 0 − 4 = 2. Il prodotto scalare è un numero, non un vettore.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-4">
+          <p class="testo">Quale vettore è ortogonale a (1, 2)?</p>
+          <div class="opz"><button>(1, 2)</button><button data-giusta>(2, −1)</button><button>(2, 1)</button></div>
+          <div class="perche" hidden><p>1·2 + 2·(−1) = 0. Trucco per ℝ²: scambi le componenti e cambi un segno.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Matrici</span>
+        <h2>Matrici e i loro tipi</h2>
+      </div>
+      <p><strong>Dove serve:</strong> un dataset è una matrice; ogni capitolo dal 2 in poi lavora con le matrici.</p>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Una <strong>matrice</strong> A ∈ ℝᵐˣⁿ è una tabella di numeri con <strong>m righe e n colonne</strong> (prima le righe, poi le colonne). <strong>aᵢⱼ</strong> è l'elemento in riga i e colonna j. Negli appunti la si scrive per righe: A = [[1, 2, 3], [4, 5, 6]] ha 2 righe e 3 colonne, e a₂₁ = 4.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">I tipi da riconoscere</span>
+        <p><strong>Quadrata:</strong> m = n. · <strong>Diagonale principale:</strong> gli elementi a₁₁, a₂₂, …, aₙₙ.<br>
+        <strong>Diagonale:</strong> tutti zeri fuori dalla diagonale, es. [[3, 0], [0, 5]].<br>
+        <strong>Identità I:</strong> diagonale con tutti 1, es. [[1, 0], [0, 1]]. Per le matrici fa quello che fa l'1 per i numeri: AI = IA = A.<br>
+        <strong>Triangolare superiore (U):</strong> zeri <em>sotto</em> la diagonale, es. [[2, 1], [0, 3]]. · <strong>Triangolare inferiore (L):</strong> zeri <em>sopra</em> la diagonale, es. [[2, 0], [5, 3]].<br>
+        <strong>Trasposta Aᵀ:</strong> scambia righe e colonne (la riga i diventa la colonna i). Se A è m×n, Aᵀ è n×m. Es. [[1, 2, 3], [4, 5, 6]]ᵀ = [[1, 4], [2, 5], [3, 6]].<br>
+        <strong>Simmetrica:</strong> A = Aᵀ, cioè aᵢⱼ = aⱼᵢ (speculare rispetto alla diagonale), es. [[4, 2], [2, 5]].</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="ba-5">
+          <p class="testo">Una matrice 4×7 ha…</p>
+          <div class="opz"><button data-giusta>4 righe e 7 colonne</button><button>7 righe e 4 colonne</button><button>28 righe</button></div>
+          <div class="perche" hidden><p>Si scrive sempre righe × colonne.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-6">
+          <p class="testo">Quale di queste matrici è triangolare superiore?</p>
+          <div class="opz"><button>[[1, 0], [4, 2]]</button><button data-giusta>[[1, 4], [0, 2]]</button><button>[[0, 4], [1, 2]]</button></div>
+          <div class="perche" hidden><p>Sotto la diagonale (posizione riga 2, colonna 1) c'è 0. La prima è triangolare inferiore.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-7">
+          <p class="testo">A = [[1, 7], [3, 2]]. Quanto vale Aᵀ?</p>
+          <div class="opz"><button>[[1, 7], [3, 2]]</button><button data-giusta>[[1, 3], [7, 2]]</button><button>[[2, 3], [7, 1]]</button></div>
+          <div class="perche" hidden><p>La prima riga (1, 7) diventa la prima colonna. La diagonale resta uguale.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Prodotto</span>
+        <h2>Prodotto matrice-vettore e matrice-matrice</h2>
+      </div>
+      <p><strong>Dove serve:</strong> Ax nei sistemi lineari, LU = A nelle fattorizzazioni, UΣVᵀ nella SVD, AᵀA nei minimi quadrati.</p>
+      <div class="def">
+        <span class="etichetta">La regola "riga per colonna"</span>
+        <p>L'elemento in posizione (i, j) di AB è il <strong>prodotto scalare tra la riga i di A e la colonna j di B</strong>. Si può fare solo se <strong>le colonne di A sono tante quante le righe di B</strong>: (m×<strong>n</strong>)·(<strong>n</strong>×p) = m×p.<br>
+        Matrice per vettore è un caso particolare: (m×n)·(n×1) = un vettore con m componenti.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio passo per passo</span><h4>A = [[1, 2], [3, 4]], x = (5, 6), B = [[0, 1], [1, 0]]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>Ax:</strong> riga 1 · x = 1·5 + 2·6 = 17; riga 2 · x = 3·5 + 4·6 = 39. Quindi Ax = (17, 39).</p></div></li>
+            <li><div><p><strong>AB:</strong> (1,1): (1,2)·(0,1) = 2; (1,2): (1,2)·(1,0) = 1; (2,1): (3,4)·(0,1) = 4; (2,2): (3,4)·(1,0) = 3. Quindi AB = [[2, 1], [4, 3]].</p></div></li>
+            <li><div><p><strong>BA</strong> = [[3, 4], [1, 2]], diverso da AB.</p></div></li>
+            <li><div><p class="risultato">Il prodotto tra matrici NON è commutativo: in generale AB ≠ BA</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="avviso"><span class="etichetta">Da ricordare</span><p><strong>(AB)ᵀ = BᵀAᵀ</strong> (l'ordine si inverte). <strong>AᵀA</strong> è sempre quadrata (n×n) e simmetrica, anche se A è rettangolare. Per esempio A 100×3 dà AᵀA 3×3: è proprio la matrice dei minimi quadrati. In Python il prodotto si scrive <code>A @ B</code>; <code>A * B</code> invece moltiplica elemento per elemento, che è un'altra cosa.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="ba-8">
+          <p class="testo">[[2, 0], [1, 3]] · (4, 1) = ?</p>
+          <div class="opz"><button data-giusta>(8, 7)</button><button>(8, 3)</button><button>(9, 3)</button></div>
+          <div class="perche" hidden><p>Riga 1: 2·4 + 0·1 = 8. Riga 2: 1·4 + 3·1 = 7.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-9">
+          <p class="testo">A è 5×3 e B è 3×2. AB è…</p>
+          <div class="opz"><button>3×3</button><button data-giusta>5×2</button><button>non si può fare</button></div>
+          <div class="perche" hidden><p>(5×<b>3</b>)·(<b>3</b>×2): le dimensioni interne coincidono, il risultato prende quelle esterne, cioè 5×2.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-10">
+          <p class="testo">A è 1000×4. Che dimensione ha AᵀA?</p>
+          <div class="opz"><button>1000×1000</button><button data-giusta>4×4</button><button>1000×4</button></div>
+          <div class="perche" hidden><p>Aᵀ è 4×1000; (4×1000)·(1000×4) = 4×4.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Sistemi</span>
+        <h2>Un sistema lineare è Ax = b</h2>
+      </div>
+      <p><strong>Dove serve:</strong> capitoli 3, 5 e 6.</p>
+      <p>Il sistema { 2x₁ + x₂ = 5 ; x₁ + x₂ = 3 } si scrive in forma compatta <strong>Ax = b</strong>, con A = [[2, 1], [1, 1]] (i coefficienti), x = (x₁, x₂) (le incognite) e b = (5, 3) (i termini noti). Infatti Ax, con la regola di §4, dà proprio (2x₁ + x₂, x₁ + x₂).</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio</span><h4>Risolvere a mano per sottrazione</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Sottraggo la seconda equazione dalla prima: (2x₁ + x₂) − (x₁ + x₂) = 5 − 3, quindi x₁ = 2.</p></div></li>
+            <li><div><p>Sostituisco nella seconda: 2 + x₂ = 3, quindi x₂ = 1.</p></div></li>
+            <li><div><p class="risultato">x = (2, 1). Verifica: A·(2, 1) = (5, 3) = b ✓</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <p>"Sottrarre un multiplo di un'equazione da un'altra per eliminare un'incognita" è esattamente l'<strong>eliminazione di Gauss</strong> del capitolo 3, fatta in modo sistematico.</p>
+      <p><strong>Un sistema può avere:</strong> una soluzione sola; nessuna (es. x + y = 1 e x + y = 2: equazioni contraddittorie); infinite (es. x + y = 1 e 2x + 2y = 2: la seconda è la prima ripetuta).</p>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Inversa</span>
+        <h2>Determinante e matrice inversa</h2>
+      </div>
+      <p><strong>Dove serve:</strong> condizionamento (capitolo 5), "singolare" e "invertibile" ovunque.</p>
+      <div class="def">
+        <span class="etichetta">Matrici 2×2 (basta saperlo per queste)</span>
+        <p>Per A = [[a, b], [c, d]]: <strong>det(A) = ad − bc</strong>.<br>
+        Se det(A) ≠ 0, A è <strong>invertibile</strong> (non singolare) e <strong>A⁻¹ = (1/det)·[[d, −b], [−c, a]]</strong>: si scambiano i due elementi della diagonale, si cambia segno agli altri due e si divide per il determinante.<br>
+        L'inversa è la matrice tale che <strong>AA⁻¹ = A⁻¹A = I</strong>. Se det(A) = 0 la matrice è <strong>singolare</strong> e l'inversa non esiste.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio</span><h4>A = [[2, 1], [1, 1]]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p class="formula">det = 2·1 − 1·1 = 1</p></div></li>
+            <li><div><p class="formula">A⁻¹ = (1/1)·[[1, −1], [−1, 2]] = [[1, −1], [−1, 2]]</p></div></li>
+            <li><div><p class="risultato">Verifica: AA⁻¹ = [[2−1, −2+2], [1−1, −1+2]] = [[1, 0], [0, 1]] = I ✓</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <aside class="nota">Per una matrice triangolare il determinante è il prodotto degli elementi sulla diagonale.</aside>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §6</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="ba-11">
+          <p class="testo">Quale matrice è singolare?</p>
+          <div class="opz"><button>[[1, 2], [3, 4]]</button><button data-giusta>[[2, 4], [1, 2]]</button><button>[[1, 0], [0, 5]]</button></div>
+          <div class="perche" hidden><p>det = 2·2 − 4·1 = 0. Le altre hanno det −2 e 5.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-12">
+          <p class="testo">A = [[4, 1], [2, 1]]. Quanto vale A⁻¹?</p>
+          <div class="opz"><button data-giusta>[[0.5, −0.5], [−1, 2]]</button><button>[[1, −1], [−2, 4]]</button><button>[[0.25, 1], [0.5, 1]]</button></div>
+          <div class="perche" hidden><p>det = 4 − 2 = 2. A⁻¹ = ½·[[1, −1], [−2, 4]] = [[0.5, −0.5], [−1, 2]]. La seconda opzione dimentica di dividere per il determinante.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Struttura</span>
+        <h2>Indipendenza lineare, rango, immagine e nucleo</h2>
+      </div>
+      <p><strong>Dove serve:</strong> capitolo 4 (rango dalla SVD) e capitolo 6 (unicità dei minimi quadrati).</p>
+      <div class="def">
+        <span class="etichetta">Le idee (intuitive)</span>
+        <p><strong>Combinazione lineare</strong> di vettori: sommarli dopo averli moltiplicati per dei numeri, es. 2v₁ − 3v₂.<br>
+        Dei vettori sono <strong>linearmente indipendenti</strong> se nessuno si ottiene come combinazione degli altri, cioè nessuno è "ridondante". (1, 2) e (2, 4) sono <strong>dipendenti</strong>, perché il secondo è il doppio del primo.<br>
+        <strong>span</strong> di alcuni vettori: tutte le loro combinazioni lineari. Lo span di (1,0) e (0,1) è tutto il piano ℝ².<br>
+        <strong>Rango</strong> di A, rank(A): quante colonne linearmente indipendenti ha, cioè quante "direzioni davvero diverse" contiene.<br>
+        <strong>Immagine</strong> Im(A): lo span delle colonne, cioè tutti i possibili Ax. · <strong>Nucleo</strong> ker(A): i vettori x con Ax = 0.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio</span><h4>A = [[1, 2], [2, 4]]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>La colonna 2, (2, 4), è il doppio della colonna 1, (1, 2): sono dipendenti, quindi rank(A) = 1.</p></div></li>
+            <li><div><p>det = 4 − 4 = 0, quindi è singolare. Per una matrice quadrata n×n vale: rango n ⟺ det ≠ 0 ⟺ invertibile.</p></div></li>
+            <li><div><p class="risultato">x = (2, −1) sta nel nucleo: A·(2, −1) = (2−2, 4−4) = (0, 0)</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §7</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="ba-13">
+          <p class="testo">Qual è il rango di [[1, 3], [2, 6], [3, 9]]?</p>
+          <div class="opz"><button data-giusta>1</button><button>2</button><button>3</button></div>
+          <div class="perche" hidden><p>La seconda colonna è 3 volte la prima: c'è una sola direzione indipendente.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-14">
+          <p class="testo">A è 3×3 con rango 3. Allora…</p>
+          <div class="opz"><button>det(A) = 0</button><button data-giusta>A è invertibile</button><button>Ax = b non ha soluzione</button></div>
+          <div class="perche" hidden><p>Rango pieno ⟺ det ≠ 0 ⟺ invertibile, e Ax = b ha un'unica soluzione.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Autovalori</span>
+        <h2>Autovalori e autovettori</h2>
+      </div>
+      <p><strong>Dove serve:</strong> capitolo 3 §5, capitolo 4 (σᵢ = √autovalori di AᵀA) e capitolo 9 (classificare i minimi con l'Hessiana).</p>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>v ≠ 0 è un <strong>autovettore</strong> di A (quadrata) con <strong>autovalore</strong> λ se <strong>Av = λv</strong>: A non cambia la direzione di v, lo allunga o accorcia di un fattore λ.<br>
+        <strong>Come si calcolano (2×2):</strong> si risolve <strong>det(A − λI) = 0</strong>, un'equazione di secondo grado in λ. A − λI vuol dire sottrarre λ agli elementi della diagonale.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio</span><h4>A = [[2, 1], [1, 2]]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>A − λI = [[2−λ, 1], [1, 2−λ]], quindi det = (2−λ)² − 1.</p></div></li>
+            <li><div><p>(2−λ)² = 1 ⇒ 2 − λ = ±1 ⇒ <strong>λ = 1</strong> oppure <strong>λ = 3</strong>.</p></div></li>
+            <li><div><p>Verifica con v = (1, 1): Av = (3, 3) = 3·(1, 1) ✓ (autovalore 3). Con v = (1, −1): Av = (1, −1) = 1·(1, −1) ✓ (autovalore 1).</p></div></li>
+            <li><div><p class="risultato">Gli autovalori sono 1 e 3, entrambi positivi: A è definita positiva (capitolo 3)</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <aside class="nota">Per una matrice diagonale o triangolare gli autovalori sono gli elementi della diagonale: non serve calcolare niente.</aside>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §8</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="ba-15">
+          <p class="testo">Quali sono gli autovalori di [[5, 0], [0, −2]]?</p>
+          <div class="opz"><button>5 e 0</button><button data-giusta>5 e −2</button><button>3</button></div>
+          <div class="perche" hidden><p>È diagonale: gli autovalori sono gli elementi sulla diagonale.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-16">
+          <p class="testo">Av = 4v con v = (1, 2). Quanto vale A·(1, 2)?</p>
+          <div class="opz"><button>(1, 2)</button><button data-giusta>(4, 8)</button><button>(5, 6)</button></div>
+          <div class="perche" hidden><p>Per definizione Av = λv = 4·(1, 2) = (4, 8).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s9">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§9 · Analisi</span>
+        <h2>Derivate, gradiente e Hessiana</h2>
+      </div>
+      <p><strong>Dove serve:</strong> capitolo 8 (Newton usa f′) e capitolo 9 (gradiente e Hessiana).</p>
+      <div class="def">
+        <span class="etichetta">Derivata (una variabile)</span>
+        <p>f′(x) è la <strong>pendenza</strong> di f nel punto x: positiva se f sale, negativa se scende, zero nei punti di massimo o minimo (tangente orizzontale).<br>
+        <strong>Regole:</strong> (c)′ = 0 · (xⁿ)′ = n·xⁿ⁻¹ · (eˣ)′ = eˣ · (ln x)′ = 1/x · (sin x)′ = cos x · (cos x)′ = −sin x · (f + g)′ = f′ + g′ · (c·f)′ = c·f′ · <strong>catena</strong>: (f(g(x)))′ = f′(g(x))·g′(x), es. (e^(3x))′ = 3e^(3x).<br>
+        La <strong>derivata seconda</strong> f″ è la derivata di f′ e dice la <strong>curvatura</strong>: f″ &gt; 0 vuol dire concava verso l'alto, cioè forma a ∪.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Più variabili</span>
+        <p>Per f(x, y), la <strong>derivata parziale</strong> ∂f/∂x si calcola derivando rispetto a x e trattando y come una costante (e viceversa).<br>
+        Il <strong>gradiente</strong> ∇f = (∂f/∂x, ∂f/∂y) è il vettore delle derivate parziali e punta nella direzione in cui f <strong>cresce più in fretta</strong>.<br>
+        L'<strong>Hessiana</strong> ∇²f è la matrice delle derivate seconde [[∂²f/∂x², ∂²f/∂x∂y], [∂²f/∂y∂x, ∂²f/∂y²]]. È simmetrica ed è la "f″" in più variabili.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio</span><h4>f(x, y) = x² + 3xy</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>∂f/∂x: y è una costante, quindi 2x + 3y. ∂f/∂y: x è una costante, quindi 0 + 3x = 3x.</p></div></li>
+            <li><div><p>∇f = (2x + 3y, 3x). Nel punto (1, 2): ∇f = (2 + 6, 3) = (8, 3).</p></div></li>
+            <li><div><p class="risultato">Hessiana: ∂²f/∂x² = 2, ∂²f/∂x∂y = 3, ∂²f/∂y² = 0, quindi ∇²f = [[2, 3], [3, 0]]</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §9</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="ba-17">
+          <p class="testo">f(x) = x³ − 2x. Quanto vale f′(2)?</p>
+          <div class="opz"><button>4</button><button data-giusta>10</button><button>12</button></div>
+          <div class="perche" hidden><p>f′(x) = 3x² − 2, quindi f′(2) = 12 − 2 = 10.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-18">
+          <p class="testo">f(x, y) = x²y + y. Quanto vale ∂f/∂y?</p>
+          <div class="opz"><button>2xy</button><button data-giusta>x² + 1</button><button>2x + 1</button></div>
+          <div class="perche" hidden><p>Con x costante: x²y ha derivata x² rispetto a y, e y ha derivata 1. 2xy è invece ∂f/∂x.</p></div>
+        </div>
+        <div class="domanda" data-id="ba-19">
+          <p class="testo">Il gradiente di f in un punto indica…</p>
+          <div class="opz"><button data-giusta>la direzione in cui f cresce più rapidamente</button><button>il valore minimo di f</button><button>la direzione in cui f non cambia</button></div>
+          <div class="perche" hidden><p>Per scendere verso il minimo si va nella direzione opposta, −∇f: è il metodo del gradiente del capitolo 9.</p></div>
+        </div>
+      </div>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-ba">
+        <li><label><input type="checkbox" id="ba-c1"><span>Leggere i simboli Σ, ∈, ⟺, argmin, ℝᵐˣⁿ</span></label></li>
+        <li><label><input type="checkbox" id="ba-c2"><span>Calcolare un prodotto scalare e riconoscere vettori ortogonali</span></label></li>
+        <li><label><input type="checkbox" id="ba-c3"><span>Riconoscere matrici diagonali, triangolari, simmetriche; fare la trasposta</span></label></li>
+        <li><label><input type="checkbox" id="ba-c4"><span>Moltiplicare matrice × vettore e matrice × matrice; prevedere le dimensioni</span></label></li>
+        <li><label><input type="checkbox" id="ba-c5"><span>Scrivere un sistema come Ax = b e risolverne uno 2×2</span></label></li>
+        <li><label><input type="checkbox" id="ba-c6"><span>Calcolare det e inversa di una 2×2</span></label></li>
+        <li><label><input type="checkbox" id="ba-c7"><span>Dire il rango di una matrice piccola guardando le colonne</span></label></li>
+        <li><label><input type="checkbox" id="ba-c8"><span>Trovare gli autovalori di una 2×2</span></label></li>
+        <li><label><input type="checkbox" id="ba-c9"><span>Calcolare derivate, derivate parziali, gradiente e Hessiana di funzioni semplici</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Capitolo di base scritto da noi per colmare i prerequisiti del corso (algebra lineare e analisi). Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

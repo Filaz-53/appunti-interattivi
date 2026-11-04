@@ -40,6 +40,11 @@
       </div>
     </header>
 
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="00-basi.html#s3">matrici triangolari, simmetriche, identità (cap. 0 §3)</a> · <a href="00-basi.html#s4">prodotto tra matrici (per verificare A = LU) (cap. 0 §4)</a> · <a href="00-basi.html#s5">sistemi lineari e l'idea di eliminare un'incognita (cap. 0 §5)</a> · <a href="00-basi.html#s6">determinante e matrice singolare (cap. 0 §6)</a> · <a href="00-basi.html#s8">autovalori, per §5 (cap. 0 §8)</a>. Se qualcosa non ti è chiaro, parti da lì: questo capitolo lo dà per scontato.</p>
+    </div>
+
     <section class="sez" id="s0">
       <div class="titolo-sez largo">
         <span class="num-sez">§0 · Orientamento</span>
@@ -78,6 +83,7 @@
       </div>
       <p>Gauss annulla, colonna dopo colonna, gli elementi sotto la diagonale. Al passo k, per l'elemento in riga i &gt; k:</p>
       <p class="formula">mᵢₖ = −aᵢₖ / aₖₖ  e  Rᵢ ← Rᵢ + mᵢₖ·Rₖ</p>
+      <aside class="nota">In parole: «alla riga i sommo la riga k moltiplicata per m». Il <strong>pivot</strong> aₖₖ è l'elemento sulla diagonale che uso per eliminare, e m è scelto apposta perché l'elemento sotto il pivot diventi 0. È lo stesso trucco del sistema 2×2 del cap. 0 §5.</aside>
       <p>Alla fine si ottiene U. In L, sotto la diagonale, vanno i <strong>moltiplicatori cambiati di segno</strong>, cioè ℓᵢₖ = aᵢₖ / aₖₖ. Il costo è circa <strong>n³/3</strong> operazioni, quindi O(n³).</p>
       <article class="esercizio largo">
         <div class="esercizio-testa"><span class="etichetta">Esempio della prof · Gauss a mano</span><h4>A = [[2, 1, 1], [4, −6, 0], [−2, 7, 2]]</h4></div>
@@ -157,7 +163,7 @@ x = lu_solve(lu_piv, b)    # risolve Ax = b riusando la fattorizzazione
       </div>
       <div class="def">
         <span class="etichetta">Definizione e teorema</span>
-        <p>A è <strong>definita positiva</strong> se xᵀAx &gt; 0 per ogni x ≠ 0. Una matrice simmetrica definita positiva ha tutti gli autovalori &gt; 0. Se A è <strong>simmetrica e definita positiva</strong>, esiste un'<strong>unica</strong> L triangolare inferiore con diagonale positiva tale che <strong>A = LLᵀ</strong>. Il costo è circa <strong>n³/6</strong>, la <strong>metà della LU</strong>, perché sfrutta la simmetria.</p>
+        <p>A è <strong>definita positiva</strong> se xᵀAx &gt; 0 per ogni x ≠ 0. (xᵀAx è un numero: prima calcoli il vettore Ax, poi fai il prodotto scalare con x. Esempio: A = [[2, 0], [0, 3]] e x = (1, 1) danno Ax = (2, 3) e xᵀAx = 2 + 3 = 5 &gt; 0.) Una matrice simmetrica definita positiva ha tutti gli autovalori &gt; 0. Se A è <strong>simmetrica e definita positiva</strong>, esiste un'<strong>unica</strong> L triangolare inferiore con diagonale positiva tale che <strong>A = LLᵀ</strong>. Il costo è circa <strong>n³/6</strong>, la <strong>metà della LU</strong>, perché sfrutta la simmetria.</p>
       </div>
       <article class="esercizio largo">
         <div class="esercizio-testa"><span class="etichetta">Esempio della prof</span><h4>A = [[4, 2, 2], [2, 5, 1], [2, 1, 5]]</h4></div>

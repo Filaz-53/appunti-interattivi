@@ -66,6 +66,7 @@ window.MATERIE = [
     tinta: 152,
     descrizione: "Il corso B9132 (6 CFU) della prof.ssa Loli Piccolomini, capitolo per capitolo: teoria minima, esercizi svolti e quiz a 3 opzioni come allo scritto.",
     argomenti: [
+      { id: "00-basi", titolo: "Le basi che servono", sottotitolo: "Algebra lineare e analisi da zero: simboli, vettori, matrici, prodotto, sistemi, determinante e inversa, rango, autovalori, derivate e gradiente.", fonte: "Scritto da noi per colmare i prerequisiti" },
       { id: "01-numeri-finiti", titolo: "Numeri finiti ed errori", sottotitolo: "Errori assoluto e relativo, sistema floating point 𝔽(β,t,L,U), precisione di macchina, aritmetica finita, cancellazione, condizionamento e stabilità.", fonte: "Dispense Loli Piccolomini, lezione «I numeri finiti e il calcolo scientifico»" },
       { id: "02-norme", titolo: "Norme di vettori e matrici", sottotitolo: "Perché i dati sono matrici, norme 1, 2, ∞ e di Frobenius, norme indotte e submoltiplicatività.", fonte: "Dispense Loli Piccolomini, lezione «Perché l'algebra lineare è fondamentale»" },
       { id: "03-fattorizzazioni", titolo: "Fattorizzazioni LU e Cholesky", sottotitolo: "Eliminazione di Gauss, LU, pivoting PA = LU, Cholesky A = LLᵀ, autovalori e autovettori.", fonte: "Dispense Loli Piccolomini, lezione «Fattorizzazione di matrici»" },
