@@ -85,5 +85,29 @@ window.MATERIE = [
         fonte: "Dispense Loli Piccolomini 2026/27, lezioni m3–m12"
       }
     ]
+  },
+  {
+    id: "tecweb",
+    nome: "Tecnologie Web",
+    breve: "TecWeb",
+    tinta: 25,
+    descrizione: "Il corso 88566 (9 CFU) del prof. Vitali: dai caratteri e gli URI fino a framework e Semantic Web, preparato sul quiz d'esame del 2026.",
+    argomenti: [
+      { id: "00-com-e-l-esame", titolo: "Com'è l'esame e quiz", sottotitolo: "Il formato 2026 (quiz di 20 domande su EOL), cosa esce più spesso e 22 domande d'allenamento nello stile dell'esame.", fonte: "Scritti 2022–2026 (risorse.vercel.app), scheda dell'insegnamento 2026/27" },
+      { id: "01-architettura", titolo: "Architettura del Web", sottotitolo: "Client e server, modelli a tre e quattro livelli, Ajax e Web 2.0, CDN, strumenti dello sviluppatore.", stato: "in-arrivo" },
+      { id: "02-codifica-caratteri", titolo: "Codifica dei caratteri", sottotitolo: "ASCII, ISO Latin-1, Unicode e i suoi piani (BMP), UCS e UTF-8/16: come si leggono i byte.", stato: "in-arrivo" },
+      { id: "03-uri", titolo: "URI", sottotitolo: "Risorse, URL e URN, sintassi, risoluzione degli URI relativi, design degli URI.", stato: "in-arrivo" },
+      { id: "04-http", titolo: "HTTP", sottotitolo: "Richieste e risposte, metodi, metodi sicuri e idempotenti, codici di stato, header, connessioni persistenti, cookie.", stato: "in-arrivo" },
+      { id: "05-rest", titolo: "API REST", sottotitolo: "Risorse, stateless, progettare gli endpoint, content negotiation, JSON.", stato: "in-arrivo" },
+      { id: "06-html", titolo: "Markup e HTML", sottotitolo: "Markup presentazionale e descrittivo, struttura di un documento, elementi semantici, form, DOM.", stato: "in-arrivo" },
+      { id: "07-css", titolo: "CSS", sottotitolo: "Selettori e specificità, box model, unità di misura, position, flexbox, grid, responsive, Bootstrap e Tailwind.", stato: "in-arrivo" },
+      { id: "08-javascript", titolo: "JavaScript: il linguaggio", sottotitolo: "Tipi, null e undefined, oggetti e prototipi, array e map/filter/reduce/forEach, Date, closure.", stato: "in-arrivo" },
+      { id: "09-js-browser-ajax", titolo: "JavaScript nel browser e Ajax", sottotitolo: "DOM ed eventi, XMLHttpRequest e fetch, callback, Promise, async/await, chiamate in sequenza.", stato: "in-arrivo" },
+      { id: "10-server-side", titolo: "Server side: Node.js e MongoDB", sottotitolo: "Node.js ed event loop, callback error-first, Express, MongoDB, _id e schemi Mongoose.", stato: "in-arrivo" },
+      { id: "11-framework", titolo: "Framework a componenti", sottotitolo: "React, Vue, Angular, Virtual DOM, Web Components e Shadow DOM, SSR e CSR.", stato: "in-arrivo" },
+      { id: "12-semantic-web", titolo: "Semantic Web", sottotitolo: "RDF e triple, Turtle, blank node, ontologie e OWL, SPARQL.", stato: "in-arrivo" },
+      { id: "13-ux-accessibilita-sicurezza", titolo: "UX, accessibilità e sicurezza", sottotitolo: "Il modello di Garrett, accessibilità (WAI-ARIA), header di sicurezza.", stato: "in-arrivo" },
+      { id: "progetto", titolo: "Il progetto di gruppo", sottotitolo: "Specifica, requisiti, organizzazione del gruppo e come prepararsi alla presentazione.", stato: "in-arrivo" }
+    ]
   }
 ];

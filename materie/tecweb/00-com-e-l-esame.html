@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Com'è l'esame e quiz · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="00-com-e-l-esame">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Il formato dell'esame</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Cosa esce</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Quiz · CSS e HTML</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Quiz · JavaScript</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Quiz · HTTP, REST, URI</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Quiz · Codifica dei caratteri</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Quiz · Server, framework, Semantic Web</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Domande aperte</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · scritti 2022–2026</span>
+      <h1>Com'è l'esame e quiz</h1>
+      <p class="lede">Il formato dello scritto del 2026, cosa esce più spesso e un quiz d'allenamento sugli stessi argomenti. Le domande sono scritte da noi sugli argomenti emersi dalle revisioni degli esami 2026: non sono quelle ufficiali.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Formato</span>
+        <h2>Il formato dell'esame</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Dalla scheda 2026/27</span>
+        <p>Due parti: un <strong>progetto di gruppo</strong> (2–3 persone) da presentare, dove si valuta anche il contributo individuale, e una <strong>prova scritta individuale</strong> con esercizi e domande teoriche. Pesi e voto minimo sono da verificare su Virtuale.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Lo scritto è cambiato nel 2026</span>
+        <p><strong>Gennaio–febbraio 2026:</strong> quiz su EOL di <strong>20 domande da 1 punto</strong>, circa un'ora, quasi tutte a risposta multipla con 4 opzioni più qualche domanda aperta breve (con punteggio parziale). <strong>Fino a gennaio 2025:</strong> 3 esercizi al computer (teoria + REST + Mongoose, un layout HTML/CSS, un'app con un framework JS).</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Cosa vuol dire per lo studio</span><p>Con 20 domande su tutto il programma serve <strong>copertura ampia</strong>: ogni argomento vale 1–3 domande. Le domande chiedono spesso <em>«perché»</em> o di interpretare un pezzo di codice, quindi non basta la memoria: bisogna aver capito.</p></div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Frequenze</span>
+        <h2>Cosa esce (quiz del 2026)</h2>
+      </div>
+      <ul>
+        <li><strong>CSS</strong> ●●●●●: unità di misura, <code>position: sticky</code>, <code>object-fit</code>, flexbox, @rules.</li>
+        <li><strong>JavaScript</strong> ●●●●●: forEach, map/filter/reduce, null e undefined, Date, console.</li>
+        <li><strong>HTTP e REST</strong> ●●●●●: idempotenza, metodi sicuri, codici di stato, header, stateless.</li>
+        <li><strong>JS asincrono e Ajax</strong> ●●●●: callback, XHR, Promise in catena.</li>
+        <li><strong>Codifica dei caratteri</strong> ●●●●: byte UTF-8, BMP, perché Unicode distingue caratteri simili.</li>
+        <li><strong>HTML</strong> ●●●●: form, <code>&lt;button&gt;</code>, contenuto delle liste, markup descrittivo.</li>
+        <li><strong>Semantic Web</strong> ●●●●: Turtle, blank node, SPARQL.</li>
+        <li><strong>URI</strong> ●●●: URI relativi, URL e URN.</li>
+        <li><strong>Framework</strong> ●●●: Shadow DOM, React, SSR e CSR.</li>
+        <li><strong>Node.js e MongoDB</strong> ●●●: error-first, <code>_id</code>.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Allenamento</span>
+        <h2>Quiz · CSS e HTML</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>CSS e HTML</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="tw-1">
+          <p class="testo">Un elemento ha <code>position: sticky</code> ma durante lo scroll non resta attaccato. Qual è la causa più probabile?</p>
+          <div class="opz"><button>Manca <code>display: flex</code> sul contenitore</button><button data-giusta>Non è impostato un valore come <code>top: 0</code></button><button>Manca <code>z-index</code></button><button>Sticky funziona solo sugli elementi <code>&lt;header&gt;</code></button></div>
+          <div class="perche" hidden><p>Sticky ha bisogno di almeno una soglia (top, bottom, left o right) diversa da <code>auto</code> sull'asse dello scroll: è la soglia oltre la quale l'elemento si "attacca".</p></div>
+        </div>
+        <div class="domanda" data-id="tw-2">
+          <p class="testo">Contenitore con <code>display: flex</code> e direzione di default. Come centri i figli in orizzontale?</p>
+          <div class="opz"><button>align-items: center</button><button data-giusta>justify-content: center</button><button>text-align: center</button><button>vertical-align: middle</button></div>
+          <div class="perche" hidden><p>Con flex-direction: row l'asse principale è orizzontale e <code>justify-content</code> agisce sull'asse principale. <code>align-items</code> agisce sull'asse trasversale (qui verticale).</p></div>
+        </div>
+        <div class="domanda" data-id="tw-3">
+          <p class="testo">Cosa fa <code>object-fit: cover</code> su un'immagine?</p>
+          <div class="opz"><button>Mostra sempre tutta l'immagine, con bande vuote</button><button data-giusta>Riempie il contenitore mantenendo le proporzioni, tagliando se serve</button><button>Deforma l'immagine per riempire il contenitore</button><button>Riduce il peso in KB dell'immagine</button></div>
+          <div class="perche" hidden><p>La prima opzione descrive <code>contain</code>, la terza <code>fill</code>. Il CSS non cambia mai il file scaricato.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-4">
+          <p class="testo">A cosa sono relative le unità <code>rem</code> e <code>vh</code>?</p>
+          <div class="opz"><button data-giusta>rem alla dimensione del font dell'elemento radice; vh all'1% dell'altezza del viewport</button><button>rem al font del genitore; vh all'altezza del genitore</button><button>Sono entrambe unità assolute</button><button>rem ai pixel dello schermo; vh alla larghezza della pagina</button></div>
+          <div class="perche" hidden><p><code>em</code> è relativo al font dell'elemento stesso (o del genitore per font-size), <code>rem</code> a quello di <code>&lt;html&gt;</code>. <code>vw</code> e <code>vh</code> sono l'1% di larghezza e altezza del viewport. Le unità assolute sono px, cm, pt…</p></div>
+        </div>
+        <div class="domanda" data-id="tw-5">
+          <p class="testo">Un <code>&lt;button&gt;</code> dentro un <code>&lt;form&gt;</code>, senza attributo <code>type</code>, quando viene cliccato…</p>
+          <div class="opz"><button>non fa niente</button><button data-giusta>invia il form (type di default = submit)</button><button>resetta il form</button><button>dà un errore di validazione HTML</button></div>
+          <div class="perche" hidden><p>Il default è <code>submit</code>. Per un pulsante che esegue solo JavaScript si scrive <code>type="button"</code>: è un errore classico anche nei progetti.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-6">
+          <p class="testo">Qual è la differenza tra markup presentazionale e descrittivo?</p>
+          <div class="opz"><button>Nessuna, sono sinonimi</button><button data-giusta>Il presentazionale dice come appare il testo; il descrittivo dice che cosa è (titolo, paragrafo…) e lascia l'aspetto al CSS</button><button>Il descrittivo si usa solo in XML</button><button>Il presentazionale è più accessibile</button></div>
+          <div class="perche" hidden><p>Esempio: &lt;b&gt;, &lt;font&gt; sono presentazionali, &lt;strong&gt; e &lt;h1&gt; descrittivi. Separare contenuto e presentazione è proprio il motivo per cui è nato il CSS.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Allenamento</span>
+        <h2>Quiz · JavaScript</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>JavaScript e asincronia</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="tw-7">
+          <p class="testo">Quanto vale <code>res</code> dopo <code>const res = [1,2,3].forEach(x =&gt; x * 2);</code>?</p>
+          <div class="opz"><button>[2, 4, 6]</button><button>[1, 2, 3]</button><button data-giusta>undefined</button><button>un iteratore</button></div>
+          <div class="perche" hidden><p><code>forEach</code> serve per gli effetti collaterali e restituisce sempre undefined. Per ottenere [2, 4, 6] si usa <code>map</code>.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-8">
+          <p class="testo">Quale affermazione su <code>null</code> e <code>undefined</code> è corretta?</p>
+          <div class="opz"><button>null === undefined è true</button><button data-giusta>null == undefined è true, ma null === undefined è false</button><button>typeof null è "null"</button><button>undefined si assegna solo esplicitamente</button></div>
+          <div class="perche" hidden><p>Con l'uguaglianza debole sono uguali, con quella stretta no. <code>typeof null</code> è "object" (un errore storico del linguaggio). undefined è il valore di una variabile dichiarata e mai assegnata; null si assegna per dire "nessun valore".</p></div>
+        </div>
+        <div class="domanda" data-id="tw-9">
+          <p class="testo">Perché una callback Ajax non può "restituire" il dato alla funzione che ha fatto la richiesta?</p>
+          <div class="opz"><button>Perché Ajax è sincrono</button><button>Perché JavaScript non ha il return</button><button data-giusta>Perché viene eseguita dopo, quando la funzione chiamante è già terminata</button><button>Perché il browser lo vieta per sicurezza</button></div>
+          <div class="perche" hidden><p>La richiesta è asincrona: la funzione prosegue e termina, e la callback arriva più tardi dall'event loop. Il dato va usato dentro la callback, oppure si usa una Promise o async/await.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-10">
+          <p class="testo">Tre chiamate Ajax A → B → C, dove ognuna usa il risultato della precedente. Come le scrivi?</p>
+          <div class="opz"><button>Tre fetch lanciate insieme con Promise.all</button><button data-giusta>Promise in catena (then → then → then) oppure await una dopo l'altra in una funzione async</button><button>Tre XHR sincrone</button><button>Con setTimeout</button></div>
+          <div class="perche" hidden><p>Promise.all va bene per chiamate <em>indipendenti</em>. Se B dipende da A bisogna aspettare A: si fa con la catena di <code>.then</code> o con <code>await</code> in sequenza (l'alternativa vecchia sono le callback annidate, il "callback hell").</p></div>
+        </div>
+        <div class="domanda" data-id="tw-11">
+          <p class="testo">Perché in JavaScript <code>dataFine - dataInizio</code>, tra due oggetti Date, dà un numero?</p>
+          <div class="opz"><button data-giusta>Perché la sottrazione converte i Date nel loro valore numerico (millisecondi dal 1/1/1970)</button><button>Perché Date è un tipo primitivo</button><button>Perché JavaScript confronta le stringhe delle date</button><button>Non funziona: dà NaN</button></div>
+          <div class="perche" hidden><p>L'operatore − chiama <code>valueOf()</code>, che per un Date restituisce il timestamp in millisecondi. Il risultato è la differenza in millisecondi.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Allenamento</span>
+        <h2>Quiz · HTTP, REST e URI</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>HTTP, REST, URI</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="tw-12">
+          <p class="testo">Un client invia per errore tre volte la stessa PUT allo stesso URI. Cosa dovrebbe succedere?</p>
+          <div class="opz"><button>Tre versioni diverse della risorsa</button><button>La seconda e la terza falliscono con 409</button><button data-giusta>Lo stato finale è lo stesso di una sola PUT (idempotenza)</button><button>Gli effetti si sommano</button></div>
+          <div class="perche" hidden><p>PUT, GET, DELETE sono idempotenti: ripeterli non cambia il risultato. POST no: tre POST possono creare tre risorse.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-13">
+          <p class="testo">Perché GET è definito un metodo "sicuro"?</p>
+          <div class="opz"><button>Perché è cifrato</button><button data-giusta>Perché non deve modificare lo stato del server</button><button>Perché richiede autenticazione</button><button>Perché non usa i cookie</button></div>
+          <div class="perche" hidden><p>"Sicuro" vuol dire senza effetti collaterali (sola lettura), non protetto. Ogni metodo sicuro è anche idempotente, ma non viceversa (PUT è idempotente ma non sicuro).</p></div>
+        </div>
+        <div class="domanda" data-id="tw-14">
+          <p class="testo">Quando una API risponde <code>201 Created</code> a una POST?</p>
+          <div class="opz"><button>Quando la richiesta è stata solo ricevuta</button><button data-giusta>Quando la POST ha creato una nuova risorsa (di solito con l'header Location)</button><button>Quando la risorsa esisteva già</button><button>Sempre, per ogni POST andata a buon fine</button></div>
+          <div class="perche" hidden><p>201 indica la creazione, e <code>Location</code> dice l'URI della nuova risorsa. Una POST riuscita che non crea niente risponde 200 (o 204 senza corpo); "ricevuta ma non ancora elaborata" è 202.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-15">
+          <p class="testo">A cosa serve l'header <code>Accept</code> in una richiesta?</p>
+          <div class="opz"><button>A dire al server il formato del corpo che sto inviando</button><button data-giusta>A dire al server quali formati di risposta il client preferisce (content negotiation)</button><button>Ad autenticarsi</button><button>A chiedere la compressione</button></div>
+          <div class="perche" hidden><p>Il formato di ciò che <em>invio</em> sta in <code>Content-Type</code>; la compressione si chiede con <code>Accept-Encoding</code>; l'autenticazione usa <code>Authorization</code>.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-16">
+          <p class="testo">La pagina è <code>https://uni.it/corsi/web/lez/1.html</code> e contiene il link <code>../slide/a.pdf</code>. Qual è l'URI assoluto?</p>
+          <div class="opz"><button>https://uni.it/slide/a.pdf</button><button data-giusta>https://uni.it/corsi/web/slide/a.pdf</button><button>https://uni.it/corsi/web/lez/slide/a.pdf</button><button>https://uni.it/corsi/slide/a.pdf</button></div>
+          <div class="perche" hidden><p>Si parte dalla cartella del documento (<code>/corsi/web/lez/</code>); <code>..</code> sale di un livello a <code>/corsi/web/</code> e poi si aggiunge <code>slide/a.pdf</code>.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Allenamento</span>
+        <h2>Quiz · Codifica dei caratteri</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Lo schema di UTF-8 da sapere</span>
+        <p><code>0xxxxxxx</code> = carattere ASCII in 1 byte · <code>110xxxxx</code> = inizio di un carattere da 2 byte · <code>1110xxxx</code> = inizio di uno da 3 · <code>11110xxx</code> = inizio di uno da 4 · <code>10xxxxxx</code> = byte di <strong>continuazione</strong>, mai il primo.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Codifica</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="tw-17">
+          <p class="testo">In UTF-8, un byte <code>10xxxxxx</code> trovato come primo byte di un carattere indica…</p>
+          <div class="opz"><button>un carattere ASCII</button><button>un ideogramma</button><button data-giusta>un flusso malformato</button><button>un carattere Latin-1</button></div>
+          <div class="perche" hidden><p>10xxxxxx è sempre un byte di continuazione: se compare per primo, il flusso è corrotto o è stato tagliato a metà carattere.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-18">
+          <p class="testo">Cos'è il Basic Multilingual Plane (BMP)?</p>
+          <div class="opz"><button data-giusta>Il primo piano di Unicode, i codici da U+0000 a U+FFFF, con quasi tutti gli alfabeti in uso</button><button>L'insieme dei caratteri ASCII</button><button>Un'estensione di ISO Latin-1 per l'Europa</button><button>Il piano delle emoji</button></div>
+          <div class="perche" hidden><p>65 536 posizioni rappresentabili con 16 bit (era lo spazio di UCS-2). Emoji e caratteri rari stanno nei piani superiori.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-19">
+          <p class="testo">Quanti byte usa UTF-8 per la lettera "A" (U+0041) e per "è" (U+00E8)?</p>
+          <div class="opz"><button>2 e 2</button><button data-giusta>1 e 2</button><button>1 e 1</button><button>4 e 4</button></div>
+          <div class="perche" hidden><p>Fino a U+007F (ASCII) basta 1 byte, identico ad ASCII. Da U+0080 a U+07FF ne servono 2. In ISO Latin-1 invece "è" occupa 1 byte: per questo i testi Latin-1 letti come UTF-8 mostrano caratteri strani.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Allenamento</span>
+        <h2>Quiz · Server, framework, Semantic Web</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Il resto del programma</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="tw-20">
+          <p class="testo">Nella convenzione error-first di Node.js, la callback riceve…</p>
+          <div class="opz"><button>prima il risultato, poi l'errore</button><button data-giusta>come primo argomento l'errore (null se tutto è andato bene), poi i risultati</button><button>solo l'errore</button><button>un oggetto Promise</button></div>
+          <div class="perche" hidden><p>Esempio: <code>fs.readFile("a.txt", (err, data) =&gt; { if (err) return gestisci(err); usa(data); })</code>.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-21">
+          <p class="testo">In MongoDB, cos'è <code>_id</code>?</p>
+          <div class="opz"><button>Un campo opzionale per l'ordinamento</button><button data-giusta>La chiave primaria del documento: unica nella collezione, generata in automatico (ObjectId) se non la si fornisce</button><button>L'indirizzo del server</button><button>Il nome della collezione</button></div>
+          <div class="perche" hidden><p>Ogni documento ha un <code>_id</code> unico. L'ObjectId generato contiene anche un timestamp di creazione.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-22">
+          <p class="testo">A cosa serve lo Shadow DOM nei Web Components?</p>
+          <div class="opz"><button>A nascondere il componente</button><button data-giusta>A creare un sotto-albero DOM incapsulato, su cui stili e script della pagina non agiscono</button><button>A duplicare il DOM per velocità</button><button>A generare CSS in automatico</button></div>
+          <div class="perche" hidden><p>È l'incapsulamento: gli stili del componente non escono e quelli della pagina non entrano.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-23">
+          <p class="testo">Differenza tra Server-Side Rendering (SSR) e Client-Side Rendering (CSR)?</p>
+          <div class="opz"><button data-giusta>SSR produce l'HTML sul server prima di inviarlo; CSR costruisce il DOM nel browser con JavaScript</button><button>CSR è sempre più veloce</button><button>SSR non permette interattività</button><button>SSR richiede sempre PHP</button></div>
+          <div class="perche" hidden><p>Con SSR la prima visualizzazione è più veloce e indicizzabile; con CSR la pagina arriva quasi vuota e il JS la costruisce.</p></div>
+        </div>
+        <div class="domanda" data-id="tw-24">
+          <p class="testo">In Turtle, cosa significa la parola <code>a</code> in <code>:fido a :Cane .</code>?</p>
+          <div class="opz"><button>È un articolo, viene ignorata</button><button data-giusta>È l'abbreviazione del predicato rdf:type</button><button>Indica un blank node</button><button>Indica una lingua</button></div>
+          <div class="perche" hidden><p>La tripla dice che fido è di tipo Cane. I blank node invece si scrivono <code>_:nome</code> oppure tra parentesi quadre <code>[ … ]</code>.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Aperte</span>
+        <h2>Domande aperte (come nel 2026)</h2>
+      </div>
+      <p>Valgono 1 punto con punteggio parziale. Nelle revisioni le risposte vaghe hanno preso 0.2–0.4: conviene rispondere in modo <strong>preciso</strong>, con un mini esempio di codice.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Domanda aperta · JavaScript</span><h4>Carrello: map, filter e reduce</h4></div>
+        <p>Hai <code>prodotti = [{name:"Penna", price:1.5, qty:2}, …]</code>. Come useresti map, filter e reduce per: (1) i prodotti con qty &gt; 0, (2) l'elenco dei nomi, (3) il totale? Perché è meglio di un ciclo?</p>
+        <div class="soluzione"><span class="etichetta">Risposta modello</span>
+          <ol class="passi">
+            <li><div><p><code>const disponibili = prodotti.filter(p =&gt; p.qty &gt; 0);</code> → filter tiene gli elementi per cui la funzione dà true.</p></div></li>
+            <li><div><p><code>const nomi = disponibili.map(p =&gt; p.name);</code> → map trasforma ogni elemento e restituisce un nuovo array della stessa lunghezza.</p></div></li>
+            <li><div><p><code>const totale = disponibili.reduce((acc, p) =&gt; acc + p.price * p.qty, 0);</code> → reduce accumula in un solo valore, partendo da 0.</p></div></li>
+            <li><div><p class="risultato">Sono dichiarativi (dicono cosa ottenere, non come scorrere gli indici), non modificano l'array originale, si concatenano e riducono gli errori sugli indici</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Domanda aperta · HTML</span><h4>I form HTML e l'attributo action</h4></div>
+        <div class="soluzione"><span class="etichetta">Risposta modello</span>
+          <ol class="passi">
+            <li><div><p>Un <code>&lt;form&gt;</code> raccoglie dati dall'utente e li invia al server come coppie nome=valore.</p></div></li>
+            <li><div><p><strong>action</strong> è l'URI a cui si inviano i dati; <strong>method</strong> è il metodo HTTP: GET mette i dati nella query string, POST nel corpo della richiesta.</p></div></li>
+            <li><div><p>È fatto di controlli con un attributo <code>name</code>: <code>&lt;input&gt;</code> (con i vari type: text, email, password, checkbox, radio…), <code>&lt;select&gt;</code>, <code>&lt;textarea&gt;</code>, <code>&lt;button type="submit"&gt;</code>, più <code>&lt;label&gt;</code> per l'accessibilità.</p></div></li>
+            <li><div><p class="risultato">Esempio: &lt;form action="/login" method="post"&gt;&lt;label&gt;Email &lt;input type="email" name="email" required&gt;&lt;/label&gt;&lt;button&gt;Entra&lt;/button&gt;&lt;/form&gt;</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Domanda aperta · Architettura</span><h4>Cosa sono le CDN?</h4></div>
+        <div class="soluzione"><span class="etichetta">Risposta modello</span>
+          <ol class="passi">
+            <li><div><p>Una Content Delivery Network è una rete di server distribuiti in molte aree geografiche che mantengono copie di risorse statiche (librerie JS e CSS, immagini, video).</p></div></li>
+            <li><div><p>Vantaggi: minore latenza (risponde il server più vicino), meno carico sul server d'origine, caching condiviso tra siti (la stessa libreria è già nella cache del browser), resistenza ai picchi e agli attacchi DDoS.</p></div></li>
+            <li><div><p class="risultato">Esempi: jsDelivr, cdnjs, unpkg (da cui si includono Bootstrap, Tailwind e le icone); Cloudflare, Akamai</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <footer class="piede"><p>Fonti: scritti 2022–2026 e revisioni dei quiz 2026 pubblicate da studenti su risorse.vercel.app; scheda dell'insegnamento 2026/27. Domande e risposte modello scritte da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

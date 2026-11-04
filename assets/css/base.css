@@ -130,6 +130,7 @@
 /* inchiostro per materia: aggiungi qui una riga per ogni nuova materia */
 :root[data-materia="algoritmi"] { --hue: 262; }
 :root[data-materia="metodi"] { --hue: 152; }
+:root[data-materia="tecweb"] { --hue: 25; }
 
 /* ---------------------------------------------------------------- base */
 *, *::before, *::after { box-sizing: border-box; }
