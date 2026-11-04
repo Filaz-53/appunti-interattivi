@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Norme di vettori e matrici · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="02-norme">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>I dati sono matrici</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Norme vettoriali</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Norme matriciali</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>In Python</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Esercizi e ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 2</span>
+      <h1>Norme di vettori e matrici</h1>
+      <p class="lede">Le norme misurano la "grandezza" di vettori e matrici. Servono ovunque nel corso: per misurare gli errori, per definire il condizionamento K(A) = ‖A‖‖A⁻¹‖ e per i residui dei minimi quadrati.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Calcolare a mano</strong> ‖x‖₁, ‖x‖₂, ‖x‖∞ di un vettore e ‖A‖₁, ‖A‖∞, ‖A‖_F di una matrice piccola: punti sicuri.</li>
+        <li>Ricordare <strong>quale norma va per righe e quale per colonne</strong>: è la trappola classica.</li>
+        <li>Conoscere le 4 proprietà di una norma e la submoltiplicatività ‖AB‖ ≤ ‖A‖‖B‖.</li>
+        <li>Sapere che ‖A‖₂ = √ρ(AᵀA) = σ₁ (il collegamento con la SVD arriva nel capitolo 4).</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Motivazione</span>
+        <h2>I dati sono matrici</h2>
+      </div>
+      <p>Un dataset è una matrice X: <strong>ogni riga è un'osservazione</strong> (un cliente, un'immagine, un documento) e <strong>ogni colonna è una caratteristica</strong>. Ogni osservazione è quindi un vettore. Anche un'immagine in scala di grigi è una matrice di intensità, e un testo diventa un vettore di frequenze o un embedding.</p>
+      <p>Da qui tutti gli strumenti del corso:</p>
+      <ul>
+        <li><strong>distanze e norme</strong> dicono quali oggetti si somigliano;</li>
+        <li>con un <strong>prodotto matrice-vettore</strong> ŷ = Xw si fanno tutte le previsioni di un modello lineare insieme;</li>
+        <li><strong>rango</strong> e <strong>SVD</strong> trovano ridondanze e comprimono i dati;</li>
+        <li>il <strong>condizionamento</strong> dice se ci si può fidare del risultato numerico.</li>
+      </ul>
+      <aside class="nota">Questa parte è discorsiva: all'esame al massimo una domanda del tipo "in un dataset, cosa rappresentano righe e colonne?".</aside>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Vettori</span>
+        <h2>Norme vettoriali</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>‖·‖: ℝⁿ → ℝ è una norma se, per ogni x, y ∈ ℝⁿ e α ∈ ℝ: <strong>1.</strong> ‖x‖ ≥ 0; <strong>2.</strong> ‖x‖ = 0 ⟺ x = 0; <strong>3.</strong> ‖αx‖ = |α|‖x‖; <strong>4.</strong> ‖x + y‖ ≤ ‖x‖ + ‖y‖ (disuguaglianza triangolare). La quantità ‖x − y‖ è la <strong>distanza</strong> tra x e y.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le norme p</span>
+        <p>‖x‖ₚ = (Σ|xᵢ|ᵖ)^(1/p), con 1 ≤ p &lt; ∞. I casi usati sono questi:<br>
+        <strong>‖x‖₁ = Σ|xᵢ|</strong> · <strong>‖x‖₂ = √(Σxᵢ²)</strong> (euclidea) · <strong>‖x‖∞ = max|xᵢ|</strong></p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof</span><h4>x = (1, −2, 2)ᵀ</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p class="formula">‖x‖₁ = 1 + 2 + 2 = 5</p></div></li>
+            <li><div><p class="formula">‖x‖₂ = √(1 + 4 + 4) = √9 = 3</p></div></li>
+            <li><div><p class="formula">‖x‖∞ = max(1, 2, 2) = 2</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <p>Vale sempre <strong>‖x‖∞ ≤ ‖x‖₂ ≤ ‖x‖₁</strong>, come si vede dall'esempio: 2 ≤ 3 ≤ 5. Utile per scartare subito un'opzione sbagliata.</p>
+      <p>La <strong>sfera unitaria</strong> {x : ‖x‖ ≤ 1} cambia forma con la norma: in ℝ² è un rombo per ‖·‖₁, un cerchio per ‖·‖₂ e un quadrato per ‖·‖∞. In dimensione finita però <strong>tutte le norme sono equivalenti</strong>: danno valori diversi ma lo stesso concetto di convergenza.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="no-1">
+          <p class="testo">x = (3, −4, 0)ᵀ. Quanto vale ‖x‖₂?</p>
+          <div class="opz"><button>7</button><button data-giusta>5</button><button>4</button></div>
+          <div class="perche" hidden><p>√(9 + 16 + 0) = 5. Invece 7 è ‖x‖₁ e 4 è ‖x‖∞.</p></div>
+        </div>
+        <div class="domanda" data-id="no-2">
+          <p class="testo">In ℝ², la sfera unitaria della norma ∞ è…</p>
+          <div class="opz"><button>un cerchio</button><button>un rombo</button><button data-giusta>un quadrato</button></div>
+          <div class="perche" hidden><p>max(|x₁|, |x₂|) ≤ 1 è il quadrato [−1,1]². Il rombo è la norma 1, il cerchio la norma 2.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Matrici</span>
+        <h2>Norme matriciali</h2>
+      </div>
+      <p>Una norma matriciale soddisfa le stesse 4 proprietà. Per essere compatibile con il prodotto si chiede anche la <strong>submoltiplicatività</strong> ‖AB‖ ≤ ‖A‖‖B‖, che è fondamentale per studiare come si propagano gli errori.</p>
+      <div class="def">
+        <span class="etichetta">Norma indotta</span>
+        <p>Fissata una norma vettoriale: ‖A‖ = max_{x≠0} ‖Ax‖/‖x‖ = max_{‖x‖=1} ‖Ax‖. È il <strong>massimo fattore di amplificazione</strong> che A applica a un vettore. Per costruzione è consistente: <strong>‖Ax‖ ≤ ‖A‖‖x‖</strong>.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le formule da sapere</span>
+        <p><strong>‖A‖₁ = max_j Σᵢ|aᵢⱼ|</strong>, la massima somma dei moduli per <strong>colonna</strong>.<br>
+        <strong>‖A‖∞ = max_i Σⱼ|aᵢⱼ|</strong>, la massima somma dei moduli per <strong>riga</strong>.<br>
+        <strong>‖A‖₂ = √ρ(AᵀA)</strong>, dove ρ è il raggio spettrale, cioè il massimo autovalore in modulo. Equivale a σ₁, il massimo valore singolare.<br>
+        <strong>‖A‖_F = (Σᵢ Σⱼ |aᵢⱼ|²)^(1/2) = √tr(AᵀA)</strong> (Frobenius).</p>
+      </div>
+      <aside class="nota">Trucco mnemonico: l'"1" è un tratto verticale, quindi colonne; il "∞" è sdraiato, quindi righe.</aside>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>La norma di Frobenius è submoltiplicativa e consistente con la norma 2, ma <strong>non è indotta</strong> da nessuna norma vettoriale. Infatti ‖I‖_F = √n, mentre ogni norma indotta dà ‖I‖ = 1.</p></div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof</span><h4>A = [[1, −2], [3, 4]]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>‖A‖₁</strong>: le colonne sommano |1|+|3| = 4 e |−2|+|4| = 6, quindi <strong>6</strong>.</p></div></li>
+            <li><div><p><strong>‖A‖∞</strong>: le righe sommano |1|+|−2| = 3 e |3|+|4| = 7, quindi <strong>7</strong>.</p></div></li>
+            <li><div><p><strong>‖A‖_F</strong> = √(1 + 4 + 9 + 16) = √30 ≈ <strong>5.477</strong>.</p></div></li>
+            <li><div><p><strong>‖A‖₂</strong> ≈ 5.117: a mano richiede gli autovalori di AᵀA, quindi allo scritto di solito non la chiedono. Notare che ‖A‖₂ ≤ ‖A‖_F.</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="no-3">
+          <p class="testo">A = [[2, −1, 0], [1, 3, −4], [0, 5, 1]]. Quanto vale ‖A‖₁?</p>
+          <div class="opz"><button data-giusta>9</button><button>8</button><button>6</button></div>
+          <div class="perche" hidden><p>Per colonne: 2+1+0 = 3; 1+3+5 = 9; 0+4+1 = 5, quindi il massimo è 9. Per righe (‖A‖∞) si avrebbe 3, 8, 6, cioè 8: è la risposta-trappola.</p></div>
+        </div>
+        <div class="domanda" data-id="no-4">
+          <p class="testo">Quanto vale ‖I‖_F per la matrice identità 4×4?</p>
+          <div class="opz"><button>1</button><button data-giusta>2</button><button>4</button></div>
+          <div class="perche" hidden><p>√(1+1+1+1) = 2. Una norma indotta darebbe 1: questa è la prova che Frobenius non è indotta.</p></div>
+        </div>
+        <div class="domanda" data-id="no-5">
+          <p class="testo">Cosa misura la norma indotta ‖A‖?</p>
+          <div class="opz"><button>La somma di tutti gli elementi di A</button><button data-giusta>Il massimo fattore con cui A può allungare un vettore</button><button>Il numero di righe di A</button></div>
+          <div class="perche" hidden><p>‖A‖ = max ‖Ax‖/‖x‖. Per questo nel condizionamento compare ‖A‖‖A⁻¹‖: quanto si amplificano gli errori.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Codice</span>
+        <h2>In Python</h2>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="python">
+import numpy as np
+x = np.array([1., -2., 2.])
+np.linalg.norm(x, 1), np.linalg.norm(x), np.linalg.norm(x, np.inf)   # 5, 3, 2
+
+A = np.array([[1., -2.], [3., 4.]])
+np.linalg.norm(A, 1)       # 6     (colonne)
+np.linalg.norm(A, np.inf)  # 7     (righe)
+np.linalg.norm(A, 2)       # 5.117 (sigma_1)
+np.linalg.norm(A, 'fro')   # 5.477 (Frobenius, il default per le matrici)
+</code></pre>
+      <div class="avviso"><span class="etichetta">Per l'orale</span><p><code>np.linalg.norm(A)</code> senza secondo argomento su una matrice restituisce <strong>Frobenius</strong>, non la norma 2. Negli homework, per gli errori di fattorizzazione e di compressione, è bene sapere quale norma si sta usando.</p></div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Allenamento</span>
+        <h2>Esercizi e ripasso</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 5.1 · stile scritto</span><h4>Errore relativo in norma</h4></div>
+        <p>La soluzione esatta di un sistema è x = (1, 1, 1)ᵀ e quella calcolata è x̃ = (1.01, 0.98, 1.00)ᵀ. Calcola l'errore relativo in norma ∞.</p>
+        <div class="domanda" data-id="no-6">
+          <p class="testo">‖x − x̃‖∞ / ‖x‖∞ = ?</p>
+          <div class="opz"><button>0.01</button><button data-giusta>0.02</button><button>0.03</button></div>
+          <div class="perche" hidden><p>x − x̃ = (−0.01, 0.02, 0), con massimo in modulo 0.02, e ‖x‖∞ = 1. In norma 1 verrebbe 0.03/3 = 0.01.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>x − x̃ = (−0.01, 0.02, 0)ᵀ, quindi ‖x − x̃‖∞ = 0.02.</p></div></li>
+            <li><div><p class="risultato">Errore relativo = 0.02 / 1 = 0.02 = 2%</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-no">
+        <li><label><input type="checkbox" id="no-c1"><span>Enunciare le 4 proprietà di una norma</span></label></li>
+        <li><label><input type="checkbox" id="no-c2"><span>Calcolare ‖x‖₁, ‖x‖₂, ‖x‖∞ e ordinarle</span></label></li>
+        <li><label><input type="checkbox" id="no-c3"><span>Calcolare ‖A‖₁ (colonne) e ‖A‖∞ (righe) senza confonderle</span></label></li>
+        <li><label><input type="checkbox" id="no-c4"><span>Calcolare ‖A‖_F e spiegare perché non è indotta</span></label></li>
+        <li><label><input type="checkbox" id="no-c5"><span>Scrivere la definizione di norma indotta e la consistenza ‖Ax‖ ≤ ‖A‖‖x‖</span></label></li>
+      </ul>
+
+      <div class="faq">
+        <details><summary>La norma 2 di una matrice si calcola come la norma 2 di un vettore? <span class="risp no">No</span></summary><div><p>Quella che "somma i quadrati di tutti gli elementi" è Frobenius. La norma 2 matriciale è σ₁ = √ρ(AᵀA).</p></div></details>
+        <details><summary>Norme diverse possono dare risultati diversi di convergenza? <span class="risp no">No</span></summary><div><p>In dimensione finita tutte le norme sono equivalenti: se una successione converge in una norma, converge in tutte.</p></div></details>
+      </div>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «Perché l'algebra lineare è fondamentale nell'analisi dei dati?» (A.A. 2026/27). Esercizi 5.1 e quiz scritti da noi nello stile dello scritto. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

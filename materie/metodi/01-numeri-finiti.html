@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Numeri finiti ed errori · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="01-numeri-finiti">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Perché l'errore è inevitabile</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Rappresentazione in base β</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Il sistema floating point</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Errore di rappresentazione ed eps</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Aritmetica floating point</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Proprietà degli algoritmi</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Esercizi e ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 1</span>
+      <h1>Numeri finiti ed errori</h1>
+      <p class="lede">Il calcolatore usa un insieme finito di numeri, quindi ogni calcolo è approssimato. In questo capitolo: come sono fatti i numeri macchina, quanto errore si commette a rappresentarli e cosa succede quando ci si fanno sopra le operazioni.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <p>Allo scritto questo capitolo dà domande <strong>veloci e sicure</strong>:</p>
+      <ul>
+        <li><strong>contare</strong> i numeri di un sistema 𝔽(β, t, L, U), trovare il più piccolo e il più grande;</li>
+        <li>calcolare la <strong>precisione di macchina</strong> eps e l'errore relativo di rappresentazione;</li>
+        <li>convertire un numero tra base 10 e base 2;</li>
+        <li>riconoscere overflow, underflow e <strong>cancellazione</strong>;</li>
+        <li>distinguere <strong>condizionamento</strong> (del problema) e <strong>stabilità</strong> (dell'algoritmo).</li>
+      </ul>
+      <aside class="nota">Sono domande "da calcolatrice": con le 4 formule di §3–§4 si risolvono in un minuto.</aside>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Errori</span>
+        <h2>Perché l'errore è inevitabile</h2>
+      </div>
+      <p>Il problema matematico di partenza è spesso <strong>continuo</strong>, mentre il computer maneggia solo oggetti <strong>finiti</strong>. Per esempio, una funzione diventa un array di valori e un integrale diventa una somma.</p>
+      <div class="def">
+        <span class="etichetta">Le quattro fonti di errore</span>
+        <p><strong>Di misura:</strong> gli strumenti che raccolgono i dati sono imperfetti. · <strong>Di troncamento (o convergenza):</strong> un procedimento infinito viene fermato dopo un numero finito di passi, come una serie troncata. · <strong>Inerente:</strong> i dati non appartengono a 𝔽 e vanno approssimati già in ingresso. · <strong>Algoritmico:</strong> gli errori di arrotondamento delle singole operazioni si propagano.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Errore assoluto e relativo</span>
+        <p>Se u è il valore esatto e v la sua approssimazione: errore assoluto = |u − v|; errore relativo = |u − v| / |u|, con u ≠ 0.</p>
+      </div>
+      <p>L'errore relativo è quasi sempre più informativo, perché tiene conto della scala. Sbagliare di 1 su 100 è un errore relativo di 10⁻², mentre sbagliare di 1 su 10⁸ è un errore relativo di 10⁻⁸.</p>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>Se il valore esatto è vicino a 0, l'errore relativo diventa enorme o perde significato. Esempio: u = 10⁻⁸ e v = 2·10⁻⁸ danno un errore assoluto minuscolo (10⁻⁸) ma un errore relativo pari a 1, cioè del 100%.</p></div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Basi</span>
+        <h2>Rappresentazione in base β</h2>
+      </div>
+      <p><strong>Parte intera, da base 10 a base β:</strong> si divide ripetutamente per β e i <strong>resti, letti dal basso verso l'alto</strong>, sono le cifre. Esempio: 25 = (11001)₂.</p>
+      <p><strong>Parte frazionaria:</strong> si moltiplica ripetutamente per β e le <strong>parti intere, lette dall'alto verso il basso</strong>, sono le cifre. Ci si ferma quando la parte frazionaria si annulla o quando si hanno abbastanza cifre.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · conversione</span><h4>Convertire −25.357 in base 2</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Parte intera: 25 → resti 1, 0, 0, 1, 1, letti dal basso: <strong>11001</strong>.</p></div></li>
+            <li><div><p>Parte frazionaria: 0.357·2 = 0.714 → <strong>0</strong>; 0.714·2 = 1.428 → <strong>1</strong>; 0.428·2 = 0.856 → <strong>0</strong>… Con le cifre che servono la dispensa scrive .357 ≈ (.011)₂.</p></div></li>
+            <li><div><p class="risultato">−25.357 ≈ (−11001.011)₂</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>Un numero con rappresentazione <strong>finita in base 10</strong> può averla <strong>infinita in base 2</strong>. L'esempio classico è 0.1 = (0.000110011…)₂. Per questo in Python <code>0.1 + 0.2 == 0.3</code> dà <code>False</code>.</p></div>
+      <p><strong>Interi sul calcolatore:</strong> con N bit si rappresentano i naturali da 0 a 2ᴺ − 1. Con modulo e segno il primo bit è il segno, e lo zero ha due rappresentazioni, +0 e −0.</p>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Floating point</span>
+        <h2>Il sistema floating point 𝔽(β, t, L, U)</h2>
+      </div>
+      <p>Ogni reale x ≠ 0 si scrive in forma <strong>normalizzata</strong> x = ±(0.d₁d₂d₃…)·β^p, con d₁ ≠ 0. La parte m = 0.d₁d₂… si chiama <strong>mantissa</strong>, p è l'<strong>esponente</strong> (o caratteristica).</p>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>𝔽(β, t, L, U) = {0} ∪ { x = ±(0.d₁d₂…dₜ)·β^p : 0 ≤ dᵢ ≤ β−1, <strong>d₁ ≠ 0</strong>, <strong>L ≤ p ≤ U</strong> }. β è la base, t è il numero di cifre della mantissa (la <strong>precisione</strong>), [L, U] è il range dell'esponente.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le formule da sapere</span>
+        <p><strong>Quanti numeri contiene:</strong> 2·(β−1)·β^(t−1)·(U−L+1) + 1. Il fattore 2 conta i segni, (β−1) le scelte di d₁ ≠ 0, β^(t−1) le altre cifre, (U−L+1) gli esponenti, e il +1 è lo zero.<br>
+        <strong>Più piccolo positivo:</strong> (0.100…0)·β^L = β^(L−1).<br>
+        <strong>Più grande:</strong> (0.(β−1)(β−1)…)·β^U = (1 − β^(−t))·β^U.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · 𝔽(2, 3, −1, 2)</span><h4>Quanti numeri, e come sono distribuiti?</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Le mantisse possibili sono 0.100, 0.101, 0.110, 0.111 (in base 2), cioè 4 = (β−1)β^(t−1) = 1·2².</p></div></li>
+            <li><div><p>Gli esponenti sono p = −1, 0, 1, 2, cioè 4 = U − L + 1.</p></div></li>
+            <li><div><p>Totale: 2·4·4 + 1 = <strong>33</strong> numeri, zero compreso.</p></div></li>
+            <li><div><p>Il più piccolo positivo è 0.100₂·2⁻¹ = 0.5·0.5 = <strong>0.25</strong>; il più grande è 0.111₂·2² = 0.875·4 = <strong>3.5</strong>.</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <p>I numeri di 𝔽 <strong>non sono equispaziati</strong>: in ogni intervallo [β^p, β^(p+1)] ce n'è lo stesso numero, quindi sono fitti vicino a 0 e sempre più radi allontanandosi. Intorno allo 0 c'è un "salto", dovuto alla normalizzazione. In compenso l'errore <em>relativo</em> resta uniforme.</p>
+      <aside class="nota">In base 2 si ha sempre d₁ = 1, quindi non lo si memorizza: è il "bit nascosto".</aside>
+      <div class="def">
+        <span class="etichetta">IEEE (convenzioni della dispensa)</span>
+        <p><strong>Singola precisione</strong>, 32 bit: 𝔽(2, 24, −128, 127), con 23 bit di mantissa memorizzati e 8 di esponente. <strong>Doppia precisione</strong>, 64 bit: 𝔽(2, 53, −1024, 1023), con 52 bit di mantissa memorizzati e 11 di esponente. Esistono anche codifiche speciali per ±0, ±∞ e NaN (per esempio la radice di un numero negativo).</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="nf-1">
+          <p class="testo">Quanti numeri contiene 𝔽(10, 2, −1, 1)?</p>
+          <div class="opz"><button>271</button><button data-giusta>541</button><button>540</button></div>
+          <div class="perche" hidden><p>2·(10−1)·10¹·(1−(−1)+1) + 1 = 2·9·10·3 + 1 = 541. Con 540 si dimentica lo zero, con 271 il segno.</p></div>
+        </div>
+        <div class="domanda" data-id="nf-2">
+          <p class="testo">Qual è il più piccolo numero positivo di 𝔽(10, 3, −4, 4)?</p>
+          <div class="opz"><button>10⁻⁴</button><button data-giusta>10⁻⁵</button><button>10⁻⁷</button></div>
+          <div class="perche" hidden><p>È 0.100·10⁻⁴ = β^(L−1) = 10⁻⁵. La mantissa normalizzata parte da 0.1, non da 0.001.</p></div>
+        </div>
+        <div class="domanda" data-id="nf-3">
+          <p class="testo">Perché in base 2 il primo bit della mantissa non si memorizza?</p>
+          <div class="opz"><button data-giusta>Perché vale sempre 1 per la normalizzazione</button><button>Perché vale sempre 0</button><button>Perché è riservato al segno</button></div>
+          <div class="perche" hidden><p>Normalizzato vuol dire d₁ ≠ 0, e in base 2 l'unica cifra diversa da 0 è 1. Per questo 53 cifre di mantissa occupano solo 52 bit.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Errore di rappresentazione</span>
+        <h2>fl(x) e la precisione di macchina</h2>
+      </div>
+      <p>Dato x reale, ci sono tre casi:</p>
+      <ul>
+        <li>se p ∈ [L, U] e x ha al massimo t cifre, x <strong>è un numero macchina</strong> e si rappresenta esattamente;</li>
+        <li>se p ∉ [L, U]: con p &lt; L si ha <strong>underflow</strong> (di solito x viene sostituito con 0), con p &gt; U si ha <strong>overflow</strong> (di solito il calcolo si ferma o dà ∞);</li>
+        <li>se p ∈ [L, U] ma le cifre oltre la t-esima non sono nulle, x va approssimato con fl(x), <strong>troncando</strong> o <strong>arrotondando</strong> la mantissa.</li>
+      </ul>
+      <div class="def">
+        <span class="etichetta">Stima dell'errore relativo di rappresentazione</span>
+        <p>Con l'arrotondamento: |fl(x) − x| / |x| &lt; ½·β^(1−t). Con il troncamento: |fl(x) − x| / |x| &lt; β^(1−t).<br>
+        La quantità <strong>eps = ½·β^(1−t)</strong> è la <strong>precisione di macchina</strong>: è il più piccolo numero macchina positivo tale che <strong>fl(1 + eps) &gt; 1</strong>.</p>
+      </div>
+      <p>L'errore relativo dipende <strong>solo da t</strong>, cioè dalla lunghezza della mantissa, e non dall'esponente. Per questo il floating point ha errori relativi distribuiti in modo uniforme.</p>
+      <aside class="nota">In doppia: eps = ½·2⁻⁵² = 2⁻⁵³ ≈ 1.1·10⁻¹⁶. Attenzione: <code>np.finfo(float).eps</code> restituisce 2⁻⁵² ≈ 2.2·10⁻¹⁶, cioè la distanza tra 1 e il numero macchina successivo.</aside>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 4.1 · da calcolatrice</span><h4>1/3 in 𝔽(10, 4, −5, 5) con l'arrotondamento</h4></div>
+        <div class="domanda" data-id="nf-4">
+          <p class="testo">Quanto vale l'errore relativo di rappresentazione?</p>
+          <div class="opz"><button data-giusta>10⁻⁴</button><button>5·10⁻⁴</button><button>3.3·10⁻⁵</button></div>
+          <div class="perche" hidden><p>fl(1/3) = 0.3333·10⁰. L'errore assoluto è 1/3 − 0.3333 = 0.0000333…, e diviso per 1/3 dà 10⁻⁴. Il valore 5·10⁻⁴ è eps, che fa da limite superiore e non è l'errore effettivo.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>1/3 = 0.33333…·10⁰. Arrotondando a 4 cifre: fl(x) = 0.3333.</p></div></li>
+            <li><div><p class="formula">Er = |0.3333 − 1/3| / (1/3) = (1/30000)/(1/3) = 10⁻⁴</p></div></li>
+            <li><div><p>Verifica: eps = ½·10^(1−4) = 5·10⁻⁴, e 10⁻⁴ &lt; 5·10⁻⁴. ✓</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Aritmetica finita</span>
+        <h2>Le operazioni in floating point</h2>
+      </div>
+      <p>Il risultato esatto di un'operazione tra numeri macchina in generale <strong>non sta in 𝔽</strong>, quindi viene arrotondato: x ⊙ y = fl(x · y), con un errore relativo &lt; eps. In hardware si calcola in precisione estesa, in un registro interno, e poi si arrotonda.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · β = 10, t = 6</span><h4>x = 192.403, y = 0.635782</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>Somma:</strong> per allineare gli esponenti, y diventa 0.000635782·10³; la somma esatta è 0.193038782·10³ e fl(z) = <strong>0.193039·10³</strong>. Le ultime cifre di y vanno perse.</p></div></li>
+            <li><div><p><strong>Prodotto:</strong> il risultato esatto ha 12 cifre (2t); fl(w) = <strong>0.122326·10³</strong>. Metà delle cifre viene eliminata.</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="def">
+        <span class="etichetta">Cosa può andare storto</span>
+        <p><strong>Somma e sottrazione:</strong> allineare gli esponenti fa perdere cifre. · <strong>Prodotto:</strong> 2t cifre, da arrotondare. · <strong>Divisione:</strong> può avere infinite cifre (1/10 in base 2). · <strong>Overflow/underflow:</strong> l'esponente del risultato esce da [L, U].</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Trappola · cancellazione numerica</span><p>Sottrarre due numeri <strong>molto vicini</strong> annulla le cifre significative uguali e lascia solo quelle "sporche" di errore. Con t = 6: 0.123456 − 0.123444 = 0.000012 → 0.120000·10⁻⁴. Delle 6 cifre del risultato solo 2 sono significative, e l'errore relativo esplode.</p></div>
+      <div class="avviso"><span class="etichetta">Trappola · niente proprietà associativa</span><p>In 𝔽(10, 3, ·, ·) con l'arrotondamento: (1 ⊕ 0.004) ⊕ 0.004 = 1.00 ⊕ 0.004 = <strong>1.00</strong>, mentre 1 ⊕ (0.004 ⊕ 0.004) = 1 ⊕ 0.008 = <strong>1.01</strong>. L'ordine delle operazioni cambia il risultato.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §5</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="nf-5">
+          <p class="testo">In aritmetica floating point, quale proprietà <em>non</em> vale in generale?</p>
+          <div class="opz"><button>La commutativa della somma</button><button data-giusta>L'associativa della somma</button><button>L'esistenza dello zero</button></div>
+          <div class="perche" hidden><p>x ⊕ y = y ⊕ x vale ancora, mentre (x ⊕ y) ⊕ z ≠ x ⊕ (y ⊕ z) in generale, perché ogni passo arrotonda.</p></div>
+        </div>
+        <div class="domanda" data-id="nf-6">
+          <p class="testo">Il risultato di un'operazione ha esponente p &gt; U. Si tratta di…</p>
+          <div class="opz"><button data-giusta>overflow</button><button>underflow</button><button>cancellazione</button></div>
+          <div class="perche" hidden><p>L'esponente troppo grande è overflow, quello troppo piccolo (p &lt; L) è underflow, che di solito viene messo a 0.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Algoritmi</span>
+        <h2>Condizionamento, stabilità e proprietà degli algoritmi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">La distinzione chiave</span>
+        <p>Il <strong>condizionamento</strong> è una proprietà del <strong>problema</strong>: misura quanto la soluzione cambia se i dati vengono perturbati un poco. La <strong>stabilità</strong> è una proprietà dell'<strong>algoritmo</strong>: misura quanto amplifica gli errori di arrotondamento commessi durante il calcolo.</p>
+      </div>
+      <p>Un problema mal condizionato dà risultati inaffidabili <em>con qualunque algoritmo</em>. Un algoritmo instabile può rovinare anche un problema ben condizionato. Nel capitolo sui sistemi lineari il condizionamento diventa un numero preciso: K(A) = ‖A‖‖A⁻¹‖.</p>
+      <div class="def">
+        <span class="etichetta">Proprietà di un buon algoritmo</span>
+        <p><strong>Accuratezza:</strong> quanto il risultato è vicino a quello esatto (errore assoluto, relativo, stime). · <strong>Efficienza:</strong> costo in operazioni (flops), tempo CPU, memoria, vettorizzazione. · <strong>Robustezza:</strong> funziona in situazioni diverse, oppure segnala chiaramente il fallimento invece di dare risultati privi di senso.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §6</h3><span class="etichetta">1 domanda</span></div>
+        <div class="domanda" data-id="nf-7">
+          <p class="testo">Un problema è mal condizionato. Cambiando algoritmo con uno più stabile…</p>
+          <div class="opz"><button>il problema diventa ben condizionato</button><button data-giusta>il problema resta mal condizionato</button><button>gli errori sui dati spariscono</button></div>
+          <div class="perche" hidden><p>Il condizionamento dipende dal problema e non dall'algoritmo. Un algoritmo stabile evita solo di <em>aggiungere</em> errori.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Allenamento</span>
+        <h2>Esercizi e ripasso</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.1 · stile scritto</span><h4>Tutto su 𝔽(2, 4, −2, 3)</h4></div>
+        <p>Calcola quanti numeri contiene, il più piccolo positivo, il più grande e la precisione di macchina con l'arrotondamento.</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p class="formula">N = 2·1·2³·(3−(−2)+1) + 1 = 2·8·6 + 1 = 97</p></div></li>
+            <li><div><p class="formula">min = β^(L−1) = 2⁻³ = 0.125</p></div></li>
+            <li><div><p class="formula">max = (1 − 2⁻⁴)·2³ = 0.9375·8 = 7.5</p></div></li>
+            <li><div><p class="risultato">eps = ½·2^(1−4) = 2⁻⁴ = 0.0625</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.2 · stile scritto</span><h4>Precisione e cifre</h4></div>
+        <div class="domanda" data-id="nf-8">
+          <p class="testo">Un sistema con β = 10 e arrotondamento ha eps = 5·10⁻⁸. Quante cifre ha la mantissa?</p>
+          <div class="opz"><button>7</button><button data-giusta>8</button><button>9</button></div>
+          <div class="perche" hidden><p>½·10^(1−t) = 5·10⁻⁸ → 10^(1−t) = 10⁻⁷ → 1 − t = −7 → t = 8.</p></div>
+        </div>
+      </article>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-nf">
+        <li><label><input type="checkbox" id="nf-c1"><span>Distinguere errore assoluto e relativo, e dire quando il relativo non ha senso</span></label></li>
+        <li><label><input type="checkbox" id="nf-c2"><span>Convertire un numero (intero e frazionario) da base 10 a base 2</span></label></li>
+        <li><label><input type="checkbox" id="nf-c3"><span>Contare i numeri di 𝔽(β,t,L,U), trovare il più piccolo e il più grande</span></label></li>
+        <li><label><input type="checkbox" id="nf-c4"><span>Calcolare eps e l'errore relativo di rappresentazione</span></label></li>
+        <li><label><input type="checkbox" id="nf-c5"><span>Spiegare overflow, underflow, cancellazione e la perdita di associatività</span></label></li>
+        <li><label><input type="checkbox" id="nf-c6"><span>Distinguere condizionamento (problema) e stabilità (algoritmo)</span></label></li>
+      </ul>
+
+      <div class="faq">
+        <details><summary>eps dipende dall'esponente? <span class="risp no">No</span></summary><div><p>Dipende solo da β e da t. L'esponente decide <em>quanto sono grandi</em> i numeri rappresentabili, la mantissa <em>quanto sono precisi</em>.</p></div></details>
+        <details><summary>I numeri di 𝔽 sono equispaziati? <span class="risp no">No</span></summary><div><p>Solo all'interno di ogni intervallo [β^p, β^(p+1)]. Passando all'intervallo successivo la distanza si moltiplica per β.</p></div></details>
+        <details><summary>Lo zero fa parte di 𝔽 anche se non è normalizzabile? <span class="risp si">Sì</span></summary><div><p>È aggiunto a parte nella definizione: 𝔽 = {0} ∪ {…}. Per questo nel conteggio c'è il +1.</p></div></details>
+      </div>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «I numeri finiti e il calcolo scientifico» (A.A. 2026/27). Esercizi 4.1, 7.1 e 7.2 scritti da noi nello stile dello scritto. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>
