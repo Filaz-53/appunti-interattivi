@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JavaScript: il linguaggio · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="08-javascript">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Dove e come si esegue</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Variabili e tipi</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Uguaglianza e conversioni</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Funzioni e closure</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Oggetti, prototipi e classi</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Array e i loro metodi</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>JSON e Date</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 8</span>
+      <h1>JavaScript: il linguaggio</h1>
+      <p class="lede">Il linguaggio in sé: tipi, uguaglianza, funzioni, oggetti e prototipi, array. Sono le domande "cosa stampa questo codice?" del quiz 2026 (forEach, null e undefined, Date) e la base di tutto quello che viene dopo.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p>Le basi di programmazione che conosci già (variabili, if, cicli, funzioni). Per provare il codice apri il browser, premi <strong>F12 → Console</strong> e scrivi lì: è il modo più veloce per capire JavaScript. Le slide del prof su JavaScript non sono ancora uscite: questo capitolo segue gli appunti del corso degli anni scorsi e le domande d'esame, e va ricontrollato quando escono.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Prevedere il risultato</strong> di piccoli frammenti: <code>forEach</code> contro <code>map</code>, <code>"5" + 7</code>, <code>==</code> contro <code>===</code>, <code>typeof null</code>.</li>
+        <li><strong>null contro undefined</strong>; <code>var</code>, <code>let</code>, <code>const</code>.</li>
+        <li><strong>map, filter, reduce</strong>, anche come domanda aperta con l'esempio del carrello.</li>
+        <li><strong>Ereditarietà a prototipi contro classi</strong> (scritto del 10/01/2025).</li>
+        <li><code>Date</code>: perché si possono sottrarre due date.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Esecuzione</span>
+        <h2>Dove e come si esegue</h2>
+      </div>
+      <p>JavaScript (standardizzato come <strong>ECMAScript</strong>) gira nel browser e, con Node.js, sul server. Nella pagina si inserisce in tre modi: dentro un tag <code>&lt;script&gt;…&lt;/script&gt;</code>, in un file esterno <code>&lt;script src="app.js"&gt;&lt;/script&gt;</code> (il modo migliore), oppure in un attributo di evento come <code>onclick="…"</code> (da evitare).</p>
+      <p>Si esegue in modo <strong>sincrono</strong>, appena lo script viene letto, oppure <strong>asincrono</strong>, in risposta a un evento (click, tasto, fine di un caricamento, timer).</p>
+      <div class="def">
+        <span class="etichetta">Output</span>
+        <p><code>console.log(x)</code> scrive nella <strong>console del browser</strong> (domanda del 2026) · <code>alert(x)</code> apre una finestra · <code>elemento.textContent = x</code> o <code>innerHTML</code> modifica la pagina · <code>document.write</code> è da evitare.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Basi</span>
+        <h2>Variabili e tipi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">var, let, const</span>
+        <p><code>let</code>: variabile con <strong>visibilità di blocco</strong> (il blocco tra graffe in cui è dichiarata). · <code>const</code>: come let ma <strong>non si può riassegnare</strong>; se contiene un oggetto o un array, il <em>contenuto</em> si può comunque modificare (<code>const a = []; a.push(1)</code> è valido). · <code>var</code>: vecchia, visibilità di <strong>funzione</strong> e "hoisting" (la dichiarazione viene spostata in cima): da non usare.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">I tipi</span>
+        <p>Le variabili <strong>non hanno tipo</strong>, i valori sì. Tipi primitivi: <code>number</code> (interi e decimali insieme; ci sono anche <code>NaN</code> e <code>Infinity</code>), <code>string</code>, <code>boolean</code>, <code>undefined</code>, <code>null</code>, <code>bigint</code>, <code>symbol</code>. Tutto il resto è <code>object</code>: oggetti, array, funzioni, date.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">null e undefined</span>
+        <p><strong>undefined</strong>: "non è stato assegnato niente". È il valore di una variabile dichiarata e mai assegnata, di un parametro non passato, di una proprietà che non esiste, e il risultato di una funzione senza return. · <strong>null</strong>: "nessun valore", <strong>assegnato apposta</strong> dal programmatore. · <code>null == undefined</code> → <strong>true</strong> · <code>null === undefined</code> → <strong>false</strong> · <code>typeof undefined</code> → "undefined" · <code>typeof null</code> → <strong>"object"</strong> (un errore storico del linguaggio).</p>
+      </div>
+      <p><strong>typeof</strong> restituisce una stringa: <code>typeof 3</code> "number", <code>typeof NaN</code> "number" (!), <code>typeof []</code> "object" (per gli array si usa <code>Array.isArray(x)</code>), <code>typeof function(){}</code> "function".</p>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Trappole</span>
+        <h2>Uguaglianza, conversioni e valori "falsy"</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">== contro ===</span>
+        <p><code>==</code> confronta <strong>dopo aver convertito</strong> i tipi: <code>5 == "5"</code> true, <code>0 == false</code> true, <code>"" == 0</code> true. · <code>===</code> confronta <strong>senza conversioni</strong> (stesso tipo e stesso valore): <code>5 === "5"</code> false. Si usa sempre <code>===</code> (e <code>!==</code>). <code>NaN === NaN</code> è <strong>false</strong>: per controllarlo si usa <code>Number.isNaN(x)</code>.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">L'operatore + e le conversioni</span>
+        <p>Se uno dei due operandi è una stringa, <code>+</code> <strong>concatena</strong>: <code>"5" + 7</code> → "57", <code>1 + 2 + "3"</code> → "33" (prima 1+2 = 3, poi 3 + "3"). Gli altri operatori aritmetici convertono in numero: <code>"5" * 2</code> → 10, <code>"5" - 2</code> → 3, <code>"ciao" * 2</code> → NaN.</p>
+      </div>
+      <p><strong>Falsy:</strong> nelle condizioni valgono come falso <code>false, 0, "", null, undefined, NaN</code>; tutto il resto è "truthy", compresi <code>"0"</code>, <code>[]</code> e <code>{}</code>. Gli operatori <code>a ?? b</code> (b se a è null o undefined) e <code>a?.b</code> (accesso sicuro: undefined invece di un errore) sono molto usati.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2–§3</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="js-1">
+          <p class="testo">Quale affermazione su <code>undefined</code> e <code>null</code> è corretta?</p>
+          <div class="opz"><button>null === undefined è true</button><button data-giusta>null == undefined è true, ma typeof null è "object"</button><button>typeof undefined è "null"</button><button>una variabile dichiarata e non assegnata vale null</button></div>
+          <div class="perche" hidden><p>Uguali con ==, diversi con ===. Una variabile non assegnata vale undefined; null si assegna esplicitamente.</p></div>
+        </div>
+        <div class="domanda" data-id="js-2">
+          <p class="testo">Quanto vale <code>"3" + 4 + 5</code>?</p>
+          <div class="opz"><button>12</button><button data-giusta>"345"</button><button>"39"</button><button>NaN</button></div>
+          <div class="perche" hidden><p>Da sinistra: "3" + 4 = "34", poi "34" + 5 = "345". Al contrario, 3 + 4 + "5" darebbe "75".</p></div>
+        </div>
+        <div class="domanda" data-id="js-3">
+          <p class="testo"><code>const lista = [1, 2]; lista.push(3);</code> Cosa succede?</p>
+          <div class="opz"><button>Errore: lista è const</button><button data-giusta>Funziona: lista diventa [1, 2, 3]</button><button>lista resta [1, 2]</button><button>lista diventa undefined</button></div>
+          <div class="perche" hidden><p>const impedisce di riassegnare la variabile (lista = […] darebbe errore), non di modificare l'array a cui punta.</p></div>
+        </div>
+        <div class="domanda" data-id="js-4">
+          <p class="testo">Quale di questi valori è "truthy"?</p>
+          <div class="opz"><button>0</button><button>""</button><button data-giusta>"0"</button><button>null</button></div>
+          <div class="perche" hidden><p>"0" è una stringa non vuota, quindi è truthy. Anche [] e {} sono truthy.</p></div>
+        </div>
+        <div class="domanda" data-id="js-5">
+          <p class="testo">Quanto vale <code>typeof NaN</code>?</p>
+          <div class="opz"><button>"NaN"</button><button data-giusta>"number"</button><button>"undefined"</button><button>"object"</button></div>
+          <div class="perche" hidden><p>NaN ("Not a Number") è un valore speciale del tipo number.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Funzioni</span>
+        <h2>Funzioni, arrow function e closure</h2>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+function doppio(n) { return n * 2; }          // dichiarazione
+const triplo = function (n) { return n * 3; }; // espressione
+const quadruplo = n =&gt; n * 4;                  // arrow function (return implicito)
+doppio();                                      // n vale undefined → risultato NaN, nessun errore
+</code></pre>
+      <p>Le funzioni sono <strong>valori</strong>: si salvano in variabili, si passano come argomento (<strong>callback</strong>) e si restituiscono da altre funzioni. I parametri mancanti valgono <code>undefined</code>, e si possono dare valori di default: <code>function f(x = 0)</code>.</p>
+      <p><strong>Arrow function:</strong> sintassi breve; in più <strong>non hanno un loro <code>this</code></strong> (usano quello del contesto in cui sono scritte), il che le rende comode come callback.</p>
+      <div class="def">
+        <span class="etichetta">Closure</span>
+        <p>Una funzione "ricorda" le variabili dello scope in cui è stata creata, anche dopo che quella funzione esterna è terminata.</p>
+<pre class="codice" data-copia><code data-lang="javascript">
+function contatore() { let n = 0; return () =&gt; ++n; }
+const c = contatore();
+c(); c();   // 1, poi 2: n sopravvive dentro la closure
+</code></pre>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Oggetti</span>
+        <h2>Oggetti, prototipi e classi</h2>
+      </div>
+      <p>In JavaScript un <strong>oggetto</strong> è un insieme di coppie chiave-valore, e i valori possono essere anche funzioni (metodi) e altri oggetti: <code>const p = { nome: "Ada", eta: 36, saluta() { return "Ciao " + this.nome; } }</code>. Si accede con <code>p.nome</code> o <code>p["nome"]</code> (con le parentesi la chiave può essere una variabile). Gli array sono oggetti con chiavi numeriche.</p>
+      <div class="def">
+        <span class="etichetta">Ereditarietà a prototipi (domanda del 10/01/2025)</span>
+        <p>Ogni oggetto ha un collegamento a un altro oggetto, il suo <strong>prototipo</strong>. Se una proprietà non c'è nell'oggetto, la si cerca nel prototipo, poi nel prototipo del prototipo, e così via: è la <strong>catena dei prototipi</strong>. Così ogni array "ha" <code>push</code> e <code>map</code>: stanno in <code>Array.prototype</code>.<br>
+        <strong>Differenza concettuale:</strong> nei linguaggi <em>class-based</em> (Java) le classi sono "progetti" statici e gli oggetti sono istanze create da quei progetti. Nel <em>prototype-based</em> gli oggetti ereditano <strong>direttamente da altri oggetti</strong>, e la catena si può modificare a runtime.<br>
+        <strong>Vantaggi pratici:</strong> si può creare un oggetto a partire da un altro senza definire una classe (<code>Object.create(base)</code>); si possono aggiungere metodi a tutte le istanze esistenti modificando il prototipo; i metodi sono condivisi e non copiati in ogni oggetto, quindi si risparmia memoria.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+const animale = { verso() { return this.nome + " fa " + this.suono; } };
+const cane = Object.create(animale);          // il prototipo di cane è animale
+cane.nome = "Fido"; cane.suono = "bau";
+cane.verso();                                  // "Fido fa bau" (verso viene da animale)
+animale.dorme = function () { return this.nome + " dorme"; };
+cane.dorme();                                  // funziona subito: la catena è viva
+
+class Gatto { constructor(nome) { this.nome = nome; } miagola() { return "miao"; } }
+// la sintassi class (dal 2015) è "zucchero sintattico": sotto usa sempre i prototipi
+</code></pre>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Array</span>
+        <h2>Array e i loro metodi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">I metodi da sapere</span>
+        <p><code>push / pop</code> (aggiungi o togli in fondo), <code>length</code>, <code>includes(x)</code>, <code>indexOf(x)</code>, <code>slice</code>, <code>splice</code>, <code>join</code>, <code>sort</code>.<br>
+        <strong>Metodi con callback</strong> (ricevono una funzione che viene chiamata per ogni elemento):<br>
+        <code>forEach(f)</code>: esegue f su ogni elemento per i suoi effetti; <strong>restituisce undefined</strong>.<br>
+        <code>map(f)</code>: <strong>nuovo array</strong> della stessa lunghezza con i risultati di f.<br>
+        <code>filter(f)</code>: <strong>nuovo array</strong> con gli elementi per cui f restituisce true.<br>
+        <code>reduce((acc, x) =&gt; …, iniziale)</code>: <strong>accumula</strong> tutto in un solo valore.<br>
+        <code>find(f)</code>: il primo elemento che soddisfa f (o undefined) · <code>some(f)</code> / <code>every(f)</code>: true se almeno uno / tutti soddisfano f.<br>
+        map, filter e reduce <strong>non modificano</strong> l'array originale.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+const carrello = [{ nome: "Penna", prezzo: 1.5, qty: 2 }, { nome: "Gomma", prezzo: 0.8, qty: 0 }];
+const disponibili = carrello.filter(p =&gt; p.qty &gt; 0);                   // solo la penna
+const nomi        = disponibili.map(p =&gt; p.nome);                       // ["Penna"]
+const totale      = disponibili.reduce((acc, p) =&gt; acc + p.prezzo * p.qty, 0); // 3
+</code></pre>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4–§6</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="js-6">
+          <p class="testo">Quanto vale <code>[1,2,3].map(x =&gt; x * 2)</code>?</p>
+          <div class="opz"><button>undefined</button><button data-giusta>[2, 4, 6]</button><button>12</button><button>[1, 2, 3]</button></div>
+          <div class="perche" hidden><p>map restituisce un nuovo array. Con forEach il risultato sarebbe undefined.</p></div>
+        </div>
+        <div class="domanda" data-id="js-7">
+          <p class="testo">Quanto vale <code>[5, 12, 8, 20].filter(x =&gt; x &gt; 10).length</code>?</p>
+          <div class="opz"><button>4</button><button data-giusta>2</button><button>32</button><button>1</button></div>
+          <div class="perche" hidden><p>filter tiene 12 e 20, quindi length è 2.</p></div>
+        </div>
+        <div class="domanda" data-id="js-8">
+          <p class="testo">Quanto vale <code>[1,2,3,4].reduce((a, x) =&gt; a + x, 10)</code>?</p>
+          <div class="opz"><button>10</button><button data-giusta>20</button><button>[11,12,13,14]</button><button>14</button></div>
+          <div class="perche" hidden><p>L'accumulatore parte da 10 e si sommano 1+2+3+4 = 10, quindi 20.</p></div>
+        </div>
+        <div class="domanda" data-id="js-9">
+          <p class="testo">Nell'ereditarietà a prototipi, dove cerca JavaScript una proprietà che l'oggetto non ha?</p>
+          <div class="opz"><button>Nella classe dell'oggetto</button><button data-giusta>Nel suo prototipo, e poi lungo la catena dei prototipi</button><button>Nel window</button><button>Da nessuna parte: dà subito errore</button></div>
+          <div class="perche" hidden><p>Se non la trova fino in fondo alla catena (Object.prototype e poi null) restituisce undefined, senza errore.</p></div>
+        </div>
+        <div class="domanda" data-id="js-10">
+          <p class="testo">Cosa NON hanno le arrow function rispetto alle funzioni normali?</p>
+          <div class="opz"><button>Parametri</button><button>Valore di ritorno</button><button data-giusta>Un this proprio</button><button>La possibilità di essere passate come callback</button></div>
+          <div class="perche" hidden><p>Usano il this del contesto in cui sono scritte: per questo sono comode nelle callback e nei metodi dei componenti.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Dati</span>
+        <h2>JSON e Date</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">JSON</span>
+        <p>È la notazione degli oggetti JavaScript usata come <strong>formato di scambio</strong>, con regole più rigide: chiavi <strong>sempre tra virgolette doppie</strong>, niente funzioni, niente undefined, niente commenti, niente virgola dopo l'ultimo elemento. <code>JSON.stringify(oggetto)</code> trasforma un oggetto in testo; <code>JSON.parse(testo)</code> trasforma il testo in oggetto.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Date (domanda del 2026)</span>
+        <p><code>new Date()</code> è adesso; <code>new Date("2027-01-12")</code>; <code>new Date(2027, 0, 12)</code>: <strong>i mesi partono da 0</strong>, quindi 0 è gennaio! Internamente una data è il <strong>numero di millisecondi dal 1° gennaio 1970</strong> (UTC). Per questo <code>fine - inizio</code> funziona: la sottrazione converte le date in numero con <code>valueOf()</code> e dà la differenza in millisecondi. Per avere i giorni: <code>(fine - inizio) / (1000*60*60*24)</code>.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §7</h3><span class="etichetta">2 domande</span></div>
+        <div class="domanda" data-id="js-11">
+          <p class="testo">Quale di questi è JSON valido?</p>
+          <div class="opz"><button>{nome: "Ada"}</button><button>{'nome': 'Ada'}</button><button data-giusta>{"nome": "Ada", "eta": 36}</button><button>{"nome": "Ada",}</button></div>
+          <div class="perche" hidden><p>In JSON le chiavi e le stringhe vogliono le virgolette doppie, e non è ammessa la virgola finale.</p></div>
+        </div>
+        <div class="domanda" data-id="js-12">
+          <p class="testo"><code>new Date(2027, 1, 1)</code> che giorno è?</p>
+          <div class="opz"><button>1 gennaio 2027</button><button data-giusta>1 febbraio 2027</button><button>1 marzo 2027</button><button>dà errore</button></div>
+          <div class="perche" hidden><p>I mesi partono da 0: 1 = febbraio. Il giorno invece parte da 1.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-js">
+        <li><label><input type="checkbox" id="js-c1"><span>Spiegare var, let, const e i tipi primitivi</span></label></li>
+        <li><label><input type="checkbox" id="js-c2"><span>null contro undefined; == contro ===; typeof</span></label></li>
+        <li><label><input type="checkbox" id="js-c3"><span>Prevedere il risultato di + con stringhe e numeri; conoscere i valori falsy</span></label></li>
+        <li><label><input type="checkbox" id="js-c4"><span>Scrivere funzioni, arrow function e spiegare una closure</span></label></li>
+        <li><label><input type="checkbox" id="js-c5"><span>Spiegare prototipi contro classi con un esempio</span></label></li>
+        <li><label><input type="checkbox" id="js-c6"><span>Usare forEach, map, filter, reduce, find e sapere cosa restituiscono</span></label></li>
+        <li><label><input type="checkbox" id="js-c7"><span>Regole del JSON; Date in millisecondi e mesi da 0</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: appunti di Berto (Tecnologie Web, cap. 9), domande degli scritti 2025–2026, documentazione MDN. Le slide del prof su JavaScript non erano ancora pubblicate: da ricontrollare quando escono. Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

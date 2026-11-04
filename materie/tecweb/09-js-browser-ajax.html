@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JavaScript nel browser e Ajax · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="09-js-browser-ajax">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Il DOM</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Gli eventi</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Asincronia ed event loop</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Ajax con XMLHttpRequest</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Promise, fetch, async/await</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Same-origin e CORS</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 9</span>
+      <h1>JavaScript nel browser e Ajax</h1>
+      <p class="lede">Come JavaScript modifica la pagina (DOM ed eventi) e come parla con il server senza ricaricarla (Ajax, fetch, Promise). Nel quiz 2026 ci sono state più domande proprio sull'asincronia: callback che non "ritornano", XHR asincrona, chiamate A→B→C, innerHTML.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="08-javascript.html">Il capitolo 8</a>, soprattutto funzioni e callback, <a href="06-html.html">HTML</a> (l'albero degli elementi) e <a href="04-http.html">HTTP</a> e <a href="05-rest.html">REST</a> (le richieste che si fanno con fetch). Le slide del prof su questo argomento non sono ancora uscite: da ricontrollare.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li>Cosa fa <strong>innerHTML</strong> e la differenza con textContent.</li>
+        <li><strong>Asincronia:</strong> perché il risultato di una callback non torna al chiamante; l'effetto di una XHR asincrona (il browser resta interattivo).</li>
+        <li><strong>Chiamate dipendenti A→B→C:</strong> Promise in catena o async/await.</li>
+        <li><code>.then().catch()</code>: dove finisce un errore.</li>
+        <li>Pro e contro di Ajax; same-origin e CORS.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · DOM</span>
+        <h2>Il DOM</h2>
+      </div>
+      <p>Il <strong>DOM</strong> (Document Object Model) è la rappresentazione in memoria della pagina come <strong>albero di oggetti</strong>: ogni elemento, attributo e pezzo di testo è un nodo. Modificando il DOM con JavaScript, la pagina cambia subito. Gli oggetti principali sono <code>window</code> (la finestra), <code>document</code> (la pagina) e <code>navigator</code> (il browser).</p>
+      <div class="def">
+        <span class="etichetta">Selezionare e modificare</span>
+        <p><code>document.getElementById("id")</code> · <code>document.querySelector("css")</code> (il primo che corrisponde al selettore) · <code>document.querySelectorAll("css")</code> (tutti) · <code>getElementsByClassName</code> e <code>getElementsByTagName</code>.<br>
+        <code>el.textContent = "…"</code> imposta il testo, <strong>senza</strong> interpretare l'HTML · <code>el.innerHTML = "&lt;p&gt;Ciao&lt;/p&gt;"</code> <strong>sostituisce tutti i figli</strong> di el con i nodi ottenuti interpretando quella stringa · <code>el.classList.add / remove / toggle</code> · <code>el.setAttribute</code> · <code>el.style.color</code> · <code>document.createElement("li")</code> + <code>parent.appendChild(li)</code> · <code>el.remove()</code>.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">innerHTML (domanda del 2026)</span><p>Dopo <code>el.innerHTML = "&lt;p&gt;Ciao&lt;/p&gt;"</code> il contenuto precedente di el viene eliminato e al suo posto c'è un nuovo <strong>elemento p</strong> con il testo "Ciao", non la stringa letterale. <strong>Mai inserire con innerHTML testo che arriva dall'utente:</strong> potrebbe contenere script (attacco <strong>XSS</strong>). In quel caso si usa textContent.</p></div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Eventi</span>
+        <h2>Gli eventi</h2>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+const bottone = document.querySelector("#invia");
+bottone.addEventListener("click", (evento) =&gt; {
+  console.log("cliccato", evento.target);
+});
+document.querySelector("form").addEventListener("submit", (e) =&gt; {
+  e.preventDefault();          // blocca l'invio classico e il ricaricamento della pagina
+  // … leggo i campi e li mando con fetch
+});
+</code></pre>
+      <p>Eventi comuni: <code>click</code>, <code>input</code>, <code>change</code>, <code>submit</code>, <code>keydown</code>, <code>mouseover</code>, <code>DOMContentLoaded</code> (il DOM è pronto) e <code>load</code> (la pagina è caricata del tutto). <code>preventDefault()</code> annulla il comportamento predefinito (inviare il form, seguire il link). Gli eventi <strong>risalgono</strong> l'albero dal figlio ai genitori (<em>bubbling</em>): <code>stopPropagation()</code> li ferma.</p>
+      <aside class="nota">Si preferisce addEventListener all'attributo onclick nell'HTML: separa il comportamento dal markup e permette più gestori per lo stesso evento.</aside>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Concetto chiave</span>
+        <h2>Asincronia ed event loop</h2>
+      </div>
+      <p>JavaScript nel browser è <strong>single-thread</strong>: esegue una cosa alla volta. Le operazioni lente (rete, timer) non bloccano il programma: si avviano, si registra una <strong>callback</strong> e si prosegue. Quando l'operazione finisce, l'<strong>event loop</strong> mette la callback in coda, e la esegue appena il codice in corso è terminato.</p>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+console.log("A");
+setTimeout(() =&gt; console.log("B"), 0);
+console.log("C");
+// stampa A, C, B: la callback aspetta che il codice corrente finisca
+</code></pre>
+      <div class="avviso"><span class="etichetta">Perché la callback non "ritorna" il valore (domanda del 2026)</span><p>Nella funzione che fa la richiesta, il codice arriva al return <strong>prima</strong> che la risposta arrivi: la callback viene eseguita <strong>dopo la fine del flusso principale</strong>, quando la funzione chiamante è già terminata. Il dato va usato <em>dentro</em> la callback, oppure si restituisce una <strong>Promise</strong>.</p></div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Ajax</span>
+        <h2>Ajax e XMLHttpRequest</h2>
+      </div>
+      <p><strong>Ajax</strong> (Asynchronous JavaScript And XML) non è un linguaggio ma una <strong>tecnica</strong>: JavaScript chiede dati al server <strong>in background</strong> e aggiorna solo una parte della pagina. Oggi i dati sono quasi sempre in JSON.</p>
+      <div class="def">
+        <span class="etichetta">Pro e contro (dagli appunti del corso)</span>
+        <p><strong>Pro:</strong> più interattività (nessuna pagina bianca in attesa); più velocità (si scambiano solo i dati, e una parte del calcolo va sul client); nessun plugin. <strong>Contro:</strong> il tasto "indietro" e i segnalibri non funzionano come ci si aspetta (non c'è navigazione); i contenuti dinamici sono più difficili da indicizzare per i motori di ricerca; richiede JavaScript attivo; servono attenzioni per l'accessibilità.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+const xhr = new XMLHttpRequest();
+xhr.open("GET", "/api/libri/");               // asincrona per default
+xhr.onload = () =&gt; {
+  if (xhr.status === 200) mostra(JSON.parse(xhr.responseText));
+};
+xhr.onerror = () =&gt; console.log("errore di rete");
+xhr.send();
+// il browser resta interattivo mentre aspetta: è l'effetto principale di una XHR asincrona
+</code></pre>
+      <p>Lo stato si segue con <code>readyState</code>, da 0 a 4, dove 4 vuol dire completata. Una XHR <strong>sincrona</strong> (<code>open(…, false)</code>) bloccherebbe tutta la pagina: è deprecata.</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Il modo moderno</span>
+        <h2>Promise, fetch e async/await</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Promise</span>
+        <p>Una Promise rappresenta un <strong>valore che arriverà</strong>. Può essere <em>pending</em> (in attesa), <em>fulfilled</em> (riuscita) o <em>rejected</em> (fallita). Con <code>.then(f)</code> si usa il risultato, con <code>.catch(g)</code> si gestisce l'errore, con <code>.finally(h)</code> si esegue codice in ogni caso. Ogni <code>.then</code> restituisce una nuova Promise, quindi si possono <strong>concatenare</strong>, ed <strong>un solo catch in fondo raccoglie l'errore di qualunque passaggio precedente</strong>.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+// fetch restituisce una Promise della risposta HTTP
+fetch("/api/studenti/123")
+  .then(r =&gt; { if (!r.ok) throw new Error(r.status); return r.json(); }) // anche json() è una Promise
+  .then(studente =&gt; fetch(`/api/studenti/${studente.id}/esami/`))       // B dipende da A
+  .then(r =&gt; r.json())
+  .then(esami =&gt; mostra(esami))                                         // C
+  .catch(err =&gt; console.log("errore:", err));                           // un solo catch per tutti
+
+// la stessa cosa con async/await: si legge come codice sequenziale
+async function caricaEsami(id) {
+  try {
+    const studente = await (await fetch(`/api/studenti/${id}`)).json();
+    const esami = await (await fetch(`/api/studenti/${studente.id}/esami/`)).json();
+    mostra(esami);
+  } catch (err) { console.log("errore:", err); }
+}
+
+// POST con JSON
+fetch("/api/esami/", { method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ corso: "TW", voto: 30 }) });
+</code></pre>
+      <div class="avviso"><span class="etichetta">Trappole</span><p><strong>1.</strong> <code>fetch</code> <strong>non</strong> va in catch per un 404 o un 500: la Promise si rifiuta solo per errori di rete. Bisogna controllare <code>response.ok</code> o <code>response.status</code>. <strong>2.</strong> <code>await</code> si usa solo dentro funzioni <code>async</code> (o nei moduli). <strong>3.</strong> Per chiamate <strong>indipendenti</strong> da fare in parallelo si usa <code>Promise.all([…])</code>; per quelle <strong>dipendenti</strong> (A→B→C) serve la catena o await in sequenza. <strong>4.</strong> Le callback annidate una dentro l'altra (il "callback hell") sono la vecchia soluzione: funzionano ma sono difficili da leggere.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §3–§5</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="aj-1">
+          <p class="testo">Cosa stampa: <code>console.log(1); setTimeout(()=&gt;console.log(2),0); console.log(3);</code></p>
+          <div class="opz"><button>1 2 3</button><button data-giusta>1 3 2</button><button>2 1 3</button><button>1 3</button></div>
+          <div class="perche" hidden><p>Anche con 0 ms la callback va in coda e viene eseguita dopo che il codice corrente è finito.</p></div>
+        </div>
+        <div class="domanda" data-id="aj-2">
+          <p class="testo">Una catena <code>p.then(a).then(b).catch(c)</code>: se a lancia un errore, cosa succede?</p>
+          <div class="opz"><button>b viene eseguita comunque</button><button data-giusta>b viene saltata e l'errore arriva a c</button><button>Il programma si blocca</button><button>Niente, l'errore viene ignorato</button></div>
+          <div class="perche" hidden><p>L'errore "scivola" lungo la catena fino al primo catch.</p></div>
+        </div>
+        <div class="domanda" data-id="aj-3">
+          <p class="testo">Una fetch riceve una risposta 404. Cosa succede alla Promise?</p>
+          <div class="opz"><button>Va in catch</button><button data-giusta>Si risolve normalmente: bisogna controllare response.ok</button><button>Rimane pending per sempre</button><button>Il browser ricarica la pagina</button></div>
+          <div class="perche" hidden><p>Per fetch un 404 è una risposta HTTP valida. Solo un errore di rete (server irraggiungibile, CORS) fa rifiutare la Promise.</p></div>
+        </div>
+        <div class="domanda" data-id="aj-4">
+          <p class="testo">Devi caricare 3 elenchi indipendenti e mostrarli quando sono arrivati tutti. Cosa usi?</p>
+          <div class="opz"><button>Tre await in sequenza</button><button data-giusta>Promise.all con le tre fetch</button><button>Tre XHR sincrone</button><button>setTimeout</button></div>
+          <div class="perche" hidden><p>Promise.all le esegue in parallelo e si risolve quando sono finite tutte. Gli await in sequenza funzionerebbero ma sarebbero più lenti.</p></div>
+        </div>
+        <div class="domanda" data-id="aj-5">
+          <p class="testo">Dopo <code>el.innerHTML = "&lt;b&gt;Ciao&lt;/b&gt;"</code>, cosa contiene el?</p>
+          <div class="opz"><button>Il testo letterale "&lt;b&gt;Ciao&lt;/b&gt;"</button><button data-giusta>Un elemento b con il testo Ciao, al posto dei figli che c'erano prima</button><button>I figli di prima più un b in fondo</button><button>Niente: innerHTML è di sola lettura</button></div>
+          <div class="perche" hidden><p>innerHTML interpreta la stringa come HTML e sostituisce il contenuto. Con textContent comparirebbe il testo letterale.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Sicurezza</span>
+        <h2>Same-origin policy e CORS</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le regole</span>
+        <p><strong>Origine</strong> = schema + host + porta (https://a.it:443). Per la <strong>same-origin policy</strong> uno script può leggere le risposte solo da richieste verso la <strong>stessa origine</strong> della pagina. Per chiamare un'API su un'altra origine serve il <strong>CORS</strong> (Cross-Origin Resource Sharing): è il <strong>server</strong> dell'API che deve autorizzarla con l'header <code>Access-Control-Allow-Origin</code>. Per le richieste "non semplici" (metodi come PUT o DELETE, header personalizzati, JSON) il browser manda prima una richiesta <strong>OPTIONS</strong> di verifica (<em>preflight</em>).</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-aj">
+        <li><label><input type="checkbox" id="aj-c1"><span>Selezionare e modificare elementi; innerHTML contro textContent</span></label></li>
+        <li><label><input type="checkbox" id="aj-c2"><span>Gestire eventi con addEventListener e preventDefault</span></label></li>
+        <li><label><input type="checkbox" id="aj-c3"><span>Spiegare single-thread, event loop e perché una callback non ritorna il valore</span></label></li>
+        <li><label><input type="checkbox" id="aj-c4"><span>Pro e contro di Ajax; scrivere una XHR</span></label></li>
+        <li><label><input type="checkbox" id="aj-c5"><span>Usare fetch con then e catch, async/await, Promise.all; controllare response.ok</span></label></li>
+        <li><label><input type="checkbox" id="aj-c6"><span>Spiegare origine, same-origin policy, CORS e preflight</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: appunti di Berto (Tecnologie Web, cap. 9.3–9.4), domande degli scritti 2026, documentazione MDN. Le slide del prof non erano ancora pubblicate: da ricontrollare. Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

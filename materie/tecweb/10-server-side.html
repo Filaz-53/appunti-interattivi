@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Server side: Node.js e MongoDB · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="10-server-side">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Server side: le opzioni</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Node.js</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Express</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>MongoDB</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Mongoose e gli schemi</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 10</span>
+      <h1>Server side: Node.js e MongoDB</h1>
+      <p class="lede">Cosa succede dall'altra parte: un server Node.js con Express che risponde alle richieste REST e salva i dati in MongoDB. Allo scritto 2026 sono uscite la callback error-first, i protocolli di Node e il campo _id; negli scritti 2024–25 c'era sempre uno schema Mongoose da scrivere. Ed è la base del progetto.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="08-javascript.html">JavaScript</a> (oggetti, funzioni, callback), <a href="09-js-browser-ajax.html#s5">le Promise</a>, <a href="05-rest.html">REST</a> (le route che scriverai qui) e <a href="06-html.html#s1">JSON</a>. Le slide del prof sul server side non sono ancora uscite: da ricontrollare.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Node.js</strong>: event loop single-thread e I/O non bloccante; può implementare anche protocolli diversi da HTTP.</li>
+        <li><strong>Callback error-first</strong>: sintassi ed esempio.</li>
+        <li><strong>MongoDB</strong>: database di documenti; a cosa serve <code>_id</code>.</li>
+        <li><strong>Schema Mongoose</strong> a partire da una descrizione testuale (scritti 2024–2025).</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Panorama</span>
+        <h2>Server side: le opzioni</h2>
+      </div>
+      <p>Lato server un programma riceve le richieste HTTP, esegue la logica dell'applicazione, legge e scrive i dati, e risponde con HTML o JSON. Il programma del corso cita <strong>PHP</strong> (lo storico, nello stack LAMP: ogni richiesta esegue uno script), <strong>Python</strong> (Flask, Django) e <strong>Node.js</strong> (JavaScript, nello stack MEAN/MERN). Nel progetto si usa di solito Node + Express + MongoDB.</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Node</span>
+        <h2>Node.js</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Cos'è</span>
+        <p>Un ambiente che esegue <strong>JavaScript fuori dal browser</strong>, con il motore V8 di Chrome (2009). Ha un <strong>unico thread</strong> con un <strong>event loop</strong> e <strong>I/O non bloccante</strong>: mentre aspetta il disco, il database o la rete non resta fermo, ma serve altre richieste e riprende con una callback (o una Promise) quando il dato è pronto. Per questo regge molte connessioni contemporanee con poche risorse. Non è adatto a calcoli pesanti per la CPU, che bloccherebbero l'unico thread.</p>
+        <p><strong>Protocolli:</strong> Node non è "un server web": ha moduli per TCP, UDP, HTTP e HTTPS, quindi <strong>può implementare anche protocolli diversi da HTTP</strong> (domanda del 2026).</p>
+        <p><strong>npm</strong> è il gestore dei pacchetti: <code>npm init</code> crea il <code>package.json</code> (nome, dipendenze, script); <code>npm install express</code> scarica il modulo in <code>node_modules/</code>. I moduli si importano con <code>require("x")</code> (CommonJS) o <code>import x from "x"</code> (ES modules).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">La callback error-first</span>
+        <p>È la convenzione delle API "classiche" di Node: la callback riceve <strong>come primo argomento l'errore</strong> (<code>null</code> se tutto è andato bene) e poi i risultati. Così l'errore va controllato per primo e non si dimentica.</p>
+<pre class="codice" data-copia><code data-lang="javascript">
+const fs = require("fs");
+fs.readFile("dati.json", "utf8", (err, contenuto) =&gt; {
+  if (err) { console.error("lettura fallita:", err.message); return; }
+  const dati = JSON.parse(contenuto);
+  console.log(dati);
+});
+</code></pre>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Express</span>
+        <h2>Express: route REST in poche righe</h2>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+const express = require("express");
+const app = express();
+app.use(express.json());                     // middleware: legge il body JSON in req.body
+app.use(express.static("public"));           // file statici (HTML, CSS, JS del client)
+
+app.get("/api/libri/", async (req, res) =&gt; {              // collezione
+  const libri = await Libro.find({ autore: req.query.autore });   // ?autore=Eco
+  res.json(libri);
+});
+app.get("/api/libri/:id", async (req, res) =&gt; {           // individuo: :id è un parametro
+  const libro = await Libro.findById(req.params.id);
+  if (!libro) return res.status(404).json({ errore: "non trovato" });
+  res.json(libro);
+});
+app.post("/api/libri/", async (req, res) =&gt; {
+  const nuovo = await Libro.create(req.body);
+  res.status(201).location(`/api/libri/${nuovo._id}`).json(nuovo);
+});
+app.delete("/api/libri/:id", async (req, res) =&gt; {
+  await Libro.findByIdAndDelete(req.params.id);
+  res.status(204).end();
+});
+app.listen(8000);
+</code></pre>
+      <p><code>req.params</code> sono i pezzi variabili del path (<code>:id</code>), <code>req.query</code> la query string, <code>req.body</code> il corpo (letto dal middleware). Un <strong>middleware</strong> è una funzione <code>(req, res, next)</code> che passa da tutte le richieste: logging, parsing, autenticazione.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Dati</span>
+        <h2>MongoDB</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Database a documenti (NoSQL)</span>
+        <p>Invece di tabelle con righe e colonne fisse, MongoDB salva <strong>documenti</strong> simili a JSON (in formato binario BSON), raccolti in <strong>collezioni</strong>. I documenti di una collezione possono avere campi diversi e contenere oggetti e array annidati. Il paragone: database ↔ database, tabella ↔ collezione, riga ↔ documento, colonna ↔ campo.</p>
+        <p><strong>_id:</strong> ogni documento ha un campo <code>_id</code>, la <strong>chiave primaria</strong>, <strong>unica</strong> nella collezione. Se non lo fornisci, MongoDB genera in automatico un <strong>ObjectId</strong> (12 byte che contengono anche il momento di creazione). Serve per identificare il documento, e quindi la risorsa REST: <code>/api/libri/&lt;_id&gt;</code>.</p>
+      </div>
+      <p>Operazioni: <code>insertOne/insertMany</code>, <code>find(filtro)</code> (es. <code>{ anno: { $gt: 2000 } }</code>), <code>updateOne(filtro, { $set: {...} })</code>, <code>deleteOne(filtro)</code>.</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Esercizio d'esame</span>
+        <h2>Mongoose e gli schemi</h2>
+      </div>
+      <p><strong>Mongoose</strong> è una libreria Node che aggiunge a MongoDB gli <strong>schemi</strong>: per ogni campo si dichiarano il tipo, l'obbligatorietà, i valori ammessi e i default. Dallo schema si crea un <strong>model</strong>, con cui si fanno le query.</p>
+      <div class="def">
+        <span class="etichetta">Tipi e opzioni</span>
+        <p>Tipi: <code>String, Number, Date, Boolean, Buffer, ObjectId, Array, Mixed</code>. Opzioni: <code>required</code>, <code>default</code>, <code>enum: [...]</code>, <code>min/max</code>, <code>minlength/maxlength</code>, <code>match</code> (regex), <code>unique</code>. Per un riferimento a un documento di un'altra collezione: <code>{ type: Schema.Types.ObjectId, ref: "Persona" }</code>. Le liste si scrivono <code>[String]</code> o <code>[sottoSchema]</code>.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Scritto 16/07/2024 · Mongoose</span><h4>Lo smartphone «TechMaster X100»</h4></div>
+        <p>"Il 20 luglio verrà lanciato il nuovo smartphone 'TechMaster X100' di Innovatech: display da 6.5 pollici, batteria da 5000 mAh, disponibile nei colori nero, argento e blu. Prezzo di lancio 799 euro, acquistabile online e nei negozi autorizzati. Ogni acquisto include una garanzia di 2 anni e il supporto clienti 24/7." Scrivi lo schema (circa 10 informazioni).</p>
+        <div class="soluzione"><span class="etichetta">Una soluzione</span>
+          <ol class="passi">
+            <li><div><p>Si individuano le informazioni: nome, produttore, data di lancio, display, batteria, colori, prezzo e valuta, canali di vendita, garanzia, supporto.</p></div></li>
+            <li><div><p>Si scelgono tipi e vincoli: i colori e i canali sono liste con valori ammessi; le misure sono Number con l'unità nel nome del campo; il prezzo ha una valuta.</p></div></li>
+            <li><div>
+<pre class="codice" data-copia><code data-lang="javascript">
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const smartphoneSchema = new Schema({
+  nome:         { type: String, required: true },          // "TechMaster X100"
+  produttore:   { type: String, required: true },          // "Innovatech"
+  dataLancio:   { type: Date,   required: true },          // 20 luglio
+  displayPollici: { type: Number, min: 0 },                // 6.5
+  batteriaMah:  { type: Number, min: 0 },                  // 5000
+  colori:       [{ type: String, enum: ["nero", "argento", "blu"] }],
+  prezzo: {
+    valore: { type: Number, required: true, min: 0 },      // 799
+    valuta: { type: String, default: "EUR" }
+  },
+  canaliVendita: [{ type: String, enum: ["online", "negozi autorizzati"] }],
+  garanziaAnni: { type: Number, default: 2 },
+  supportoClienti: { type: String, default: "24/7" }
+});
+
+module.exports = mongoose.model("Smartphone", smartphoneSchema);
+</code></pre>
+            </div></li>
+            <li><div><p class="risultato">Se nel testo ci sono più entità (un evento e un relatore, per esempio), si scrivono più schemi collegati da un campo ObjectId con ref, oppure si annida un sotto-oggetto</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 10</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="sv-1">
+          <p class="testo">Nella convenzione error-first, come è fatta la callback?</p>
+          <div class="opz"><button>(risultato, errore)</button><button data-giusta>(errore, risultato): errore è null se va tutto bene</button><button>(evento)</button><button>Non ha parametri</button></div>
+          <div class="perche" hidden><p>Il primo controllo da fare è sempre if (err).</p></div>
+        </div>
+        <div class="domanda" data-id="sv-2">
+          <p class="testo">Quali protocolli può gestire Node.js?</p>
+          <div class="opz"><button>Solo HTTP</button><button>Solo HTTP e HTTPS</button><button data-giusta>Anche protocolli diversi da HTTP (ha moduli per TCP e UDP)</button><button>Solo quelli sulle porte well-known</button></div>
+          <div class="perche" hidden><p>Node è un ambiente di esecuzione generico: un server HTTP è solo uno dei programmi che si possono scrivere.</p></div>
+        </div>
+        <div class="domanda" data-id="sv-3">
+          <p class="testo">Perché Node.js regge molte connessioni pur avendo un solo thread?</p>
+          <div class="opz"><button>Perché crea un thread per ogni richiesta</button><button data-giusta>Perché l'I/O è non bloccante: mentre aspetta disco o rete, l'event loop serve altre richieste</button><button>Perché non usa il database</button><button>Perché compila JavaScript in C</button></div>
+          <div class="perche" hidden><p>Il modello "un thread per richiesta" è quello di altri server. Node invece aspetta in modo asincrono.</p></div>
+        </div>
+        <div class="domanda" data-id="sv-4">
+          <p class="testo">In MongoDB, cosa succede se inserisci un documento senza <code>_id</code>?</p>
+          <div class="opz"><button>Errore</button><button data-giusta>MongoDB genera automaticamente un ObjectId unico</button><button>Il documento non viene salvato</button><button>_id vale null</button></div>
+          <div class="perche" hidden><p>_id è obbligatorio e unico: se manca, lo crea il database.</p></div>
+        </div>
+        <div class="domanda" data-id="sv-5">
+          <p class="testo">In Express, nella route <code>/api/corsi/:id</code> con richiesta <code>/api/corsi/42?lang=it</code>, dove trovi 42 e "it"?</p>
+          <div class="opz"><button data-giusta>req.params.id e req.query.lang</button><button>req.query.id e req.params.lang</button><button>req.body.id e req.body.lang</button><button>req.headers</button></div>
+          <div class="perche" hidden><p>I parametri del path stanno in params, la query string in query, il corpo della richiesta in body.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-sv">
+        <li><label><input type="checkbox" id="sv-c1"><span>Spiegare event loop e I/O non bloccante di Node; npm e package.json</span></label></li>
+        <li><label><input type="checkbox" id="sv-c2"><span>Scrivere una callback error-first</span></label></li>
+        <li><label><input type="checkbox" id="sv-c3"><span>Scrivere le route REST con Express (params, query, body, status)</span></label></li>
+        <li><label><input type="checkbox" id="sv-c4"><span>Spiegare documenti, collezioni e _id in MongoDB</span></label></li>
+        <li><label><input type="checkbox" id="sv-c5"><span>Scrivere uno schema Mongoose da una descrizione (tipi, required, enum, default, ref)</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: programma del corso, scritti 2024–2026 (esercizio dallo scritto del 16/07/2024), documentazione di Node, Express e Mongoose. Le slide del prof non erano ancora pubblicate: da ricontrollare. Soluzione e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

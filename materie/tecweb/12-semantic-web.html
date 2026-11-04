@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Semantic Web · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="12-semantic-web">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Semantic Web e Linked Data</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>RDF: triple e grafi</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Turtle</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Ontologie: RDFS e OWL</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>SPARQL</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 12</span>
+      <h1>Semantic Web</h1>
+      <p class="lede">Dare significato ai dati in modo che anche le macchine li capiscano: RDF (tutto è una tripla soggetto-predicato-oggetto), la sintassi Turtle, le ontologie, le interrogazioni SPARQL. Nel quiz 2026 sono uscite 3–4 domande: la "a" di Turtle, i blank node, cosa restituisce SPARQL, le triple e il ragionamento.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="03-uri.html">Gli URI</a> (nel Semantic Web tutto è identificato da un URI) e l'idea di <a href="06-html.html#s1">grafo</a> (nodi collegati da archi). Le slide del prof sul Semantic Web non sono ancora uscite: questo capitolo segue gli appunti del corso degli anni scorsi.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Leggere e controllare la sintassi Turtle</strong>: prefissi, <code>;</code> e <code>,</code>, <code>a</code> = rdf:type, URI tra &lt; &gt;, letterali, blank node.</li>
+        <li>Soggetto, predicato e oggetto: cosa può essere ciascuno.</li>
+        <li><strong>SPARQL</strong>: struttura di una SELECT e cosa restituisce.</li>
+        <li>Ragionamento <strong>monotono</strong> e mondo aperto; Linked Data.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Idea</span>
+        <h2>Semantic Web e Linked Data</h2>
+      </div>
+      <p>Il <strong>Semantic Web</strong> (Berners-Lee) vuole un web di <strong>dati con significato esplicito</strong>, elaborabili e collegabili dalle macchine, non solo pagine leggibili dagli umani. Il prof lo definisce "molto ambizioso, forse condannato dall'ambizione". Il <strong>Linked Data</strong> è la versione più modesta e di successo: dati pubblicati con URI e collegati tra loro, anche senza grandi ontologie. Gli <strong>Open Linked Data</strong> (LOD) sono i dati aperti in questo formato (per esempio quelli della Pubblica Amministrazione, o DBpedia, che pubblica Wikipedia come dati).</p>
+      <div class="def">
+        <span class="etichetta">I quattro principi del Linked Data</span>
+        <p><strong>1.</strong> Usa gli URI per dare un nome alle cose. <strong>2.</strong> Usa URI HTTP, così si possono "aprire" (dereferenziare). <strong>3.</strong> Quando qualcuno apre l'URI, fornisci informazioni utili negli standard (RDF, SPARQL). <strong>4.</strong> Includi link ad altri URI, così si scoprono altre cose.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Modello</span>
+        <h2>RDF: triple e grafi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">La tripla</span>
+        <p>RDF (Resource Description Framework) esprime ogni informazione come un'<strong>affermazione</strong> fatta da tre parti: <strong>soggetto – predicato – oggetto</strong>.<br>
+        <strong>Soggetto:</strong> una risorsa, identificata da un URI (o un blank node).<br>
+        <strong>Predicato:</strong> la proprietà o relazione, <strong>sempre un URI</strong>.<br>
+        <strong>Oggetto:</strong> un'altra risorsa (URI o blank node) <strong>oppure un letterale</strong> (una stringa, un numero, una data, eventualmente con tipo o lingua).</p>
+      </div>
+      <p>Un insieme di triple forma un <strong>grafo</strong>: le risorse sono i nodi, i predicati sono gli archi orientati. Esempio dagli appunti: "Umberto Eco è autore del Nome della Rosa" diventa 5 triple. Eco è una persona; si chiama "Umberto Eco"; ha scritto il libro B; B è un libro; B si intitola "Il nome della rosa".</p>
+      <p><strong>Formati di serializzazione</strong> (modi di scrivere lo stesso grafo): <strong>Turtle</strong> (compatto e leggibile), <strong>JSON-LD</strong> (in JSON, molto usato nelle pagine web per i motori di ricerca), <strong>RDF/XML</strong> (il primo standard, verboso), N-Triples.</p>
+      <div class="def">
+        <span class="etichetta">Pro e contro</span>
+        <p><strong>Pro:</strong> modello semplice; i dati sono un grafo; è modulare (anche informazioni parziali formano un grafo coerente, e si possono unire grafi diversi); con OWL si può <strong>ragionare</strong> sui dati. <strong>Contro:</strong> i dati sono frammentati in moltissime triple (un database medio può diventare miliardi di triple); le relazioni con più di due partecipanti (n-arie) sono scomode da rappresentare.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Ragionamento monotono e mondo aperto</span><p>Nel Semantic Web vale l'<strong>ipotesi del mondo aperto</strong>: se un fatto non è scritto, <em>non si sa</em>, non è automaticamente falso. Il ragionamento è <strong>monotono</strong>: aggiungere nuove triple <strong>non invalida mai</strong> le conclusioni già tratte, al massimo ne aggiunge altre. Ogni tripla è un'affermazione indipendente che si somma alle altre.</p></div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Sintassi</span>
+        <h2>Turtle</h2>
+      </div>
+<pre class="codice largo" data-copia><code>
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
+@prefix dc:   &lt;http://purl.org/dc/terms/&gt; .
+@prefix ex:   &lt;http://example.org/&gt; .
+
+ex:eco  a  foaf:Person ;                       # "a" = rdf:type
+        foaf:name  "Umberto Eco" ;             # letterale stringa
+        foaf:made  ex:nomeDellaRosa , ex:pendolo .   # due oggetti, stesso predicato
+
+ex:nomeDellaRosa  dc:title  "Il nome della rosa"@it ;   # letterale con lingua
+                  dc:date   "1980"^^&lt;http://www.w3.org/2001/XMLSchema#gYear&gt; .
+
+&lt;http://example.org/umberto&gt; foaf:knows _:qualcuno .  # URI completo e blank node
+_:qualcuno foaf:name "Un amico" .
+ex:eco foaf:based_near [ foaf:name "Bologna" ] .         # blank node con parentesi quadre
+</code></pre>
+      <div class="def">
+        <span class="etichetta">Le regole</span>
+        <p><strong>@prefix</strong> definisce un'abbreviazione per un URI: <code>foaf:name</code> sta per l'URI completo. Ogni affermazione finisce con un <strong>punto</strong>. Il <strong>punto e virgola ;</strong> ripete lo stesso <em>soggetto</em> con un altro predicato. La <strong>virgola ,</strong> ripete lo stesso soggetto <em>e</em> lo stesso predicato con un altro oggetto. Gli <strong>URI completi</strong> stanno tra <code>&lt; &gt;</code>. I <strong>letterali</strong> sono tra virgolette, con la lingua (<code>@it</code>) o il tipo (<code>^^xsd:date</code>). La parola <strong><code>a</code></strong> è l'abbreviazione di <strong>rdf:type</strong>.<br>
+        <strong>Blank node</strong> (nodo anonimo): una risorsa senza URI, scritta <code>_:nome</code> o <code>[ … ]</code>. Può essere soggetto o oggetto, <strong>mai predicato</strong>. Un letterale non può mai essere soggetto né predicato.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2–§3</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="sw-1">
+          <p class="testo">In Turtle, cosa abbrevia la parola <code>a</code>?</p>
+          <div class="opz"><button>Un blank node</button><button data-giusta>Il predicato rdf:type</button><button>Un articolo, che viene ignorato</button><button>Un attributo HTML</button></div>
+          <div class="perche" hidden><p><code>ex:fido a ex:Cane .</code> vuol dire che fido è di tipo Cane. Domanda del 12/02/2026.</p></div>
+        </div>
+        <div class="domanda" data-id="sw-2">
+          <p class="testo">Quale tripla Turtle è <strong>non valida</strong>?</p>
+          <div class="opz"><button>ex:a ex:p "testo" .</button><button>_:x ex:p ex:b .</button><button data-giusta>ex:a _:p ex:b .</button><button>&lt;http://ex.org/a&gt; ex:p ex:b .</button></div>
+          <div class="perche" hidden><p>Il predicato deve essere un URI: non può essere un blank node né un letterale.</p></div>
+        </div>
+        <div class="domanda" data-id="sw-3">
+          <p class="testo"><code>ex:eco foaf:made ex:libro1 , ex:libro2 .</code> Quante triple sono?</p>
+          <div class="opz"><button>1</button><button data-giusta>2</button><button>3</button><button>4</button></div>
+          <div class="perche" hidden><p>La virgola ripete soggetto e predicato: eco made libro1, ed eco made libro2.</p></div>
+        </div>
+        <div class="domanda" data-id="sw-4">
+          <p class="testo">Cosa può essere l'oggetto di una tripla RDF?</p>
+          <div class="opz"><button>Solo un URI</button><button>Solo un letterale</button><button data-giusta>Un URI, un blank node o un letterale</button><button>Solo un numero</button></div>
+          <div class="perche" hidden><p>L'oggetto è l'unica posizione in cui possono stare i letterali.</p></div>
+        </div>
+        <div class="domanda" data-id="sw-5">
+          <p class="testo">Cosa vuol dire che il ragionamento nel Semantic Web è monotono?</p>
+          <div class="opz"><button>Che si ragiona su una sola tripla alla volta</button><button data-giusta>Che aggiungere nuove triple non può invalidare conclusioni già dedotte</button><button>Che tutte le triple hanno lo stesso predicato</button><button>Che ciò che non è scritto è falso</button></div>
+          <div class="perche" hidden><p>Si aggiungono conoscenze, non si ritrattano. L'ultima opzione descrive il mondo chiuso, che non è l'ipotesi del Semantic Web.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Significato</span>
+        <h2>Ontologie: RDFS e OWL</h2>
+      </div>
+      <p>Un'<strong>ontologia</strong> è un vocabolario condiviso che definisce <strong>classi</strong>, <strong>proprietà</strong> e relazioni tra di esse in un dominio. Vocabolari noti: <strong>FOAF</strong> (persone e relazioni), <strong>Dublin Core</strong> (metadati di documenti: title, creator, date), <strong>schema.org</strong> (usato dai motori di ricerca).</p>
+      <div class="def">
+        <span class="etichetta">RDFS e OWL</span>
+        <p><strong>RDFS</strong> (RDF Schema): <code>rdfs:Class</code>, <code>rdfs:subClassOf</code> (ogni Cane è un Animale), <code>rdfs:subPropertyOf</code>, <code>rdfs:domain</code> e <code>rdfs:range</code> (a che tipo di soggetto e di oggetto si applica una proprietà), <code>rdfs:label</code>.<br>
+        <strong>OWL</strong> (Web Ontology Language) è più espressivo, basato sulle <em>logiche descrittive</em>: classi disgiunte, proprietà inverse, transitive e funzionali, <code>owl:sameAs</code> (due URI indicano la stessa cosa), cardinalità. Permette a un <strong>reasoner</strong> di <strong>dedurre</strong> nuove triple: se Fido è un Cane e Cane è sottoclasse di Animale, allora Fido è un Animale.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Interrogare</span>
+        <h2>SPARQL</h2>
+      </div>
+      <p>SPARQL è il linguaggio per interrogare i grafi RDF (un po' come SQL per i database relazionali). Una query descrive un <strong>pattern di triple con variabili</strong> (<code>?x</code>), e il motore cerca nel grafo tutte le assegnazioni delle variabili che rendono vero il pattern.</p>
+<pre class="codice largo" data-copia><code>
+PREFIX foaf: &lt;http://xmlns.com/foaf/0.1/&gt;
+PREFIX dc:   &lt;http://purl.org/dc/terms/&gt;
+
+SELECT ?autore ?titolo
+WHERE {
+  ?autore a foaf:Person ;
+          foaf:made ?libro .
+  ?libro  dc:title ?titolo .
+  FILTER (lang(?titolo) = "it")
+}
+ORDER BY ?titolo
+LIMIT 10
+</code></pre>
+      <div class="def">
+        <span class="etichetta">Le forme di query e cosa restituiscono</span>
+        <p><strong>SELECT:</strong> una <strong>tabella di risultati</strong>, con una colonna per variabile e una riga per ogni combinazione di valori (binding) che soddisfa il pattern. · <strong>ASK:</strong> true o false (esiste almeno una soluzione?). · <strong>CONSTRUCT:</strong> un <strong>nuovo grafo RDF</strong> costruito dai risultati. · <strong>DESCRIBE:</strong> un grafo con le informazioni su una risorsa. Clausole utili: <code>FILTER</code>, <code>OPTIONAL</code>, <code>ORDER BY</code>, <code>LIMIT</code>, <code>DISTINCT</code>. Gli <strong>endpoint SPARQL</strong> sono servizi web che accettano query via HTTP (es. DBpedia).</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4–§5</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="sw-6">
+          <p class="testo">Cosa restituisce una query SPARQL SELECT eseguita su un dataset RDF?</p>
+          <div class="opz"><button>Un documento HTML</button><button data-giusta>Una tabella di assegnazioni (binding) delle variabili che soddisfano il pattern</button><button>Sempre true o false</button><button>Un file Turtle con tutto il dataset</button></div>
+          <div class="perche" hidden><p>true o false lo restituisce ASK; un grafo lo restituisce CONSTRUCT.</p></div>
+        </div>
+        <div class="domanda" data-id="sw-7">
+          <p class="testo">Ontologia: Cane rdfs:subClassOf Animale; ex:fido a Cane. Cosa deduce un reasoner?</p>
+          <div class="opz"><button>Niente</button><button data-giusta>ex:fido a Animale</button><button>Animale a Cane</button><button>ex:fido owl:sameAs Animale</button></div>
+          <div class="perche" hidden><p>L'appartenenza a una sottoclasse implica l'appartenenza alla superclasse: è l'inferenza tipica di RDFS.</p></div>
+        </div>
+        <div class="domanda" data-id="sw-8">
+          <p class="testo">Quale formato serializza RDF dentro JSON?</p>
+          <div class="opz"><button>Turtle</button><button data-giusta>JSON-LD</button><button>N-Triples</button><button>YAML</button></div>
+          <div class="perche" hidden><p>JSON-LD ("Linked Data") si inserisce anche nelle pagine HTML per dare dati strutturati ai motori di ricerca.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-sw">
+        <li><label><input type="checkbox" id="sw-c1"><span>Spiegare Semantic Web, Linked Data e i quattro principi</span></label></li>
+        <li><label><input type="checkbox" id="sw-c2"><span>Cosa possono essere soggetto, predicato e oggetto di una tripla</span></label></li>
+        <li><label><input type="checkbox" id="sw-c3"><span>Leggere e scrivere Turtle: @prefix, ; , . a, letterali, blank node</span></label></li>
+        <li><label><input type="checkbox" id="sw-c4"><span>Spiegare mondo aperto e ragionamento monotono</span></label></li>
+        <li><label><input type="checkbox" id="sw-c5"><span>RDFS e OWL: sottoclassi, domain e range, inferenza</span></label></li>
+        <li><label><input type="checkbox" id="sw-c6"><span>Scrivere una SELECT SPARQL; cosa restituiscono SELECT, ASK, CONSTRUCT</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: appunti di Berto (Tecnologie Web, cap. 10), domande degli scritti 2022–2026, specifiche W3C (RDF 1.1 Turtle, SPARQL 1.1). Le slide del prof non erano ancora pubblicate: da ricontrollare. Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

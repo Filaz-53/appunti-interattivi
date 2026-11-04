@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UX, accessibilità e sicurezza · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="13-ux-accessibilita-sicurezza">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>UX: il modello di Garrett</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Accessibilità e WCAG</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>WAI-ARIA</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Gli attacchi principali</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Gli header di sicurezza</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 13</span>
+      <h1>UX, accessibilità e sicurezza</h1>
+      <p class="lede">Tre temi che chiudono il programma: progettare l'esperienza utente (il modello di Garrett), rendere le pagine usabili da tutti (WCAG, ARIA) e proteggerle (XSS, CSRF, header di sicurezza). Negli scritti 2022–23 c'era una domanda di accessibilità, nel 2024 una sugli header di sicurezza.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="06-html.html">HTML</a> (elementi semantici, alt, label), <a href="04-http.html#s4">gli header HTTP</a> e <a href="09-js-browser-ajax.html">innerHTML e CORS</a>. Le slide del prof su questi temi non sono ancora uscite: da ricontrollare.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li>I <strong>cinque piani di Garrett</strong>, in ordine.</li>
+        <li>I <strong>quattro principi WCAG</strong> (POUR) e i livelli A, AA, AAA; correggere errori di accessibilità in un pezzo di HTML.</li>
+        <li><strong>WAI-ARIA</strong>: role, aria-label, e la "prima regola" di ARIA.</li>
+        <li>Descrivere un <strong>header di sicurezza</strong>, l'attacco che previene e come verificarlo (scritti 2024).</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · UX</span>
+        <h2>User Experience: il modello di Garrett</h2>
+      </div>
+      <p>Jesse James Garrett (<em>The Elements of User Experience</em>) descrive la progettazione come <strong>cinque piani</strong>, dal più astratto al più concreto. Ogni piano dipende da quello sotto: le decisioni si prendono dal basso verso l'alto.</p>
+      <div class="def">
+        <span class="etichetta">I cinque piani (dal basso)</span>
+        <p><strong>1. Strategia</strong>: perché esiste il prodotto? Obiettivi del sito e bisogni degli utenti.<br>
+        <strong>2. Scope</strong> (ambito): cosa c'è dentro? Requisiti funzionali e di contenuto.<br>
+        <strong>3. Struttura</strong>: come è organizzato? Design dell'interazione e architettura dell'informazione.<br>
+        <strong>4. Scheletro</strong>: dove stanno le cose sulla pagina? Design dell'interfaccia, della navigazione e dell'informazione (i wireframe).<br>
+        <strong>5. Superficie</strong>: com'è fatto alla vista? Il design visivo: colori, tipografia, immagini.</p>
+      </div>
+      <aside class="nota">Trucco mnemonico: "Strategie Sempre Strutturate Su Superfici" (Strategia, Scope, Struttura, Scheletro, Superficie).</aside>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Accessibilità</span>
+        <h2>Accessibilità e WCAG</h2>
+      </div>
+      <p>Accessibilità vuol dire che il sito è usabile <strong>da tutti</strong>, anche da chi ha disabilità visive, uditive, motorie o cognitive, e con qualsiasi tecnologia: screen reader, sola tastiera, ingrandimento, sottotitoli. Le <strong>WCAG</strong> (Web Content Accessibility Guidelines, W3C) sono il riferimento; in Europa e in Italia sono richieste per legge per molti siti.</p>
+      <div class="def">
+        <span class="etichetta">I quattro principi: POUR</span>
+        <p><strong>Percepibile:</strong> testo alternativo per le immagini (<code>alt</code>), sottotitoli per i video, contrasto sufficiente, informazioni non affidate solo al colore. · <strong>Operabile:</strong> tutto funziona <strong>da tastiera</strong>, il focus è visibile, c'è tempo sufficiente, niente lampeggi pericolosi. · <strong>Comprensibile:</strong> lingua dichiarata (<code>lang</code>), etichette chiare nei form (<code>label</code>), messaggi d'errore utili, comportamento prevedibile. · <strong>Robusto:</strong> HTML corretto e semantico, compatibile con le tecnologie assistive.</p>
+        <p><strong>Livelli di conformità:</strong> A (minimo), <strong>AA</strong> (quello richiesto di solito dalle leggi), AAA (massimo).</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio tipo (scritti 2022–23)</span><h4>Trova gli errori di accessibilità</h4></div>
+<pre class="codice" data-copia><code>
+&lt;img src="logo.png"&gt;
+&lt;span onclick="invia()" style="color:#ccc; background:#fff"&gt;Invia&lt;/span&gt;
+&lt;input type="text" placeholder="Email"&gt;
+&lt;p&gt;I campi in rosso sono obbligatori&lt;/p&gt;
+</code></pre>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>L'immagine non ha <code>alt</code>: <code>&lt;img src="logo.png" alt="Logo di Libreria Rossi"&gt;</code> (oppure <code>alt=""</code> se è puramente decorativa).</p></div></li>
+            <li><div><p>Lo span cliccabile non è raggiungibile da tastiera né riconosciuto come pulsante: si usa <code>&lt;button type="submit"&gt;Invia&lt;/button&gt;</code>. Inoltre il grigio chiaro su bianco ha un <strong>contrasto</strong> insufficiente (per AA serve almeno 4.5:1 per il testo normale).</p></div></li>
+            <li><div><p>Il placeholder non sostituisce un'etichetta, perché scompare quando si scrive: serve <code>&lt;label for="mail"&gt;Email&lt;/label&gt;&lt;input id="mail" type="email" required&gt;</code>.</p></div></li>
+            <li><div><p class="risultato">"I campi in rosso" affida l'informazione solo al colore: va indicata anche con testo o un simbolo e con l'attributo required</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · ARIA</span>
+        <h2>WAI-ARIA</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Cos'è</span>
+        <p>WAI-ARIA (Accessible Rich Internet Applications) aggiunge attributi che descrivono alle tecnologie assistive <strong>ruolo, stato e proprietà</strong> di componenti costruiti con JavaScript: <code>role="button"</code>, <code>role="dialog"</code>, <code>role="tab"</code>; <code>aria-label="Chiudi"</code> (un nome accessibile, per esempio per un'icona senza testo); <code>aria-hidden="true"</code> (nasconde allo screen reader); <code>aria-expanded</code>, <code>aria-checked</code> (stati); <code>aria-live="polite"</code> (annuncia contenuti aggiornati con Ajax); <code>aria-describedby</code>.</p>
+        <p><strong>La prima regola di ARIA:</strong> se esiste un elemento HTML nativo con la semantica e il comportamento che ti servono (<code>&lt;button&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;input type="checkbox"&gt;</code>), <strong>usa quello</strong> invece di ricostruirlo con div e ARIA. ARIA cambia solo ciò che viene <em>annunciato</em>, non il comportamento: con <code>role="button"</code> servono comunque <code>tabindex="0"</code> e la gestione dei tasti Invio e Spazio.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1–§3</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="ux-1">
+          <p class="testo">Nel modello di Garrett, quale piano riguarda i wireframe e la disposizione degli elementi sulla pagina?</p>
+          <div class="opz"><button>Strategia</button><button>Scope</button><button data-giusta>Scheletro</button><button>Superficie</button></div>
+          <div class="perche" hidden><p>Lo scheletro è il design dell'interfaccia e della navigazione; la superficie è l'aspetto visivo vero e proprio.</p></div>
+        </div>
+        <div class="domanda" data-id="ux-2">
+          <p class="testo">Quali sono i quattro principi delle WCAG?</p>
+          <div class="opz"><button data-giusta>Percepibile, Operabile, Comprensibile, Robusto</button><button>Veloce, Sicuro, Bello, Responsive</button><button>Strategia, Scope, Struttura, Superficie</button><button>A, AA, AAA, AAAA</button></div>
+          <div class="perche" hidden><p>POUR. A, AA e AAA sono i livelli di conformità (AAAA non esiste).</p></div>
+        </div>
+        <div class="domanda" data-id="ux-3">
+          <p class="testo">Che <code>alt</code> si mette a un'immagine puramente decorativa?</p>
+          <div class="opz"><button>Nessun attributo alt</button><button data-giusta>alt="" (vuoto), così lo screen reader la salta</button><button>alt="immagine"</button><button>alt="decorazione"</button></div>
+          <div class="perche" hidden><p>Senza alt lo screen reader potrebbe leggere il nome del file. Con un testo inutile lo leggerebbe a vuoto.</p></div>
+        </div>
+        <div class="domanda" data-id="ux-4">
+          <p class="testo">Qual è la "prima regola" di ARIA?</p>
+          <div class="opz"><button>Mettere role a ogni elemento</button><button data-giusta>Se esiste un elemento HTML nativo adatto, usare quello invece di ARIA</button><button>Usare sempre aria-hidden</button><button>ARIA sostituisce il CSS</button></div>
+          <div class="perche" hidden><p>Gli elementi nativi sono già accessibili e utilizzabili da tastiera. ARIA serve dove HTML non basta.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Sicurezza</span>
+        <h2>Gli attacchi principali</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Da saper riconoscere</span>
+        <p><strong>XSS (Cross-Site Scripting):</strong> l'attaccante fa eseguire il suo JavaScript nella pagina di un altro sito, di solito inserendo <code>&lt;script&gt;</code> in un commento o in un campo che poi viene mostrato con innerHTML. Può rubare i cookie di sessione o agire al posto dell'utente. <strong>Difese:</strong> fare l'escaping dell'output, usare textContent, la Content-Security-Policy, i cookie HttpOnly.<br>
+        <strong>CSRF (Cross-Site Request Forgery):</strong> un sito malevolo fa partire dal browser della vittima una richiesta verso un sito dove la vittima è già autenticata, e i cookie partono da soli. <strong>Difese:</strong> cookie SameSite, token anti-CSRF nei form, mai usare GET per modificare dati.<br>
+        <strong>SQL / NoSQL injection:</strong> l'input dell'utente viene inserito in una query e ne cambia il significato. <strong>Difese:</strong> query parametrizzate e validazione lato server.<br>
+        <strong>Clickjacking:</strong> il sito viene caricato in un iframe invisibile per far cliccare l'utente senza che se ne accorga. <strong>Difesa:</strong> vietare l'inclusione in frame.<br>
+        <strong>Man-in-the-middle:</strong> qualcuno intercetta il traffico in chiaro. <strong>Difesa:</strong> HTTPS sempre, con HSTS.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Regola d'oro</span><p><strong>Non fidarti mai dell'input del client</strong>: la validazione nel browser serve all'usabilità, ma la sicurezza va controllata sul server.</p></div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Configurazione</span>
+        <h2>Gli header di sicurezza</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Header di risposta che il server dovrebbe inviare</span>
+        <p><code>Content-Security-Policy</code> (CSP): dice da quali origini la pagina può caricare script, stili e immagini, e può vietare gli script inline. È la difesa più forte contro l'<strong>XSS</strong>. Esempio: <code>Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net</code>.<br>
+        <code>Strict-Transport-Security</code> (HSTS): obbliga il browser a usare <strong>solo HTTPS</strong> con quel sito per un certo periodo (contro il downgrade e il man-in-the-middle): <code>max-age=31536000; includeSubDomains</code>.<br>
+        <code>X-Frame-Options: DENY</code>, oppure la direttiva CSP <code>frame-ancestors 'none'</code>: impedisce di includere il sito in un iframe, contro il <strong>clickjacking</strong>.<br>
+        <code>X-Content-Type-Options: nosniff</code>: il browser rispetta il Content-Type dichiarato e non "indovina" il tipo, quindi non esegue come script un file caricato come immagine.<br>
+        <code>Set-Cookie: sessione=…; Secure; HttpOnly; SameSite=Strict</code>: il cookie viaggia solo su HTTPS, non è leggibile da JavaScript (limita i danni di un XSS) e non parte da richieste di altri siti (contro il CSRF).<br>
+        <code>Referrer-Policy</code> e <code>Permissions-Policy</code>: limitano le informazioni inviate ad altri siti e l'accesso a fotocamera, posizione e simili.</p>
+        <p><strong>Come verificarli:</strong> gli strumenti per sviluppatori del browser (scheda Rete, header della risposta; la console mostra le violazioni della CSP), <code>curl -I https://sito</code>, servizi come <strong>securityheaders.com</strong> e <strong>Mozilla Observatory</strong>, scanner come <strong>OWASP ZAP</strong>.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Scritto 18/06/2024 · Sicurezza (risposta aperta)</span><h4>Una tecnica di configurazione degli header, l'attacco che previene e come verificarla</h4></div>
+        <div class="soluzione"><span class="etichetta">Risposta modello</span>
+          <ol class="passi">
+            <li><div><p><strong>Tecnica:</strong> impostare l'header <code>Content-Security-Policy</code>, per esempio <code>default-src 'self'; script-src 'self'</code>.</p></div></li>
+            <li><div><p><strong>Cosa previene:</strong> l'XSS. Anche se un attaccante riesce a iniettare <code>&lt;script&gt;</code> o un attributo <code>onclick</code> nella pagina, il browser rifiuta di eseguire script inline o caricati da domini non autorizzati. Con <code>frame-ancestors 'none'</code> previene anche il clickjacking.</p></div></li>
+            <li><div><p><strong>Come verificarla:</strong> controllare l'header nella scheda Rete degli strumenti per sviluppatori; provare a inserire uno script e vedere la violazione segnalata in console; analizzare il sito con securityheaders.com o Mozilla Observatory.</p></div></li>
+            <li><div><p class="risultato">Si può partire con Content-Security-Policy-Report-Only, che segnala le violazioni senza bloccare, per non rompere il sito mentre si mette a punto la policy</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4–§5</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="ux-5">
+          <p class="testo">Quale header è la difesa principale contro l'XSS?</p>
+          <div class="opz"><button>Strict-Transport-Security</button><button data-giusta>Content-Security-Policy</button><button>Accept</button><button>Content-Length</button></div>
+          <div class="perche" hidden><p>La CSP limita da dove possono arrivare gli script ed eventualmente vieta quelli inline. HSTS invece impone HTTPS.</p></div>
+        </div>
+        <div class="domanda" data-id="ux-6">
+          <p class="testo">Cosa fa il flag HttpOnly su un cookie?</p>
+          <div class="opz"><button>Lo invia solo su HTTP e non su HTTPS</button><button data-giusta>Impedisce a JavaScript di leggerlo (document.cookie), limitando il furto della sessione con un XSS</button><button>Lo cancella alla chiusura del browser</button><button>Lo rende visibile a tutti i siti</button></div>
+          <div class="perche" hidden><p>"Solo HTTPS" è il flag Secure; SameSite riguarda le richieste che arrivano da altri siti.</p></div>
+        </div>
+        <div class="domanda" data-id="ux-7">
+          <p class="testo">Un sito malevolo invia un form nascosto al tuo home banking, dove sei già autenticata. Che attacco è?</p>
+          <div class="opz"><button>XSS</button><button data-giusta>CSRF</button><button>SQL injection</button><button>Clickjacking</button></div>
+          <div class="perche" hidden><p>Cross-Site Request Forgery: si sfruttano i cookie che il browser allega da solo. Si difende con SameSite e i token CSRF.</p></div>
+        </div>
+        <div class="domanda" data-id="ux-8">
+          <p class="testo">A cosa serve X-Frame-Options: DENY (o frame-ancestors 'none')?</p>
+          <div class="opz"><button>A bloccare le immagini</button><button data-giusta>A impedire che il sito venga caricato in un iframe, contro il clickjacking</button><button>A forzare HTTPS</button><button>A disattivare JavaScript</button></div>
+          <div class="perche" hidden><p>Senza frame, l'attaccante non può sovrapporre il tuo sito invisibile alla sua pagina.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-ux">
+        <li><label><input type="checkbox" id="ux-c1"><span>Elencare e spiegare i cinque piani di Garrett</span></label></li>
+        <li><label><input type="checkbox" id="ux-c2"><span>Spiegare POUR e i livelli A, AA, AAA; correggere un HTML non accessibile</span></label></li>
+        <li><label><input type="checkbox" id="ux-c3"><span>Usare role, aria-label, aria-hidden, aria-live e la prima regola di ARIA</span></label></li>
+        <li><label><input type="checkbox" id="ux-c4"><span>Spiegare XSS, CSRF, injection e clickjacking con le difese</span></label></li>
+        <li><label><input type="checkbox" id="ux-c5"><span>Descrivere CSP, HSTS, X-Frame-Options, nosniff, i flag dei cookie e come verificarli</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: programma del corso, scritti 2022–2024 (domande di accessibilità e sicurezza), WCAG 2.2 e WAI-ARIA (W3C), OWASP, MDN. Le slide del prof non erano ancora pubblicate: da ricontrollare. Esercizi e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

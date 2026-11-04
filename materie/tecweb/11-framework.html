@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Framework a componenti · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="11-framework">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Perché i componenti</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Props, stato, reattività</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>React</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Vue e Angular</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Web Components e Shadow DOM</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>SPA, SSR, CSR</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 11</span>
+      <h1>Framework a componenti</h1>
+      <p class="lede">React, Vue e Angular: cosa hanno in comune (i componenti, lo stato, la reattività), cosa li distingue, e le tecnologie standard che ne sono nate (Web Components, Shadow DOM). Allo scritto 2026: cosa ha cambiato React, lo Shadow DOM, SSR contro CSR.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="08-javascript.html">JavaScript</a> (oggetti, funzioni, array), <a href="09-js-browser-ajax.html">DOM, eventi e fetch</a> e <a href="01-architettura.html#s4">i termini del capitolo 1</a> (SPA, SSR). Le slide del prof sui framework non sono ancora uscite: da ricontrollare.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li>Cos'è un <strong>componente</strong>; <strong>props</strong> contro <strong>stato</strong>.</li>
+        <li>Il principio che distingue <strong>React</strong> dai framework precedenti basati su template HTML.</li>
+        <li><strong>Virtual DOM</strong>, <strong>Shadow DOM</strong> e Web Components.</li>
+        <li><strong>SSR contro CSR</strong>; SPA; opinionated contro non-opinionated (Angular contro React).</li>
+        <li>Negli scritti 2024–25: scrivere un componente che legge e scrive dati da una API, con un form validato.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Idea</span>
+        <h2>Perché i componenti</h2>
+      </div>
+      <p>Una pagina complessa coordina markup, stile, logica e dati. Nel <strong>design a componenti</strong> ogni pezzo dell'interfaccia (un pulsante, una scheda prodotto, un menu) è un <strong>componente</strong> che racchiude <strong>il suo template HTML, il suo CSS e il suo JavaScript</strong>: è autosufficiente, separato dagli altri e riusabile. La pagina diventa un <strong>albero di componenti</strong>. L'idea viene da AngularJS (2010) ed è diventata standard con Angular (Google), React (Facebook) e Vue (comunità open source).</p>
+      <aside class="nota">Il prof la chiama la "terza guerra dei browser": il campo di battaglia non è più il browser degli utenti ma la testa degli sviluppatori.</aside>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Concetti comuni</span>
+        <h2>Props, stato e reattività</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">I tre concetti di ogni framework</span>
+        <p><strong>Props</strong> (proprietà): i dati che un componente <strong>riceve dal genitore</strong>; sono di sola lettura per il figlio.<br>
+        <strong>Stato:</strong> i dati che il componente <strong>possiede e può cambiare</strong> (il testo di un campo, una lista caricata da un'API).<br>
+        <strong>Reattività:</strong> quando lo stato cambia, il framework <strong>aggiorna da solo la vista</strong>. Non si tocca il DOM a mano: si descrive <em>come deve apparire</em> l'interfaccia per un certo stato, cioè in modo <strong>dichiarativo</strong>.<br>
+        Flusso dei dati tipico: <strong>verso il basso</strong> con le props, <strong>verso l'alto</strong> con gli eventi e le callback.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · React</span>
+        <h2>React</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Cosa ha cambiato React (domanda del 2026)</span>
+        <p>I framework precedenti (AngularJS, Knockout…) <strong>estendevano l'HTML</strong> con template e direttive, e il DOM veniva aggiornato modificando pezzi dell'interfaccia. React rovescia il punto di vista: <strong>l'interfaccia è una funzione dello stato, scritta in JavaScript</strong> (con JSX), <strong>UI = f(stato)</strong>. A ogni cambiamento di stato il componente viene "ridisegnato" su un <strong>Virtual DOM</strong> (una copia leggera del DOM in memoria); React confronta la versione nuova con la vecchia (<em>diffing</em>) e applica al DOM reale <strong>solo le differenze</strong>. Il flusso dei dati è <strong>unidirezionale</strong>. È poco "opinionated": è una libreria per la vista, e il resto (routing, gestione dello stato) lo scegli tu.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+import { useState, useEffect } from "react";
+
+function ListaEsami({ studenteId }) {                 // studenteId è una prop
+  const [esami, setEsami] = useState([]);             // stato
+  useEffect(() =&gt; {                                   // effetto: carica quando cambia studenteId
+    fetch(`/api/studenti/${studenteId}/esami/`).then(r =&gt; r.json()).then(setEsami);
+  }, [studenteId]);
+  return (                                            // JSX: sembra HTML ma è JavaScript
+    &lt;ul&gt;
+      {esami.map(e =&gt; &lt;li key={e.id}&gt;{e.corso}: {e.voto}&lt;/li&gt;)}
+    &lt;/ul&gt;
+  );
+}
+</code></pre>
+      <p>Hook principali: <code>useState</code> (stato), <code>useEffect</code> (effetti collaterali come fetch e timer), <code>useContext</code>, <code>useRef</code>. Nelle liste si usa una <code>key</code> unica per ogni elemento. React Native porta lo stesso modello alle app mobili.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Gli altri</span>
+        <h2>Vue e Angular</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Vue</span>
+        <p>Open source, nato nel 2014 da un ex sviluppatore di AngularJS. Usa <strong>template HTML con direttive</strong>: <code>v-if</code>, <code>v-for</code>, <code>v-bind</code> (abbreviato <code>:</code>), <code>v-on</code> (<code>@</code>), <code>v-model</code> (collegamento bidirezionale con i campi dei form). I componenti si scrivono in file <code>.vue</code> con tre blocchi: template, script e style. La reattività è automatica (<code>ref</code>, <code>reactive</code>). È progressivo: lo si può usare anche solo in una parte della pagina.</p>
+      </div>
+<pre class="codice largo" data-copia><code>
+&lt;template&gt;
+  &lt;form @submit.prevent="aggiungi"&gt;
+    &lt;input v-model="titolo" required&gt; &lt;button&gt;Aggiungi&lt;/button&gt;
+  &lt;/form&gt;
+  &lt;ul&gt;&lt;li v-for="l in libri" :key="l._id"&gt;{{ l.titolo }}&lt;/li&gt;&lt;/ul&gt;
+&lt;/template&gt;
+&lt;script setup&gt;
+import { ref, onMounted } from "vue";
+const libri = ref([]), titolo = ref("");
+onMounted(async () =&gt; { libri.value = await (await fetch("/api/libri/")).json(); });
+async function aggiungi() {
+  const r = await fetch("/api/libri/", { method: "POST",
+    headers: { "Content-Type": "application/json" }, body: JSON.stringify({ titolo: titolo.value }) });
+  libri.value.push(await r.json()); titolo.value = "";
+}
+&lt;/script&gt;
+</code></pre>
+      <div class="def">
+        <span class="etichetta">Angular</span>
+        <p>Di Google (riscrittura di AngularJS del 2016). È un <strong>framework completo e molto "opinionated"</strong>: impone struttura, <strong>TypeScript</strong> obbligatorio, moduli, servizi con <em>dependency injection</em>, routing, form e HTTP già inclusi, e una CLI. Template con binding (<code>{{ }}</code>, <code>[prop]</code>, <code>(evento)</code>, <code>[(ngModel)]</code> bidirezionale). Adatto a grandi progetti aziendali; la curva di apprendimento è più ripida.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1–§4</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="fw-1">
+          <p class="testo">Qual è il principio che distingue React dai framework precedenti basati su template HTML?</p>
+          <div class="opz"><button>Usa XML al posto di HTML</button><button data-giusta>L'interfaccia è una funzione dello stato scritta in JavaScript (JSX), resa tramite Virtual DOM con flusso dati unidirezionale</button><button>Funziona solo lato server</button><button>Non usa componenti</button></div>
+          <div class="perche" hidden><p>Invece di estendere l'HTML con direttive e modificare il DOM a mano, si descrive cosa mostrare per ogni stato e React applica solo le differenze.</p></div>
+        </div>
+        <div class="domanda" data-id="fw-2">
+          <p class="testo">Differenza tra props e stato?</p>
+          <div class="opz"><button>Sono sinonimi</button><button data-giusta>Le props arrivano dal genitore e il figlio non le modifica; lo stato appartiene al componente, che lo può cambiare</button><button>Le props sono solo stringhe</button><button>Lo stato è condiviso da tutti i componenti</button></div>
+          <div class="perche" hidden><p>I dati scendono con le props; per comunicare verso l'alto il figlio chiama una callback ricevuta come prop o emette un evento.</p></div>
+        </div>
+        <div class="domanda" data-id="fw-3">
+          <p class="testo">Cos'è il Virtual DOM?</p>
+          <div class="opz"><button>Il DOM di una pagina in un iframe</button><button data-giusta>Una rappresentazione in memoria dell'interfaccia, confrontata con la precedente per applicare al DOM reale solo le modifiche necessarie</button><button>Lo Shadow DOM dei Web Components</button><button>Un DOM che gira sul server</button></div>
+          <div class="perche" hidden><p>Il Virtual DOM serve a ridurre gli aggiornamenti costosi del DOM. Lo Shadow DOM invece serve a incapsulare: sono cose diverse.</p></div>
+        </div>
+        <div class="domanda" data-id="fw-4">
+          <p class="testo">Quale framework è il più "opinionated" e impone TypeScript?</p>
+          <div class="opz"><button>React</button><button>Vue</button><button data-giusta>Angular</button><button>jQuery</button></div>
+          <div class="perche" hidden><p>Angular fornisce e impone tutto (struttura, DI, routing, TypeScript). React è il meno opinionated.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Standard</span>
+        <h2>Web Components e Shadow DOM</h2>
+      </div>
+      <p>L'idea dei componenti è entrata negli <strong>standard del browser</strong>: i <strong>Web Components</strong> permettono di creare nuovi elementi HTML riusabili senza framework. Il prof lo legge come un ritorno al dichiarativo: <strong>HTML torna estendibile</strong> con elementi propri.</p>
+      <div class="def">
+        <span class="etichetta">I tre ingredienti</span>
+        <p><strong>Custom Elements:</strong> si definisce un nuovo tag (il nome deve contenere un trattino) con una classe JS: <code>customElements.define("mia-scheda", MiaScheda)</code>.<br>
+        <strong>Shadow DOM:</strong> un <strong>sotto-albero DOM incapsulato</strong> attaccato all'elemento. Gli stili e gli script della pagina <strong>non entrano</strong>, e quelli del componente <strong>non escono</strong>: è un "mini-DOM protetto" (domanda del 2026). Non serve a nascondere l'elemento né a renderlo più veloce.<br>
+        <strong>&lt;template&gt; e &lt;slot&gt;:</strong> markup non visualizzato da clonare, e punti in cui inserire il contenuto passato dall'esterno. Con il Declarative Shadow DOM (2023) lo Shadow DOM si può scrivere anche direttamente in HTML.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="javascript">
+class SalutoBox extends HTMLElement {
+  constructor() {
+    super();
+    const ombra = this.attachShadow({ mode: "open" });
+    ombra.innerHTML = `&lt;style&gt;p { color: teal }&lt;/style&gt;&lt;p&gt;Ciao &lt;slot&gt;&lt;/slot&gt;!&lt;/p&gt;`;
+  }
+}
+customElements.define("saluto-box", SalutoBox);
+// in HTML: &lt;saluto-box&gt;Arianna&lt;/saluto-box&gt; — il p teal non colora gli altri p della pagina
+</code></pre>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Rendering</span>
+        <h2>SPA, SSR e CSR</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Dove si costruisce la pagina</span>
+        <p><strong>SPA</strong> (Single Page Application): un'unica pagina HTML; la navigazione cambia vista con JavaScript (un router lato client) senza ricaricare.<br>
+        <strong>CSR</strong> (Client-Side Rendering): il server manda un HTML quasi vuoto più il JS, e il browser costruisce il DOM. Dopo il caricamento è molto interattiva, ma la prima visualizzazione è lenta e l'indicizzazione più difficile.<br>
+        <strong>SSR</strong> (Server-Side Rendering): il server <strong>genera l'HTML completo prima di inviarlo</strong>; poi il JS nel browser lo "<strong>idrata</strong>", cioè ci collega gli eventi e lo rende interattivo. La prima visualizzazione è veloce ed è buona per i motori di ricerca. Esempi: Next.js (React), Nuxt (Vue).<br>
+        <strong>Static site generation:</strong> l'HTML viene generato una volta sola, al momento della build.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §5–§6</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="fw-5">
+          <p class="testo">Qual è la funzione dello Shadow DOM nei Web Components?</p>
+          <div class="opz"><button>Nascondere il componente alla vista</button><button data-giusta>Creare un mini-DOM incapsulato, su cui non agiscono stili e script del documento principale</button><button>Duplicare il DOM per le prestazioni</button><button>Generare CSS in automatico</button></div>
+          <div class="perche" hidden><p>È incapsulamento. È esattamente la domanda del 28/01/2026.</p></div>
+        </div>
+        <div class="domanda" data-id="fw-6">
+          <p class="testo">Differenza tra SSR e CSR in React o Vue?</p>
+          <div class="opz"><button data-giusta>SSR genera l'HTML sul server prima dell'invio; CSR costruisce il DOM nel browser con JavaScript</button><button>CSR è sempre più veloce</button><button>SSR non supporta l'interattività</button><button>SSR richiede PHP</button></div>
+          <div class="perche" hidden><p>Con SSR la pagina diventa interattiva dopo l'idratazione. Domanda del 12/02/2026.</p></div>
+        </div>
+        <div class="domanda" data-id="fw-7">
+          <p class="testo">Il nome di un custom element deve…</p>
+          <div class="opz"><button>essere maiuscolo</button><button data-giusta>contenere un trattino (es. mia-scheda)</button><button>iniziare con x-</button><button>coincidere con il nome della classe</button></div>
+          <div class="perche" hidden><p>Il trattino evita conflitti con gli elementi standard, presenti e futuri, che non ne hanno.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-fw">
+        <li><label><input type="checkbox" id="fw-c1"><span>Spiegare componente, props, stato, reattività</span></label></li>
+        <li><label><input type="checkbox" id="fw-c2"><span>Dire cosa ha introdotto React (UI = f(stato), JSX, Virtual DOM, flusso unidirezionale)</span></label></li>
+        <li><label><input type="checkbox" id="fw-c3"><span>Confrontare React, Vue, Angular (opinionated, template, TypeScript)</span></label></li>
+        <li><label><input type="checkbox" id="fw-c4"><span>Spiegare Web Components e Shadow DOM</span></label></li>
+        <li><label><input type="checkbox" id="fw-c5"><span>Distinguere SPA, CSR, SSR, idratazione, static generation</span></label></li>
+        <li><label><input type="checkbox" id="fw-c6"><span>Scrivere un piccolo componente che fa fetch e mostra una lista</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: slide del prof. Vitali «Introduzione al WWW» (parti sui framework), scritti 2024–2026, documentazione ufficiale di React, Vue e MDN (Web Components). Le slide sui framework non erano ancora pubblicate: da ricontrollare. Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

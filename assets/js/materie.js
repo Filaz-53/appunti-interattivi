@@ -101,12 +101,12 @@ window.MATERIE = [
       { id: "05-rest", titolo: "API REST", sottotitolo: "Risorse, stateless, progettare gli endpoint, content negotiation, JSON.", fonte: "Slide Di Iorio «API REST»" },
       { id: "06-html", titolo: "Markup e HTML", sottotitolo: "Markup presentazionale e descrittivo, struttura di un documento, elementi semantici, form, DOM.", fonte: "Slide Vitali «Markup», «HTML I e II parte»" },
       { id: "07-css", titolo: "CSS", sottotitolo: "Selettori e specificità, box model, unità di misura, position, flexbox, grid, responsive, Bootstrap e Tailwind.", fonte: "Slide Vitali «CSS I, II e III parte»" },
-      { id: "08-javascript", titolo: "JavaScript: il linguaggio", sottotitolo: "Tipi, null e undefined, oggetti e prototipi, array e map/filter/reduce/forEach, Date, closure.", stato: "in-arrivo" },
-      { id: "09-js-browser-ajax", titolo: "JavaScript nel browser e Ajax", sottotitolo: "DOM ed eventi, XMLHttpRequest e fetch, callback, Promise, async/await, chiamate in sequenza.", stato: "in-arrivo" },
-      { id: "10-server-side", titolo: "Server side: Node.js e MongoDB", sottotitolo: "Node.js ed event loop, callback error-first, Express, MongoDB, _id e schemi Mongoose.", stato: "in-arrivo" },
-      { id: "11-framework", titolo: "Framework a componenti", sottotitolo: "React, Vue, Angular, Virtual DOM, Web Components e Shadow DOM, SSR e CSR.", stato: "in-arrivo" },
-      { id: "12-semantic-web", titolo: "Semantic Web", sottotitolo: "RDF e triple, Turtle, blank node, ontologie e OWL, SPARQL.", stato: "in-arrivo" },
-      { id: "13-ux-accessibilita-sicurezza", titolo: "UX, accessibilità e sicurezza", sottotitolo: "Il modello di Garrett, accessibilità (WAI-ARIA), header di sicurezza.", stato: "in-arrivo" },
+      { id: "08-javascript", titolo: "JavaScript: il linguaggio", sottotitolo: "Tipi, null e undefined, oggetti e prototipi, array e map/filter/reduce/forEach, Date, closure.", fonte: "Appunti di Berto, scritti 2025–2026 (slide del prof non ancora uscite)" },
+      { id: "09-js-browser-ajax", titolo: "JavaScript nel browser e Ajax", sottotitolo: "DOM ed eventi, XMLHttpRequest e fetch, callback, Promise, async/await, chiamate in sequenza.", fonte: "Appunti di Berto, scritti 2026 (slide del prof non ancora uscite)" },
+      { id: "10-server-side", titolo: "Server side: Node.js e MongoDB", sottotitolo: "Node.js ed event loop, callback error-first, Express, MongoDB, _id e schemi Mongoose.", fonte: "Scritti 2024–2026, documentazione Node/Mongoose (slide non ancora uscite)" },
+      { id: "11-framework", titolo: "Framework a componenti", sottotitolo: "React, Vue, Angular, Virtual DOM, Web Components e Shadow DOM, SSR e CSR.", fonte: "Slide «Introduzione al WWW», scritti 2024–2026 (slide sui framework non ancora uscite)" },
+      { id: "12-semantic-web", titolo: "Semantic Web", sottotitolo: "RDF e triple, Turtle, blank node, ontologie e OWL, SPARQL.", fonte: "Appunti di Berto, scritti 2022–2026 (slide non ancora uscite)" },
+      { id: "13-ux-accessibilita-sicurezza", titolo: "UX, accessibilità e sicurezza", sottotitolo: "Il modello di Garrett, accessibilità (WAI-ARIA), header di sicurezza.", fonte: "Scritti 2022–2024, WCAG e OWASP (slide non ancora uscite)" },
       { id: "progetto", titolo: "Il progetto di gruppo", sottotitolo: "Specifica, requisiti, organizzazione del gruppo e come prepararsi alla presentazione.", stato: "in-arrivo" }
     ]
   }
