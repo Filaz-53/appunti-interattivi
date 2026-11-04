@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Markup e HTML · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="06-html">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Dati, strutture e formati</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Cos'è il markup</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>SGML e XML</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Breve storia di HTML</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Struttura e elementi</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Link, immagini, entità</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>I form</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Head, attributi data-, accessibilità</span></a></li>
+        <li><a href="#s9"><span class="n">§9</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 6 · slide «Markup», «HTML I parte», «HTML II parte»</span>
+      <h1>Markup e HTML</h1>
+      <p class="lede">Cos'è il markup e perché il prof insiste sul markup descrittivo; poi HTML come lo si usa oggi: struttura del documento, elementi semantici, link, immagini, form. Ti serve anche per il sito personale e la bandiera di laboratorio, che però vanno scritti da te.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="03-uri.html#s5">Gli URI relativi</a> (per link e immagini) e <a href="04-http.html#s5">GET e POST</a> (per i form). Un <strong>tag</strong> è un'etichetta tra parentesi angolate, <code>&lt;p&gt;</code>; un <strong>elemento</strong> è tag di apertura + contenuto + tag di chiusura, <code>&lt;p&gt;ciao&lt;/p&gt;</code>; un <strong>attributo</strong> è un'informazione nel tag di apertura, <code>&lt;a href="x.html"&gt;</code>.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Markup presentazionale, procedurale, descrittivo</strong>: uscita nel 2026.</li>
+        <li>XML <strong>ben formato</strong> contro <strong>valido</strong>.</li>
+        <li>HTML <strong>Living Standard</strong>, WHATWG contro W3C, quirks mode.</li>
+        <li>Comportamenti precisi: <code>&lt;button&gt;</code> senza type fa <strong>submit</strong>; il testo libero dentro <code>&lt;ul&gt;</code>; <code>action</code>, <code>method</code>, <code>enctype</code> dei form; <code>alt</code> delle immagini.</li>
+        <li>Elementi semantici (<code>&lt;nav&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;section&gt;</code>…) contro <code>&lt;div&gt;</code> e <code>&lt;span&gt;</code>; accessibilità.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Rappresentare l'informazione</span>
+        <h2>Dati, strutture e formati</h2>
+      </div>
+      <p>Un <strong>dato</strong> da solo non significa niente ("42"); con una <strong>chiave</strong> diventa informazione ("età: 42"); più coppie chiave-valore descrivono un'<strong>entità</strong> (un <strong>record</strong>). Le strutture dati sono <strong>record, liste, tabelle</strong> (record omogenei: righe = record, colonne = campi), <strong>alberi</strong> (gerarchie di contenimento o di dominio) e <strong>grafi</strong> (nodi e relazioni).</p>
+      <div class="def">
+        <span class="etichetta">Il testo è un'altra cosa</span>
+        <p>Il testo non è un dato né una struttura dati: ha una struttura di contenimento, un <strong>ordine</strong> che conta e parti significative. La teoria del markup lo descrive come un <strong>albero ordinato ed etichettato</strong> di elementi e nodi di testo; un elemento può contenere sia altri elementi sia testo (<strong>contenuto misto</strong>).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Formati</span>
+        <p>Tabelle: <strong>CSV</strong> (una riga per record, la prima riga con i nomi dei campi). · Alberi: <strong>JSON</strong> (oggetti <code>{}</code> e array <code>[]</code>, tipi stringa, numero, booleano e null; ottimo per API e storage, pessimo per il testo lungo) e <strong>YAML</strong> (superset di JSON, l'indentazione indica l'annidamento, ammette commenti, usato per configurazioni). · Grafi: <strong>RDF/Turtle</strong>. · Testo: <strong>Markdown</strong> (trucchi tipografici leggeri: # titolo, *corsivo*), LaTeX, <strong>HTML, XML</strong>. · Immagini: raster lossless (PNG, GIF, TIFF), lossy (JPG), vettoriali (SVG).</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Teoria</span>
+        <h2>Cos'è il markup e i suoi tipi</h2>
+      </div>
+      <p>Il <strong>markup</strong> è ogni mezzo per rendere esplicita un'interpretazione di un testo. Anche spazi, virgole e punti sono markup: non li "leggiamo", ma guidano la comprensione.</p>
+      <div class="def">
+        <span class="etichetta">I tipi di markup</span>
+        <p><strong>Puntuazionale:</strong> spazi e punteggiatura. · <strong>Presentazionale:</strong> effetti tipografici per rendere chiara la presentazione (andare a capo, interlinea, pallini, "Capitolo 3" in cima alla pagina). · <strong>Procedurale:</strong> istruzioni precise al sistema su quale procedura eseguire (es. ".sp 2" in troff, "cambia font, centra"). · <strong>Descrittivo:</strong> dice <strong>cosa è</strong> ogni parte (titolo, paragrafo, citazione) e <strong>non</strong> come mostrarla. · <strong>Referenziale:</strong> rimanda a entità esterne (scrivo "CdL" e diventa "Corso di Laurea"; le entità HTML come <code>&amp;amp;</code>). · <strong>Metamarkup:</strong> definisce o controlla altro markup (un DTD).</p>
+      </div>
+      <p>Il descrittivo è <strong>dichiarativo</strong> e riguarda aspetti <em>permanenti</em> (un titolo resta un titolo); il procedurale riguarda aspetti <em>concreti e legati al compito</em> (una scelta tipografica). Separare struttura (HTML descrittivo) e presentazione (CSS) è il principio che ha portato alla nascita del CSS.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1–§2</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="hm-1">
+          <p class="testo"><code>&lt;h1&gt;Ricetta&lt;/h1&gt;</code> contro <code>&lt;font size="7"&gt;&lt;b&gt;Ricetta&lt;/b&gt;&lt;/font&gt;</code>. Che tipi di markup sono?</p>
+          <div class="opz"><button>Entrambi descrittivi</button><button data-giusta>Il primo descrittivo (dice che è un titolo), il secondo presentazionale (dice come appare)</button><button>Il primo procedurale, il secondo referenziale</button><button>Entrambi presentazionali</button></div>
+          <div class="perche" hidden><p>&lt;h1&gt; dichiara il ruolo, e l'aspetto lo decide il CSS. &lt;font&gt; e &lt;b&gt; fissano l'aspetto, e il testo non dice di essere un titolo.</p></div>
+        </div>
+        <div class="domanda" data-id="hm-2">
+          <p class="testo">Quale formato è un superset di JSON, usa l'indentazione e ammette commenti?</p>
+          <div class="opz"><button>CSV</button><button data-giusta>YAML</button><button>Markdown</button><button>XML</button></div>
+          <div class="perche" hidden><p>YAML Ain't Markup Language: ogni file JSON è anche YAML valido. È molto usato per i file di configurazione.</p></div>
+        </div>
+        <div class="domanda" data-id="hm-3">
+          <p class="testo">Perché il markup descrittivo è considerato migliore per i documenti?</p>
+          <div class="opz"><button>Perché occupa meno spazio</button><button data-giusta>Perché descrive il ruolo permanente delle parti e permette usi diversi (stampa, schermo, screen reader, indicizzazione) cambiando solo la presentazione</button><button>Perché è più veloce da visualizzare</button><button>Perché non richiede un parser</button></div>
+          <div class="perche" hidden><p>Un titolo resta un titolo in ogni contesto; il suo aspetto invece cambia con il dispositivo e lo stile.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Metalinguaggi</span>
+        <h2>SGML e XML</h2>
+      </div>
+      <p><strong>SGML</strong> (standard ISO 8879, 1986) e <strong>XML</strong> (1998) sono <strong>metalinguaggi</strong>: servono a definire linguaggi di markup (HTML, DocBook, TEI per i testi letterari, Akoma Ntoso per le leggi, SVG per la grafica). Sono favorevoli al markup descrittivo, gerarchico e leggibile. XML è un SGML semplificato: niente minimizzazione dei tag, chiusura sempre obbligatoria, una grammatica unica verificabile da un parser generico.</p>
+      <p>Componenti: <strong>elementi</strong>, <strong>attributi</strong>, <strong>entità</strong>, testo (#PCDATA), <strong>commenti</strong>, <strong>processing instructions</strong>.</p>
+      <div class="def">
+        <span class="etichetta">Ben formato contro valido</span>
+        <p><strong>Ben formato</strong> (XML): tag di apertura e chiusura che corrispondono e sono <strong>ben annidati</strong>; <strong>un unico elemento radice</strong>; elementi vuoti scritti <code>&lt;br/&gt;</code>; attributi tra virgolette e non ripetuti; maiuscole e minuscole distinte. <strong>Valido:</strong> ben formato <strong>e</strong> conforme a una grammatica (DTD o XML Schema). Ogni documento valido è ben formato, non viceversa.</p>
+      </div>
+      <p><strong>Namespace:</strong> associano un vocabolario a un URI, per evitare collisioni (due <code>&lt;title&gt;</code> con significati diversi). <strong>XML Schema</strong>: grammatica in XML, con i tipi di dato. <strong>XSLT</strong>: trasforma un documento XML in un altro, in modo dichiarativo.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Storia</span>
+        <h2>Breve storia di HTML</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le tappe</span>
+        <p><strong>HTML 4.0/4.01</strong> (1997–99): applicazione di SGML, supporto a fogli di stile, frame, tabelle. Le guerre dei browser hanno prodotto la <strong>"tag soup"</strong>: pagine non conformi che i browser interpretavano ognuno a modo suo. Per gestirle sono nati il <strong>quirks mode</strong> (permissivo e retrocompatibile, usato se la pagina non dichiara nulla) e lo <strong>strict mode</strong> (conforme agli standard, attivato dal doctype).<br>
+        <strong>XHTML 1.0</strong> (2000): HTML 4 riscritto in XML, quindi ben formato, minuscolo, con tutti i tag chiusi e gli attributi tra virgolette.<br>
+        <strong>WHATWG</strong> (2004, Mozilla, Opera, Apple): rifiuta il rigore di XML e standardizza anche il <strong>parsing degli errori</strong>. Nel 2011 HTML diventa un <strong>«Living Standard»</strong> in evoluzione continua; dal <strong>2019</strong> il W3C lascia al WHATWG lo sviluppo di HTML.</p>
+      </div>
+      <p>Il Living Standard ha introdotto elementi semantici (<code>&lt;nav&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;main&gt;</code>), <code>&lt;audio&gt;</code> e <code>&lt;video&gt;</code>, immagini responsive (<code>&lt;picture&gt;</code>, <code>srcset</code>), <code>&lt;dialog&gt;</code>, <code>&lt;details&gt;</code>, <code>loading="lazy"</code>, <code>popover</code>, e diverse API per manipolare il DOM. Il doctype SGML è abbandonato: basta <code>&lt;!DOCTYPE html&gt;</code>.</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Le basi</span>
+        <h2>La struttura di un documento e gli elementi</h2>
+      </div>
+<pre class="codice largo" data-copia><code>
+&lt;!DOCTYPE html&gt;                 &lt;!-- tipo di documento: attiva lo strict mode --&gt;
+&lt;html lang="it"&gt;                 &lt;!-- radice dell'albero --&gt;
+  &lt;head&gt;                         &lt;!-- informazioni SUL documento --&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;Il mio sito&lt;/title&gt;
+    &lt;link rel="stylesheet" href="stile.css"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;                         &lt;!-- il contenuto --&gt;
+    &lt;header&gt;&lt;h1&gt;Titolo&lt;/h1&gt;&lt;nav&gt;…&lt;/nav&gt;&lt;/header&gt;
+    &lt;main&gt;&lt;article&gt;&lt;section&gt;&lt;p&gt;Testo&lt;/p&gt;&lt;/section&gt;&lt;/article&gt;&lt;/main&gt;
+    &lt;footer&gt;…&lt;/footer&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+      <div class="def">
+        <span class="etichetta">Le famiglie di elementi</span>
+        <p><strong>Di blocco</strong> (occupano una riga intera, uno sotto l'altro): <code>p, h1–h6, ul, ol, li, blockquote, pre, table, form, div</code>. · <strong>Inline</strong> (scorrono nel testo): <code>a, em, strong, b, i, code, span, img, br</code>. · <strong>Generici</strong>, senza significato: <code>div</code> (blocco) e <code>span</code> (inline), da usare solo se non esiste un elemento più adatto. · <strong>Di struttura, semantici:</strong> <code>header, nav, main, article, section, aside, footer, figure/figcaption</code>.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Spazi e liste (domande del 2026)</span><p>Spazi, tab e a capo multipli nel sorgente valgono come <strong>un solo spazio</strong>; per andare a capo si usa un nuovo blocco o <code>&lt;br&gt;</code>. In una <code>&lt;ul&gt;</code> i figli devono essere <code>&lt;li&gt;</code>: se scrivi del testo libero direttamente dentro la <code>&lt;ul&gt;</code>, il browser non lo elimina e non dà errore, ma quel testo è figlio della lista senza essere una sua voce, cioè non è "semanticamente" parte della lista.</p></div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Elementi chiave</span>
+        <h2>Link, immagini, entità</h2>
+      </div>
+      <p><strong>Link</strong>: <code>&lt;a href="URI"&gt;testo&lt;/a&gt;</code>, un elemento inline. L'URI può essere assoluto, relativo o un frammento (<code>#id</code> porta all'elemento con quell'id). <code>target="_blank"</code> apre in una nuova scheda.</p>
+      <p><strong>Immagini</strong>: <code>&lt;img src="gatto.jpg" alt="Un gatto rosso che dorme"&gt;</code>. È un elemento <strong>vuoto</strong> (non ha tag di chiusura); <code>src</code> è obbligatorio e <code>alt</code> è il <strong>testo alternativo</strong>, fondamentale per l'accessibilità e per quando l'immagine non si carica. <code>width</code> e <code>height</code> sono in pixel. Per immagine con didascalia: <code>&lt;figure&gt;&lt;img …&gt;&lt;figcaption&gt;…&lt;/figcaption&gt;&lt;/figure&gt;</code>.</p>
+      <p><strong>Entità</strong>: servono per i caratteri riservati o difficili da scrivere: <code>&amp;lt;</code> &lt; · <code>&amp;gt;</code> &gt; · <code>&amp;amp;</code> &amp; · <code>&amp;quot;</code> " · <code>&amp;agrave;</code> à · <code>&amp;nbsp;</code> spazio non divisibile · per codice <code>&amp;#224;</code> o <code>&amp;#xE0;</code>.</p>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Form</span>
+        <h2>I form</h2>
+      </div>
+      <p>Il browser raccoglie i dati con un form, apre una connessione HTTP verso l'<strong>action</strong>, il server elabora i dati e genera una risposta.</p>
+      <div class="def">
+        <span class="etichetta">Gli attributi di &lt;form&gt;</span>
+        <p><strong>action:</strong> l'URL che riceve i dati (se manca, la pagina stessa). · <strong>method:</strong> <code>get</code> (il default: i dati vanno nella query dell'URL), <code>post</code> (i dati vanno nel body), <code>dialog</code> (chiude un <code>&lt;dialog&gt;</code>). · <strong>enctype</strong> (per POST): <code>application/x-www-form-urlencoded</code> (default), <code>multipart/form-data</code> (<strong>obbligatorio per inviare file</strong>), <code>text/plain</code>.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">I controlli</span>
+        <p><code>&lt;input type="…"&gt;</code>: text, password, email, number, date, checkbox, radio, file, hidden, submit… con attributi <code>name</code> (<strong>senza name il dato non viene inviato</strong>), value, placeholder, <code>required</code>, <code>pattern</code>, min, max, disabled, readonly · <code>&lt;textarea&gt;</code> (più righe) · <code>&lt;select&gt;&lt;option&gt;</code> · <code>&lt;button&gt;</code> · <code>&lt;label for="id"&gt;</code> (cliccandola si attiva il controllo, e gli screen reader la leggono) · <code>&lt;fieldset&gt;</code> e <code>&lt;legend&gt;</code> (gruppi di controlli).</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>Un <code>&lt;button&gt;</code> <strong>dentro un form senza type è un submit</strong>: cliccarlo invia il form e ricarica la pagina. Per un pulsante che esegue solo JavaScript serve <code>type="button"</code>.</p></div>
+<pre class="codice largo" data-copia><code>
+&lt;form action="/iscrizioni" method="post"&gt;
+  &lt;label for="mail"&gt;Email&lt;/label&gt;
+  &lt;input type="email" id="mail" name="mail" required&gt;
+  &lt;label for="cap"&gt;CAP&lt;/label&gt;
+  &lt;input type="text" id="cap" name="cap" pattern="[0-9]{5}" title="Cinque cifre"&gt;
+  &lt;button type="submit"&gt;Invia&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §5–§7</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="hm-4">
+          <p class="testo">Qual è il method di default di un form?</p>
+          <div class="opz"><button data-giusta>get</button><button>post</button><button>put</button><button>dialog</button></div>
+          <div class="perche" hidden><p>Con GET i dati finiscono nell'URL (?nome=valore&amp;…). Per dati sensibili o voluminosi si usa POST.</p></div>
+        </div>
+        <div class="domanda" data-id="hm-5">
+          <p class="testo">Un form deve caricare un file. Cosa serve?</p>
+          <div class="opz"><button>method="get"</button><button data-giusta>method="post" e enctype="multipart/form-data"</button><button>Solo input type="file"</button><button>enctype="text/plain"</button></div>
+          <div class="perche" hidden><p>Il file viaggia nel body (POST) diviso in parti MIME (multipart). Con la codifica di default il file non viene inviato.</p></div>
+        </div>
+        <div class="domanda" data-id="hm-6">
+          <p class="testo">Un input senza attributo <code>name</code>…</p>
+          <div class="opz"><button>dà errore</button><button data-giusta>non viene inviato al server</button><button>usa l'id come nome</button><button>viene inviato come "input"</button></div>
+          <div class="perche" hidden><p>Il server riceve coppie name=valore. L'id serve per la label, il CSS e JavaScript, non per l'invio.</p></div>
+        </div>
+        <div class="domanda" data-id="hm-7">
+          <p class="testo">Qual è la differenza tra un documento XML ben formato e uno valido?</p>
+          <div class="opz"><button>Nessuna</button><button data-giusta>Ben formato rispetta la sintassi XML; valido è ben formato e rispetta anche una grammatica (DTD o Schema)</button><button>Valido vuol dire senza errori di ortografia</button><button>Ben formato richiede un DTD</button></div>
+          <div class="perche" hidden><p>Ogni documento valido è ben formato; non ogni documento ben formato è valido.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Il resto</span>
+        <h2>Head, attributi data- e accessibilità</h2>
+      </div>
+      <p><strong>Nel &lt;head&gt;:</strong> <code>&lt;title&gt;</code> (testo semplice: è il titolo della finestra, il nome nei preferiti, il titolo nei motori di ricerca); <code>&lt;meta charset="utf-8"&gt;</code> (la codifica); <code>&lt;meta name="viewport"…&gt;</code> (indispensabile per il responsive); <code>&lt;link rel="stylesheet"&gt;</code>; <code>&lt;style&gt;</code>; <code>&lt;script&gt;</code>; <code>&lt;base&gt;</code> (l'URI base per i link relativi).</p>
+      <p><strong>Attributi globali:</strong> <code>id</code> (unico nella pagina), <code>class</code> (più classi separate da spazi), <code>lang</code>, <code>title</code>, <code>hidden</code>. <strong>Attributi data-*</strong> per dati personalizzati: <code>&lt;button data-bs-toggle="modal"&gt;</code>. Si leggono in CSS con <code>button[data-bs-toggle]</code> e in JavaScript con <code>elemento.dataset.bsToggle</code> (i trattini diventano camelCase).</p>
+      <div class="avviso"><span class="etichetta">Accessibilità</span><p><code>&lt;button onclick="…"&gt;</code> e <code>&lt;span class="button" onclick="…"&gt;</code> possono sembrare identici, ma lo span <strong>non è accessibile</strong>: niente tastiera, e lo screen reader non sa che è un pulsante. Si usano gli elementi giusti; se proprio non si può, servono <strong>WAI-ARIA</strong> (<code>role="button"</code>) e <code>tabindex="0"</code>.</p></div>
+    </section>
+
+    <section class="sez" id="s9">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§9 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-hm">
+        <li><label><input type="checkbox" id="hm-c1"><span>Distinguere markup presentazionale, procedurale, descrittivo, referenziale</span></label></li>
+        <li><label><input type="checkbox" id="hm-c2"><span>Conoscere CSV, JSON, YAML, Markdown, XML e quando si usano</span></label></li>
+        <li><label><input type="checkbox" id="hm-c3"><span>Spiegare XML ben formato e valido; namespace</span></label></li>
+        <li><label><input type="checkbox" id="hm-c4"><span>Raccontare tag soup, quirks mode, XHTML, WHATWG, Living Standard</span></label></li>
+        <li><label><input type="checkbox" id="hm-c5"><span>Scrivere a memoria lo scheletro di un documento HTML</span></label></li>
+        <li><label><input type="checkbox" id="hm-c6"><span>Usare elementi semantici, link, immagini con alt, entità</span></label></li>
+        <li><label><input type="checkbox" id="hm-c7"><span>Scrivere un form con action, method, name, label, required, button</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: slide del prof. Vitali «Markup», «HTML (I parte)», «HTML (II parte)» (A.A. 2026/27). Quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

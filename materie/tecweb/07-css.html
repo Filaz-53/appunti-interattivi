@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="it" data-materia="tecweb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSS · Tecnologie Web</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="07-css">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Cos'è CSS e dove si scrive</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Selettori</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Cascata, specificità, ereditarietà</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Unità di misura, canvas e viewport</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Box model e display</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Posizionamento</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Flexbox e Grid</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>At-rules, media query, responsive</span></a></li>
+        <li><a href="#s9"><span class="n">§9</span><span>Ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Tecnologie Web · capitolo 7 · slide «CSS I, II e III parte»</span>
+      <h1>CSS</h1>
+      <p class="lede">Come si dà aspetto e layout a una pagina HTML. È l'argomento con più domande allo scritto 2026 (unità, sticky, object-fit, flexbox, @rules) e serve per il sito personale e la bandiera. Quelli però li scrivi tu: qui c'è la teoria.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p><a href="06-html.html">Il capitolo 6 su HTML</a>: elementi di blocco e inline, attributi id e class, l'albero del documento. Una <strong>regola</strong> CSS è <code>selettore { proprietà: valore; proprietà: valore; }</code>, per esempio <code>p { color: red; }</code>.</p>
+    </div>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Unità di misura</strong>: assolute contro relative al font (em, rem) contro relative al viewport (vw, vh). <strong>Canvas contro viewport.</strong></li>
+        <li><strong>Specificità</strong> (la terna a,b,c) e <strong>ordine della cascata</strong>; !important; ereditarietà.</li>
+        <li><strong>Posizionamento</strong>: static, relative, absolute, fixed, sticky (sticky ha bisogno di <code>top</code>!).</li>
+        <li><strong>Flexbox</strong>: justify-content per l'asse principale, align-items per quello trasversale. Grid in sintesi.</li>
+        <li><strong>box-sizing</strong>, <strong>object-fit</strong>, le <strong>@rules</strong>, le media query mobile-first.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Introduzione</span>
+        <h2>Cos'è CSS e dove si scrive</h2>
+      </div>
+      <p>CSS (<strong>Cascading Style Sheets</strong>, Bos e Lie, 1996) separa la <strong>presentazione</strong> dalla struttura HTML. "Cascading" vuol dire che possono agire <strong>più fogli di stile insieme</strong>: le proprietà di un elemento si <strong>compongono</strong> dal contributo di tutti, non si prende solo l'ultimo. Oggi il CSS è sviluppato dal W3C a moduli con livelli diversi (Flexbox Level 1, Grid Level 2…).</p>
+      <div class="def">
+        <span class="etichetta">Tre posti dove scrivere CSS</span>
+        <p><strong>Esterno:</strong> <code>&lt;link rel="stylesheet" href="stile.css"&gt;</code> nell'head; è il modo migliore, perché è riusabile e mantiene separati struttura e stile. · <strong>Interno:</strong> <code>&lt;style&gt;…&lt;/style&gt;</code> nell'head. · <strong>Inline:</strong> <code>&lt;p style="color:red"&gt;</code>, da evitare.</p>
+      </div>
+      <p>Esempio di cascata dalle slide: tre fogli dicono <code>p{font-family:Arial; font-size:12pt}</code>, <code>p{color:red; font-size:11pt}</code> e <code>p{margin-left:15pt; color:green}</code>. Il risultato è <strong>Arial, 11pt, margin-left 15pt, verde</strong>: le proprietà si sommano e, in caso di conflitto, vince l'ultima.</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Selettori</span>
+        <h2>Selettori</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">I selettori da sapere</span>
+        <p><strong>Base:</strong> <code>*</code> tutti · <code>p</code> tipo · <code>.codice</code> classe · <code>#abc1</code> id · <code>p.codice</code> p di classe codice.<br>
+        <strong>Prossimità:</strong> <code>E F</code> F discendente di E (a qualsiasi profondità) · <code>E &gt; F</code> F <strong>figlio diretto</strong> · <code>E + F</code> F subito dopo E · <code>E ~ F</code> F dopo E (fratelli).<br>
+        <strong>Attributi:</strong> <code>img[alt]</code> ha l'attributo · <code>[type="text"]</code> uguale · <code>[class~="x"]</code> contiene la parola · <code>[href^="https"]</code> inizia con · <code>[href$=".pdf"]</code> finisce con.<br>
+        <strong>Pseudo-classi:</strong> stati e posizione: <code>:hover :focus :active :checked :enabled :first-child :last-child :nth-child(odd) :nth-of-type(2n)</code>.<br>
+        <strong>Pseudo-elementi</strong> (con <code>::</code>): <code>::first-line ::first-letter ::before ::after</code> (gli ultimi due generano contenuto con <code>content</code>).<br>
+        <strong>Moderni:</strong> <code>:has()</code> (un elemento che contiene… , es. <code>.card:has(img)</code>), <code>:is()</code> e <code>:where()</code> (elenchi di selettori), il <strong>nesting</strong> con <code>&amp;</code> come in Sass.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Chi vince</span>
+        <h2>Cascata, specificità ed ereditarietà</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">L'ordine della cascata</span>
+        <p>Quando più regole assegnano la stessa proprietà allo stesso elemento si guarda, in ordine: <strong>1. origine e importanza</strong> (stili del browser &lt; stili dell'utente &lt; stili dell'autore della pagina; le dichiarazioni <code>!important</code> ribaltano e superano tutto); <strong>2. specificità</strong> del selettore; <strong>3. ordine nel documento</strong> (a parità, vince l'ultima). <code>@layer</code> permette di definire livelli di cascata espliciti: le regole fuori dai layer vincono su quelle dentro.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Calcolare la specificità: la terna (a, b, c)</span>
+        <p><strong>a</strong> = numero di <strong>id</strong> · <strong>b</strong> = <strong>classi, attributi, pseudo-classi</strong> · <strong>c</strong> = <strong>elementi e pseudo-elementi</strong>. <code>*</code> e i combinatori valgono 0. Si confronta <strong>da sinistra</strong>, non come un numero: (1,0,0) batte (0,15,0).<br>
+        Esempi: <code>p</code> (0,0,1) · <code>p::first-line</code> (0,0,2) · <code>.codice</code> (0,1,0) · <code>p.codice</code> (0,1,1) · <code>.card .title</code> (0,2,0) · <code>#abc1</code> (1,0,0) · <code>tr#abc1</code> (1,0,1) · <code>:is()</code> prende la specificità del suo argomento più specifico; <code>:where()</code> vale sempre 0. Lo stile <strong>inline</strong> batte ogni selettore.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio · chi vince?</span><h4>&lt;p id="intro" class="testo"&gt;</h4></div>
+        <p>Regole: <code>p.testo { color: blue }</code> · <code>#intro { color: red }</code> · <code>body p { color: green }</code>.</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>p.testo = (0,1,1) · #intro = (1,0,0) · body p = (0,0,2).</p></div></li>
+            <li><div><p>Si confronta prima a: solo #intro ha a = 1.</p></div></li>
+            <li><div><p class="risultato">Rosso. Con <code>color: blue !important</code> su p.testo vincerebbe invece il blu</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <p><strong>Ereditarietà:</strong> se una proprietà non è specificata, molte proprietà del <strong>testo</strong> (color, font-*, line-height) si <strong>ereditano</strong> dal contenitore; quelle della <strong>scatola</strong> (margin, padding, border, width) no. Le parole chiave sono <code>inherit</code> (prendi il valore del padre), <code>initial</code> (il valore iniziale), <code>unset</code> e <code>revert</code> (torna allo stile del browser).</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2–§3</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="cs-1">
+          <p class="testo">Qual è la specificità di <code>nav ul li.attivo a:hover</code>?</p>
+          <div class="opz"><button>(0,1,4)</button><button data-giusta>(0,2,4)</button><button>(1,1,4)</button><button>(0,2,3)</button></div>
+          <div class="perche" hidden><p>Id: 0. Classi e pseudo-classi: .attivo e :hover, quindi 2. Elementi: nav, ul, li, a, quindi 4.</p></div>
+        </div>
+        <div class="domanda" data-id="cs-2">
+          <p class="testo">Differenza tra <code>div p</code> e <code>div &gt; p</code>?</p>
+          <div class="opz"><button>Nessuna</button><button data-giusta>Il primo seleziona i p a qualsiasi profondità dentro un div; il secondo solo i p figli diretti</button><button>Il secondo seleziona il p successivo al div</button><button>Il primo seleziona div e p</button></div>
+          <div class="perche" hidden><p>Lo spazio è il combinatore "discendente", &gt; il combinatore "figlio". Il p successivo si seleziona con +.</p></div>
+        </div>
+        <div class="domanda" data-id="cs-3">
+          <p class="testo">Imposti <code>color: navy</code> sul body. Di che colore sono i paragrafi senza regole proprie?</p>
+          <div class="opz"><button data-giusta>navy, perché color si eredita</button><button>nero, perché color non si eredita</button><button>dipende dal browser</button><button>trasparente</button></div>
+          <div class="perche" hidden><p>Le proprietà del testo si ereditano. Un border messo sul body invece non passa ai figli.</p></div>
+        </div>
+        <div class="domanda" data-id="cs-4">
+          <p class="testo">Due regole con la stessa origine e la stessa specificità assegnano colori diversi. Vince…</p>
+          <div class="opz"><button>la prima</button><button data-giusta>quella scritta per ultima</button><button>quella con il colore più scuro</button><button>nessuna, si fa la media</button></div>
+          <div class="perche" hidden><p>L'ultimo criterio della cascata è l'ordine nel documento.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Misure</span>
+        <h2>Unità di misura, canvas e viewport</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Canvas e viewport (domanda del 2024)</span>
+        <p>Il <strong>canvas</strong> è l'area virtuale su cui vengono posizionati gli elementi: un piano infinito, con x verso destra e y verso il basso. Il <strong>viewport</strong> è la parte del canvas visibile ora nella finestra o sullo schermo, e si sposta sul canvas quando si scorre.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le unità</span>
+        <p><strong>Assolute:</strong> px, pt, cm, mm, in. Il <strong>px CSS</strong> è un'unità astratta pari a 1/96 di pollice, che non coincide con il pixel fisico del dispositivo (la cui densità va da 50 a 550 PPI).<br>
+        <strong>Relative al font:</strong> <code>em</code> = la dimensione del font dell'elemento (per <code>font-size</code>: quella del padre), quindi gli em si <em>moltiplicano</em> annidando · <code>rem</code> = la dimensione del font dell'elemento <strong>radice</strong> html, quindi stabile · <code>ex</code>, <code>ch</code> (altezza della x, larghezza dello 0).<br>
+        <strong>Relative al viewport:</strong> <code>vw</code> e <code>vh</code> = 1% della larghezza e dell'altezza del viewport; <code>vmin</code> e <code>vmax</code>; <code>svh</code>, <code>lvh</code>, <code>dvh</code> (altezza piccola, grande, dinamica, per la barra degli indirizzi dei telefoni che compare e scompare).<br>
+        <strong>Altre:</strong> <code>%</code> (rispetto al contenitore) e <code>fr</code> (frazione dello spazio libero, nelle griglie).</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Il meta viewport</span><p>I browser dei telefoni simulano un viewport di circa 980 px e rimpiccioliscono la pagina. Con <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code> il viewport prende la larghezza reale del dispositivo. Senza questo meta <strong>le media query non scattano</strong>.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="cs-5">
+          <p class="testo">Font della radice 16px; un div ha font-size 2em e dentro un p ha font-size 1.5em. Quanto è grande il testo del p?</p>
+          <div class="opz"><button>24px</button><button data-giusta>48px</button><button>32px</button><button>56px</button></div>
+          <div class="perche" hidden><p>Gli em si moltiplicano: 16 × 2 = 32px per il div, 32 × 1.5 = 48px per il p. Con 1.5rem sarebbe 24px.</p></div>
+        </div>
+        <div class="domanda" data-id="cs-6">
+          <p class="testo">Viewport largo 500px. Quanto vale 3vw?</p>
+          <div class="opz"><button>3px</button><button data-giusta>15px</button><button>150px</button><button>1500px</button></div>
+          <div class="perche" hidden><p>1vw = 1% di 500 = 5px, quindi 3vw = 15px (è l'esempio delle slide).</p></div>
+        </div>
+        <div class="domanda" data-id="cs-7">
+          <p class="testo">Qual è la differenza tra canvas e viewport?</p>
+          <div class="opz"><button>Sono la stessa cosa</button><button data-giusta>Il canvas è il piano virtuale (infinito) dove stanno gli elementi; il viewport è la parte di canvas visibile ora</button><button>Il viewport è l'elemento &lt;canvas&gt; di HTML</button><button>Il canvas è solo per la stampa</button></div>
+          <div class="perche" hidden><p>Quando scorri, il viewport si muove sul canvas. Attenzione a non confondere il canvas CSS con l'elemento HTML &lt;canvas&gt;.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · La scatola</span>
+        <h2>Box model e display</h2>
+      </div>
+      <p>Ogni elemento è una <strong>scatola</strong> dentro la scatola del genitore. Dall'interno verso l'esterno: <strong>content → padding → border → margin</strong>.</p>
+      <div class="def">
+        <span class="etichetta">box-sizing</span>
+        <p>Di default (<code>content-box</code>) width e height misurano <strong>solo il contenuto</strong>, e padding e bordo si aggiungono: <code>width:200px; padding:10px; border:1px</code> dà una scatola larga <strong>222px</strong>. Con <code>box-sizing: border-box</code> padding e bordo sono <strong>inclusi</strong>: la scatola è larga 200px e il contenuto 178px. Per questo con content-box <code>width:100%</code> più del padding "sborda".</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">display: il flusso</span>
+        <p><code>block</code>: uno sotto l'altro, su tutta la larghezza (p, div, h1) · <code>inline</code>: uno accanto all'altro, a capo quando serve; width e height non si applicano (span, a, em) · <code>inline-block</code>: sta in riga ma accetta le dimensioni · <code>flex</code> e <code>grid</code>: attivano i layout moderni sui figli · <code>none</code>: l'elemento sparisce e non occupa spazio (con <code>visibility: hidden</code> invece occupa spazio) · <code>contents</code>: sparisce la scatola ma restano i figli.</p>
+      </div>
+      <p><strong>overflow</strong> (contenuto più grande della scatola): <code>visible</code> (esce), <code>hidden</code> (viene tagliato), <code>scroll</code>, <code>auto</code>. <strong>object-fit</strong> (per immagini e video dentro una scatola): <code>fill</code> (deforma), <code>contain</code> (tutta visibile, possibili bande vuote), <code>cover</code> (riempie mantenendo le proporzioni e <strong>taglia</strong> il resto).</p>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Posizione</span>
+        <h2>Il posizionamento</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">position</span>
+        <p><code>static</code>: il default, segue il flusso; top e left non hanno effetto.<br>
+        <code>relative</code>: spostata di un delta (top, left…) dalla sua posizione naturale; lo spazio originale resta occupato. Fa anche da riferimento per i figli absolute.<br>
+        <code>absolute</code>: tolta dal flusso e posizionata rispetto al primo antenato posizionato (non static), oppure rispetto alla pagina.<br>
+        <code>fixed</code>: posizionata rispetto al <strong>viewport</strong>; non scorre mai (barre fisse).<br>
+        <code>sticky</code>: sta nel flusso finché, scorrendo, non raggiunge la soglia indicata (<code>top: 0</code>); da lì resta attaccata al viewport finché il suo contenitore è visibile. <strong>Senza top (o bottom, left, right) non funziona.</strong></p>
+      </div>
+      <p><strong>float</strong> (left, right): la scatola scivola al lato del contenitore e il testo le scorre intorno; con <code>clear</code> si impedisce agli elementi successivi di affiancarla. <strong>z-index</strong> ordina gli elementi posizionati che si sovrappongono: il valore più alto sta sopra.</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §5–§6</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="cs-8">
+          <p class="testo">width: 300px; padding: 20px; border: 5px solid; box-sizing di default. Quanto è larga la scatola, bordo compreso?</p>
+          <div class="opz"><button>300px</button><button>325px</button><button data-giusta>350px</button><button>340px</button></div>
+          <div class="perche" hidden><p>300 + 2×20 + 2×5 = 350. Con border-box sarebbe 300.</p></div>
+        </div>
+        <div class="domanda" data-id="cs-9">
+          <p class="testo">Vuoi una barra che resti sempre in cima alla finestra, anche scorrendo tutta la pagina. Quale position?</p>
+          <div class="opz"><button>relative</button><button>absolute</button><button data-giusta>fixed</button><button>static</button></div>
+          <div class="perche" hidden><p>fixed è relativa al viewport. sticky resta attaccata solo finché è visibile il suo contenitore.</p></div>
+        </div>
+        <div class="domanda" data-id="cs-10">
+          <p class="testo">Differenza tra <code>display: none</code> e <code>visibility: hidden</code>?</p>
+          <div class="opz"><button>Nessuna</button><button data-giusta>Con display:none l'elemento non occupa spazio; con visibility:hidden è invisibile ma il suo spazio resta</button><button>visibility:hidden rimuove l'elemento dal DOM</button><button>display:none funziona solo sugli inline</button></div>
+          <div class="perche" hidden><p>Nessuna delle due rimuove l'elemento dal DOM: cambia solo come viene disegnato.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Layout moderni</span>
+        <h2>Flexbox e Grid</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Flexbox (una dimensione)</span>
+        <p>Su un contenitore <code>display: flex</code> i figli si dispongono lungo l'<strong>asse principale</strong>, scelto con <code>flex-direction</code>: <code>row</code> (default, orizzontale) o <code>column</code>.<br>
+        <code>justify-content</code> allinea sull'<strong>asse principale</strong>: flex-start, center, flex-end, space-between, space-around, space-evenly.<br>
+        <code>align-items</code> allinea sull'<strong>asse trasversale</strong>: stretch (default), center, flex-start, flex-end.<br>
+        <code>flex-wrap: wrap</code> manda a capo · <code>gap</code> mette spazio tra i figli · sui figli: <code>flex: 1</code> (crescono per riempire lo spazio), <code>order</code>.<br>
+        <strong>Centrare un elemento in tutte e due le direzioni:</strong> <code>display:flex; justify-content:center; align-items:center;</code></p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Grid (due dimensioni)</span>
+        <p><code>display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem;</code> crea 12 colonne uguali. Gli elementi occupano celle o aree (<code>grid-column: span 3</code>, <code>grid-template-areas</code>). <strong>Bootstrap</strong> usa una griglia a <strong>12 colonne</strong> perché 12 si divide per 1, 2, 3, 4, 6 e 12.</p>
+      </div>
+      <aside class="nota">Regola pratica: flexbox per una fila o una colonna di elementi (barre, menu, pulsanti), grid per il layout di pagina a righe e colonne.</aside>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Regole speciali</span>
+        <h2>At-rules, media query e responsive</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le @rules (domanda del 2026)</span>
+        <p>Definiscono <strong>condizioni e contesti globali</strong> che influenzano l'applicazione delle regole CSS: <code>@import</code> (importa un altro foglio) · <code>@charset</code> · <code>@namespace</code> · <code>@page</code> (margini di stampa) · <code>@font-face</code> (carica un font personalizzato) · <code>@media</code> (regole solo per certi dispositivi) · <code>@keyframes</code> (animazioni) · <code>@layer</code> (strati di cascata) · <code>@container</code> (regole in base alla dimensione del contenitore, non del viewport) · <code>@supports</code>.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="css">
+/* mobile-first: regole base per il telefono, poi si aggiunge per gli schermi larghi */
+body { padding: 1em; }
+@media (min-width: 768px) {
+  body { padding: 1em 20%; }
+  .colonne { display: grid; grid-template-columns: 1fr 1fr; }
+}
+@media print { nav { display: none; } }
+</code></pre>
+      <p><strong>Media query:</strong> regole attive solo se il dispositivo rispetta delle condizioni (larghezza, orientamento, risoluzione, tipo screen o print), combinate con <code>and</code>, <code>not</code>, <code>only</code>. <strong>Desktop-first</strong> usa max-width (parte dal grande e riduce); <strong>mobile-first</strong> usa min-width (parte dal telefono e aggiunge): oggi si preferisce mobile-first.</p>
+      <p><strong>Altro:</strong> <strong>variabili</strong> (<code>--colore: #07a;</code> poi <code>color: var(--colore)</code>) e <code>calc(100% - 2rem)</code>; <strong>trasformazioni</strong> (<code>transform: translate() rotate() scale()</code>); <strong>transizioni e animazioni</strong> (<code>transition</code>, <code>@keyframes</code>).</p>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §7–§8</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="cs-11">
+          <p class="testo">Flex container con <code>flex-direction: column</code>. Quale proprietà centra i figli in <strong>verticale</strong>?</p>
+          <div class="opz"><button>align-items: center</button><button data-giusta>justify-content: center</button><button>vertical-align: middle</button><button>text-align: center</button></div>
+          <div class="perche" hidden><p>Con column l'asse principale diventa verticale, e justify-content agisce sull'asse principale. È la trappola inversa della domanda del 2026.</p></div>
+        </div>
+        <div class="domanda" data-id="cs-12">
+          <p class="testo">A cosa serve <code>@font-face</code>?</p>
+          <div class="opz"><button>A scegliere tra font di sistema</button><button data-giusta>A definire e caricare un font personalizzato da usare poi con font-family</button><button>A cambiare la dimensione del font</button><button>A importare un foglio di stile</button></div>
+          <div class="perche" hidden><p><code>@font-face { font-family: MioFont; src: url(font.woff2); }</code> e poi <code>h1 { font-family: MioFont, sans-serif; }</code>.</p></div>
+        </div>
+        <div class="domanda" data-id="cs-13">
+          <p class="testo">Approccio mobile-first: quale media query usi?</p>
+          <div class="opz"><button data-giusta>@media (min-width: …) per aggiungere regole agli schermi più larghi</button><button>@media (max-width: …) per togliere regole agli schermi piccoli</button><button>@media print</button><button>Nessuna</button></div>
+          <div class="perche" hidden><p>Si scrive prima lo stile per il telefono, poi con min-width si arricchisce per tablet e desktop.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s9">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§9 · Ripasso</span>
+        <h2>Checklist</h2>
+      </div>
+      <ul class="checklist" data-id="ripasso-cs">
+        <li><label><input type="checkbox" id="cs-c1"><span>Scrivere selettori di tipo, classe, id, discendente, figlio, attributo, pseudo-classe</span></label></li>
+        <li><label><input type="checkbox" id="cs-c2"><span>Calcolare la specificità e applicare l'ordine della cascata (con !important)</span></label></li>
+        <li><label><input type="checkbox" id="cs-c3"><span>Distinguere em, rem, %, vw, vh, px; spiegare canvas e viewport e il meta viewport</span></label></li>
+        <li><label><input type="checkbox" id="cs-c4"><span>Calcolare la larghezza di una scatola con content-box e border-box</span></label></li>
+        <li><label><input type="checkbox" id="cs-c5"><span>Spiegare le 5 position, compresa sticky e la sua soglia</span></label></li>
+        <li><label><input type="checkbox" id="cs-c6"><span>Centrare con flexbox e fare una griglia a colonne</span></label></li>
+        <li><label><input type="checkbox" id="cs-c7"><span>Elencare le @rules principali e scrivere una media query mobile-first</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: slide del prof. Vitali «Cascading Style Sheets» parti I, II e III (A.A. 2026/27). Esercizio e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>
