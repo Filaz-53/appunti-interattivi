@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Progetto SCC · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Appunti interattivi sulla specifica del progetto SCC (A.A. 2025–2026): definizione, Kosaraju, Tarjan, compilazione, StackOverflow, consegna, complessità con esercizi risolti.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="progetto-scc">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Obiettivo</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Materiale fornito</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Specifica del metodo</span></a></li>
+        <li class="extra"><a href="#a"><span class="n">A</span><span>Kosaraju</span></a></li>
+        <li class="extra"><a href="#b"><span class="n">B</span><span>Tarjan</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Compilazione</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Esecuzione e StackOverflow</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Consegna</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Valutazione</span></a></li>
+        <li class="extra"><a href="#c"><span class="n">C</span><span>Complessità: esercizi</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>FAQ</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · Specifiche progetto A.A. 2025–2026</span>
+      <h1>Componenti fortemente connesse</h1>
+      <p class="lede">Gli appunti seguono il PDF del progetto sezione per sezione (§1–§8). In mezzo ci sono tre approfondimenti, segnati con A, B e C, con la teoria che il PDF dà per scontata: come si calcolano le componenti e quanto costa farlo. Ogni animazione si comanda con i pulsanti o con le frecce ← →.</p>
+      <div class="meta">
+        <span class="etichetta">27 domande · 10 esercizi risolti</span>
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <!-- ============================================================ §1 -->
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Obiettivo</span>
+        <h2>Cos'è una componente fortemente connessa</h2>
+      </div>
+      <p>Il progetto chiede di implementare un algoritmo che calcola le <strong>componenti fortemente connesse</strong> (SCC, <i>Strongly Connected Components</i>) di un grafo orientato, usando la libreria Java del corso.</p>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Una componente fortemente connessa di un grafo orientato G = (V, E) è un sottoinsieme <strong>massimale</strong> di vertici C ⊆ V tale che, per ogni coppia di vertici u, v ∈ C, esiste un cammino orientato da u a v <strong>e</strong> un cammino orientato da v a u.</p>
+      </div>
+      <p>In pratica: dentro una componente puoi andare da qualunque vertice a qualunque altro e tornare indietro, seguendo sempre il verso delle frecce. Prova qui sotto sul grafo dell'esempio del PDF.</p>
+      <aside class="nota">6 vertici, 8 archi, 3 SCC. I colori seguono quelli del PDF: {0,1,2}, {3}, {4,5}.</aside>
+
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Tocca due vertici per vedere se stanno nella stessa SCC.</figcaption>
+        <div data-widget="esplora-scc" style="display:grid;gap:12px"></div>
+      </figure>
+
+      <h3>Perché «massimale»</h3>
+      <p>Prendi {0, 1}: da 0 vai a 1 con un arco, da 1 torni a 0 passando per 2. La condizione sulle coppie vale, eppure {0, 1} <em>non</em> è una SCC: puoi aggiungere 2 e la condizione continua a valere. Una SCC è un insieme a cui non si può aggiungere nessun altro vertice senza rompere la proprietà.</p>
+      <aside class="nota">I cammini possono passare anche per vertici fuori dall'insieme: 1 → 2 → 0 va benissimo.</aside>
+
+      <h3>Tre fatti da tenere a mente</h3>
+      <ol>
+        <li><strong>Ogni vertice sta in esattamente una SCC.</strong> «Raggiungersi a vicenda» è una relazione di equivalenza (riflessiva, simmetrica, transitiva), quindi le SCC sono una partizione di V. Per questo il metodo può restituire un solo intero per vertice.</li>
+        <li><strong>Un vertice che non sta su nessun ciclo forma una SCC da solo</strong>, come 3 nell'esempio: da 3 vai in 4, ma da 4 non torni più a 3.</li>
+        <li><strong>Il grafo delle componenti è sempre aciclico.</strong> Se comprimi ogni SCC in un nodo ottieni un DAG: se ci fosse un ciclo tra due componenti, sarebbero un'unica componente. Su questo fatto si regge Kosaraju (approfondimento A).</li>
+      </ol>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="q1-1">
+          <p class="testo">Nel grafo d'esempio, l'insieme {0, 1} è una componente fortemente connessa?</p>
+          <div class="opz">
+            <button>Sì: da 0 si va a 1 e da 1 si torna a 0.</button>
+            <button>No: manca l'arco diretto 1 → 0.</button>
+            <button data-giusta>No: 0 e 1 si raggiungono a vicenda, ma l'insieme non è massimale, perché si può aggiungere 2.</button>
+            <button>No: un insieme di due vertici non può essere una SCC.</button>
+          </div>
+          <div class="perche" hidden><p>La condizione sulle coppie vale (1 → 2 → 0 riporta a 0), ma una SCC deve essere massimale: con 2 dentro la condizione vale ancora. {4, 5} invece è una SCC di due vertici, quindi l'ultima risposta è falsa.</p></div>
+        </div>
+        <div class="domanda" data-id="q1-2">
+          <p class="testo">Un grafo orientato aciclico (DAG) con n vertici quante SCC ha?</p>
+          <div class="opz">
+            <button>1</button>
+            <button data-giusta>n: ogni vertice forma una SCC da solo.</button>
+            <button>Dipende da quanti archi ha.</button>
+            <button>0</button>
+          </div>
+          <div class="perche" hidden><p>Se due vertici distinti u e v stessero nella stessa SCC, i cammini u → v e v → u formerebbero un ciclo. In un DAG non ci sono cicli, quindi ogni SCC contiene un solo vertice.</p></div>
+        </div>
+        <div class="domanda" data-id="q1-3">
+          <p class="testo">Aggiungi al grafo d'esempio l'arco 4 → 1. Quante SCC restano?</p>
+          <div class="opz">
+            <button data-giusta>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>4</button>
+          </div>
+          <div class="perche" hidden><p>Nasce il ciclo 1 → 3 → 4 → 1, che unisce {0, 1, 2}, {3} e {4, 5}: da ogni vertice arrivi in 4, e da 4 torni a tutti. Puoi controllarlo con il pulsante «Aggiungi l'arco 4 → 1» nella Figura 1.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+    </section>
+
+    <!-- ============================================================ §2 -->
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Materiale fornito</span>
+        <h2>I file del repository e la parte di libreria che userai</h2>
+      </div>
+      <p>Il repository del corso è <a href="https://github.com/disiasd/asd26/" target="_blank" rel="noopener">github.com/disiasd/asd26</a>. Per il progetto contano quattro file:</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>File</th><th>Cos'è</th><th>Cosa ci fai</th></tr></thead>
+          <tbody>
+            <tr><td><code>algorithm/graph/SCC/SCC.java</code></td><td>Interfaccia: dichiara il metodo <code>StronglyConnectedComponents</code></td><td><strong>Non modificare</strong></td></tr>
+            <tr><td><code>algorithm/graph/SCC/SCCcompute.java</code></td><td>Scheletro: il metodo per ora fa solo <code>return null;</code></td><td><strong>Lo completi e lo consegni</strong></td></tr>
+            <tr><td><code>GraphSCCTest.java</code></td><td>Programma di test: legge il file, costruisce il grafo, chiama il tuo metodo, stampa</td><td><strong>Non modificare</strong></td></tr>
+            <tr><td><code>data/roadNet-TX.txt</code></td><td>Rete stradale del Texas: 3.843.320 archi tra incroci</td><td>Lo usi per il test</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>I metodi che ti servono davvero</h3>
+      <p>Il grafo arriva come <code>Graph&lt;D&gt;</code>. Di tutta l'interfaccia, per le SCC bastano questi metodi. I costi sono quelli scritti nella javadoc di <code>GraphAL</code>.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Chiamata</th><th>Restituisce</th><th>Costo</th></tr></thead>
+          <tbody>
+            <tr><td><code>graph.vertexes()</code></td><td>un <code>ArrayList&lt;Vertex&lt;D&gt;&gt;</code> con tutti i vertici</td><td>Θ(n): chiamalo una volta sola</td></tr>
+            <tr><td><code>graph.outEdges(v)</code></td><td>un <code>ArrayList&lt;Edge&lt;D&gt;&gt;</code> con gli archi che escono da v</td><td>O(δ(v)), il grado uscente</td></tr>
+            <tr><td><code>e.getDest()</code> · <code>e.getSource()</code></td><td>il vertice di arrivo · di partenza dell'arco</td><td>O(1)</td></tr>
+            <tr><td><code>graph.vertexNum()</code> · <code>graph.edgeNum()</code></td><td>n · m</td><td>O(1)</td></tr>
+            <tr><td><code>v.getData()</code></td><td>il dato del vertice (nel test, l'id intero)</td><td>O(1)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Non esiste un metodo per gli archi entranti.</strong> Se il tuo algoritmo ha bisogno del grafo trasposto (Kosaraju sì, Tarjan no), lo devi costruire tu: lo vediamo, animato, nell'approfondimento A.</p>
+      <aside class="nota">D è generico: niente array indicizzati con getData(). Usa una HashMap con chiave Vertex&lt;D&gt;.</aside>
+
+      <div class="avviso">
+        <span class="etichetta">Attenzione</span>
+        <p>Nel repository i metodi di <code>GraphAL</code> (<code>vertexes</code>, <code>outEdges</code>, <code>addVertex</code>, <code>addEdge</code>…) sono vuoti e restituiscono <code>null</code>: sono quelli che completate durante il corso. Se nella tua copia sono ancora vuoti, il test va in <code>NullPointerException</code> dentro il tuo metodo anche se il tuo codice è giusto.</p>
+      </div>
+      <p><code>VertexAL</code> non ridefinisce <code>equals</code> e <code>hashCode</code>, quindi una <code>HashMap&lt;Vertex&lt;D&gt;, …&gt;</code> confronta i vertici per identità: ogni vertice è una chiave diversa e l'accesso costa O(1) in media. È esattamente quello che serve.</p>
+    </section>
+
+    <!-- ============================================================ §3 -->
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Specifica del metodo</span>
+        <h2>Firma, pre-condizione e post-condizione</h2>
+      </div>
+      <p>Devi implementare <code>StronglyConnectedComponents</code> nella classe <code>SCCcompute&lt;D&gt;</code>, nel file <code>algorithm/graph/SCC/SCCcompute.java</code>. La firma è imposta dall'interfaccia <code>SCC</code>:</p>
+<pre class="codice largo"><code data-lang="java">public Map&lt;Vertex&lt;D&gt;, Integer&gt; StronglyConnectedComponents(Graph&lt;D&gt; graph)</code></pre>
+      <ul>
+        <li><code>Map&lt;Vertex&lt;D&gt;, Integer&gt;</code>: il risultato associa a ogni vertice un intero, l'indice della sua componente.</li>
+        <li><code>StronglyConnectedComponents</code>: il nome, con la S maiuscola. Se lo cambi anche di una lettera, la classe non implementa più l'interfaccia e non compila.</li>
+        <li><code>Graph&lt;D&gt; graph</code>: il grafo orientato. D è il tipo dei dati nei vertici: nel test è <code>Integer</code>, ma il codice deve funzionare per qualunque D.</li>
+      </ul>
+
+      <h3>Pre-condizione</h3>
+      <p><code>graph</code> è un grafo orientato <strong>non nullo</strong>. Puoi darlo per scontato: non serve controllare <code>graph == null</code>. Un grafo senza vertici è comunque non nullo: in quel caso restituisci una mappa vuota, e un algoritmo scritto bene lo fa da solo, senza casi speciali.</p>
+
+      <h3>Post-condizione</h3>
+      <p>La mappa restituita deve rispettare tre proprietà:</p>
+      <ol>
+        <li><strong>contiene tutti i vertici</strong> del grafo come chiavi;</li>
+        <li>due vertici hanno lo <strong>stesso indice se e solo se</strong> appartengono alla stessa SCC;</li>
+        <li>gli indici sono interi <strong>non negativi</strong>. Il valore esatto non conta, purché siano coerenti tra loro.</li>
+      </ol>
+      <p>«Se e solo se» vale nei due versi. Stessa SCC ⇒ stesso indice vieta di <em>spezzare</em> una componente; stesso indice ⇒ stessa SCC vieta di <em>fonderne</em> due. Nel verificatore qui sotto puoi modificare la Tabella 1 del PDF e vedere quale proprietà si rompe.</p>
+      <aside class="nota">Due regole in una: non spezzare, non fondere.</aside>
+
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 2.</b> Verificatore della mappa: cambia gli indici o scegli un esempio pronto. Una casella vuota vuol dire chiave mancante.</figcaption>
+        <div data-widget="verifica-mappa" style="display:grid;gap:12px"></div>
+      </figure>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2 e §3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="q3-1">
+          <p class="testo">Kosaraju ha bisogno del grafo trasposto. Con la libreria del corso come lo ottieni?</p>
+          <div class="opz">
+            <button>Con <code>graph.inEdges(v)</code>.</button>
+            <button>Con <code>areAdjacent(w, v)</code> per ogni coppia di vertici.</button>
+            <button data-giusta>Lo costruisci tu: per ogni arco u → w di <code>outEdges(u)</code> aggiungi u alla lista di w.</button>
+            <button>Non serve: basta visitare G partendo dall'ultimo vertice.</button>
+          </div>
+          <div class="perche" hidden><p><code>inEdges</code> non esiste. Con <code>areAdjacent</code> controlleresti n² coppie, ognuna con costo O(δ): Θ(n · m), proibitivo sul Texas (esercizio C.7). Una passata sugli archi costa Θ(n + m).</p></div>
+        </div>
+        <div class="domanda" data-id="q3-2">
+          <p class="testo">Quale mappa rispetta la post-condizione per il grafo d'esempio? (vertice → indice)</p>
+          <div class="opz">
+            <button data-giusta>0→5, 1→5, 2→5, 3→9, 4→0, 5→0</button>
+            <button>0→0, 1→0, 2→0, 3→1, 4→1, 5→1</button>
+            <button>0→1, 1→1, 2→1, 3→2, 4→3, 5→4</button>
+            <button>0→0, 1→0, 2→0, 3→−1, 4→2, 5→2</button>
+          </div>
+          <div class="perche" hidden><p>La prima ha numeri diversi dalla Tabella 1 ma la partizione giusta. La seconda fonde {3} con {4, 5}; la terza spezza {4, 5}; la quarta usa un indice negativo. Puoi provarle nel verificatore.</p></div>
+        </div>
+        <div class="domanda" data-id="q3-3">
+          <p class="testo">Gli indici devono essere 0, 1, 2, … consecutivi e nello stesso ordine della Tabella 1?</p>
+          <div class="opz">
+            <button>Sì, altrimenti il test fallisce.</button>
+            <button data-giusta>No: devono solo essere interi non negativi e coerenti con le componenti.</button>
+            <button>Sì, ma possono partire da 1.</button>
+            <button>No, e possono essere anche negativi.</button>
+          </div>
+          <div class="perche" hidden><p>La specifica dice che il valore esatto non è specificato, purché gli indici siano coerenti tra loro. Kosaraju e Tarjan numerano le componenti in ordini diversi e sono corretti entrambi: lo vedi nel simulatore.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+    </section>
+
+    <!-- ============================================================ A -->
+    <section class="sez" id="a">
+      <div class="titolo-sez extra largo">
+        <span class="num-sez">Approfondimento A · oltre il PDF</span>
+        <h2>Kosaraju: due visite in profondità</h2>
+        <p class="sottotitolo">Il PDF non impone un algoritmo. Questo è il più semplice da scrivere bene, ed è quello del libro di testo.</p>
+      </div>
+      <ol class="pseudo">
+        <li class="titolo">Kosaraju(G)</li>
+        <li>esegui <span class="sc">Dfs</span>(G) e calcola il tempo di fine <i>f</i>[<i>u</i>] di ogni vertice</li>
+        <li>costruisci G<sup>T</sup>, cioè G con tutti gli archi invertiti</li>
+        <li>esegui <span class="sc">Dfs</span>(G<sup>T</sup>) prendendo i vertici in ordine decrescente di <i>f</i>[<i>u</i>]</li>
+        <li>ogni albero della seconda visita è una SCC: dai lo stesso indice ai suoi vertici</li>
+      </ol>
+      <aside class="nota">Nel Cormen si chiama STRONGLY-CONNECTED-COMPONENTS.</aside>
+
+      <h3>Perché funziona</h3>
+      <ul>
+        <li><strong>G<sup>T</sup> ha le stesse SCC di G.</strong> Girare tutte le frecce non cambia chi si raggiunge a vicenda: il cammino u → v diventa v → u e viceversa.</li>
+        <li><strong>Lemma dei tempi di fine.</strong> Se c'è un arco dalla componente C alla componente C′, il massimo <i>f</i> in C è più grande del massimo <i>f</i> in C′. Quindi il vertice con <i>f</i> più alto sta in una componente <em>sorgente</em> del grafo delle componenti.</li>
+        <li><strong>In G<sup>T</sup> quella sorgente diventa un pozzo.</strong> La seconda visita parte da lì e non può uscire: visita esattamente quella componente. Poi si prende il prossimo <i>f</i> più alto non ancora visitato, e il ragionamento si ripete sul resto del grafo.</li>
+      </ul>
+
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 3.</b> Simulatore. Guarda come i vertici passano dalla pila delle chiamate alla lista dei tempi di fine, e da lì alla mappa. Le annotazioni a penna sono d/f.</figcaption>
+        <div data-widget="simulatore-scc" data-alg="k" style="display:grid;gap:12px"></div>
+      </figure>
+
+      <h3>Dal libro a Java: il trasposto</h3>
+      <p>La libreria dà solo gli archi uscenti, quindi il passo 2 si scrive così: una <code>HashMap</code> che a ogni vertice associa la lista dei suoi vicini in G<sup>T</sup>, riempita con una sola passata sugli archi.</p>
+<pre class="codice largo" id="codice-trasposto" data-copia><code data-lang="java">
+Map&lt;Vertex&lt;D&gt;, ArrayList&lt;Vertex&lt;D&gt;&gt;&gt; trasposto = new HashMap&lt;&gt;();
+for (Vertex&lt;D&gt; v : vertici) trasposto.put(v, new ArrayList&lt;&gt;());   // n volte
+for (Vertex&lt;D&gt; v : vertici)                                         // n volte
+    for (Edge&lt;D&gt; e : graph.outEdges(v))                             // δ(v) volte
+        trasposto.get(e.getDest()).add(v);                          // m volte in tutto
+</code></pre>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 4.</b> Il trasposto costruito arco per arco: ogni arco v → w di G fa volare v nella lista di w, e la freccia nel grafo si gira.</figcaption>
+        <div data-widget="trasposto" data-codice="#codice-trasposto" style="display:grid;gap:12px"></div>
+      </figure>
+    </section>
+
+    <!-- ============================================================ B -->
+    <section class="sez" id="b">
+      <div class="titolo-sez extra largo">
+        <span class="num-sez">Approfondimento B · oltre il PDF</span>
+        <h2>Tarjan: una visita sola</h2>
+        <p class="sottotitolo">Stesso costo di Kosaraju, niente trasposto, ma un'idea in più da capire: il valore low.</p>
+      </div>
+      <p>Durante la DFS, Tarjan assegna a ogni vertice due numeri:</p>
+      <ul>
+        <li><strong>d[u]</strong>: l'istante in cui u è stato scoperto;</li>
+        <li><strong>low[u]</strong>: il d più piccolo che si riesce a raggiungere da u scendendo nel suo sottoalbero DFS e usando poi al massimo un arco verso un vertice ancora nella pila S.</li>
+      </ul>
+      <p>I vertici visitati vanno in una pila S e ci restano finché la loro componente non è completa. Quando la visita di u finisce e <strong>low[u] = d[u]</strong>, da u non si risale più in alto: u è la radice della sua componente, e i vertici sopra di lui in S sono gli altri membri. Si estraggono tutti insieme.</p>
+      <aside class="nota">Robert Tarjan, 1972. Nel simulatore scegli «Tarjan»: la pila S compare al posto della lista dei tempi di fine.</aside>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 5.</b> Lo stesso simulatore con Tarjan. Le annotazioni a penna sono d · low.</figcaption>
+        <div data-widget="simulatore-scc" data-alg="t" data-grafo="B" style="display:grid;gap:12px"></div>
+      </figure>
+
+      <h3>Quale scegliere per il progetto</h3>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th></th><th>Kosaraju</th><th>Tarjan</th></tr></thead>
+          <tbody>
+            <tr><td>Visite in profondità</td><td>2</td><td>1</td></tr>
+            <tr><td>Grafo trasposto</td><td>serve, da costruire</td><td>non serve</td></tr>
+            <tr><td>Memoria aggiuntiva</td><td>Θ(n + m) per G<sup>T</sup></td><td>Θ(n): d, low, pila S</td></tr>
+            <tr><td>Versione iterativa</td><td>semplice: due DFS iterative standard</td><td>più delicata: low va aggiornato al «ritorno» da ogni figlio</td></tr>
+            <tr><td>Tempo</td><td>Θ(n + m)</td><td>Θ(n + m)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Per il progetto vanno bene entrambi. Se scrivi la versione iterativa per evitare lo StackOverflow (§5), Kosaraju è più difficile da sbagliare.</p>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · A e B</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="qa-1">
+          <p class="testo">Nella fase 3 di Kosaraju, su quale grafo si fa la seconda visita e in che ordine si prendono i vertici?</p>
+          <div class="opz">
+            <button>Su G, in ordine crescente di f.</button>
+            <button>Su G<sup>T</sup>, in ordine crescente di d.</button>
+            <button data-giusta>Su G<sup>T</sup>, in ordine decrescente di f.</button>
+            <button>Su G<sup>T</sup>, in un ordine qualsiasi.</button>
+          </div>
+          <div class="perche" hidden><p>Partendo dal vertice con f massimo, la visita di G<sup>T</sup> resta chiusa nella sua componente. Con un ordine qualsiasi un albero potrebbe sconfinare in un'altra SCC e fonderle.</p></div>
+        </div>
+        <div class="domanda" data-id="qa-2">
+          <p class="testo">Perché il vertice con il tempo di fine più alto è il punto di partenza giusto?</p>
+          <div class="opz">
+            <button>Perché ha più archi uscenti degli altri.</button>
+            <button data-giusta>Perché sta in una componente sorgente del grafo delle componenti: in G<sup>T</sup> diventa un pozzo e la visita non può uscirne.</button>
+            <button>Perché è stato scoperto per primo, quindi è la radice di tutto.</button>
+            <button>Perché è sempre il vertice 0.</button>
+          </div>
+          <div class="perche" hidden><p>È il lemma dei tempi di fine. Attenzione alla terza risposta: nell'esempio del PDF il vertice con f più alto è anche il primo scoperto, ma non è il motivo. In generale il primo scoperto può stare in una componente qualsiasi.</p></div>
+        </div>
+        <div class="domanda" data-id="qa-3">
+          <p class="testo">Quanto costa Kosaraju con liste di adiacenza, n vertici e m archi?</p>
+          <div class="opz">
+            <button data-giusta>Θ(n + m)</button>
+            <button>Θ(n · m)</button>
+            <button>Θ(n²)</button>
+            <button>Θ(m log n)</button>
+          </div>
+          <div class="perche" hidden><p>Due DFS da Θ(n + m) più la costruzione di G<sup>T</sup>, ancora Θ(n + m). Lo vedi nei contatori del simulatore: ogni fase tocca ogni vertice e ogni arco una volta. Il conto completo è nell'esercizio C.4.</p></div>
+        </div>
+        <div class="domanda" data-id="qb-1">
+          <p class="testo">In Tarjan, quando si chiude una componente?</p>
+          <div class="opz">
+            <button>Ogni volta che si trova un arco verso un vertice nella pila S.</button>
+            <button data-giusta>Quando, finita la visita di u, vale low[u] = d[u]: si estrae da S fino a u compreso.</button>
+            <button>Quando la pila S si svuota.</button>
+            <button>Alla fine della visita, tutte insieme.</button>
+          </div>
+          <div class="perche" hidden><p>low[u] = d[u] vuol dire che dal sottoalbero di u non si risale a nessun vertice scoperto prima di u e ancora in S. Nel Grafo B la prima componente chiusa è {h}, prima ancora che la visita torni in a.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+    </section>
+
+    <!-- ============================================================ §4 -->
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Compilazione</span>
+        <h2>Un solo comando, dalla cartella giusta</h2>
+      </div>
+      <p>Dalla cartella radice del repository, quella che contiene <code>GraphSCCTest.java</code>:</p>
+<pre class="codice terminale largo" data-copia><code>
+$ javac GraphSCCTest.java
+</code></pre>
+      <p>javac compila anche tutto quello che serve. <code>GraphSCCTest</code> importa <code>datastructure.graph.*</code> e <code>algorithm.graph.SCC.*</code>; javac cerca quei package nelle cartelle con lo stesso nome, <em>a partire dalla cartella corrente</em>, e compila <code>SCC.java</code>, <code>SCCcompute.java</code> e le classi del grafo. Per questo la cartella da cui lanci il comando è importante.</p>
+<pre class="albero-file largo">asd26/                         <span class="qui">← lancia javac da qui</span>
+├── GraphSCCTest.java
+├── algorithm/
+│   └── graph/
+│       └── SCC/
+│           ├── SCC.java
+│           └── SCCcompute.java    <span class="com">← l'unico file che modifichi</span>
+├── datastructure/
+│   └── graph/                 <span class="com">Graph, GraphAL, Vertex, Edge, …</span>
+└── data/
+    └── roadNet-TX.txt</pre>
+
+      <h3>Gli errori più comuni</h3>
+      <p>I messaggi sono quelli che dà davvero javac (OpenJDK 21).</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Messaggio</th><th>Causa</th><th>Rimedio</th></tr></thead>
+          <tbody>
+            <tr><td><code>error: file not found: GraphSCCTest.java</code></td><td>Sei in una sottocartella</td><td>Torna nella radice del repository</td></tr>
+            <tr><td><code>error: cannot find symbol … symbol: class SCC</code></td><td>Hai compilato <code>SCCcompute.java</code> dalla sua cartella, oppure hai tolto la riga <code>package</code></td><td>Compila <code>GraphSCCTest.java</code> dalla radice e tieni <code>package algorithm.graph.SCC;</code></td></tr>
+            <tr><td><code>SCCcompute is not abstract and does not override abstract method StronglyConnectedComponents(Graph&lt;D&gt;) in SCC</code></td><td>Hai cambiato la firma, anche solo una maiuscola</td><td>Ripristina la firma esatta del §3</td></tr>
+            <tr><td><code>error: package org.jgrapht does not exist</code></td><td>Hai importato una libreria esterna</td><td>Solo <code>java.util</code> (§8)</td></tr>
+            <tr><td><code>NullPointerException</code> quando lo esegui</td><td><code>GraphAL</code> è ancora lo scheletro</td><td>Completa <code>GraphAL</code> (§2)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ §5 -->
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Esecuzione</span>
+        <h2>Cosa fa il test, e perché la ricorsione si rompe</h2>
+      </div>
+<pre class="codice terminale largo" data-copia><code>
+$ java GraphSCCTest data/roadNet-TX.txt
+</code></pre>
+      <p>Il programma fa quattro cose, in quest'ordine:</p>
+      <ol>
+        <li>legge <code>data/roadNet-TX.txt</code>: un arco per riga, <code>sorgente</code> e <code>destinazione</code> separati da un TAB;</li>
+        <li>costruisce il grafo orientato con <code>GraphAL</code>, creando un vertice la prima volta che un id compare;</li>
+        <li>chiama il tuo <code>StronglyConnectedComponents</code>;</li>
+        <li>stampa per ogni vertice una riga <code>&lt;dato_vertice&gt; , &lt;indice_SCC&gt;</code>.</li>
+      </ol>
+      <p>Prima delle SCC stampa anche tutto il grafo, riga per riga. Sul Texas sono 5,2 milioni di righe: conviene mandare l'output in un file con <code>&gt; output.txt</code> e poi aprirlo.</p>
+      <aside class="nota">Se al posto di ├──── vedi dei punti di domanda, è solo la codifica del terminale.</aside>
+
+      <h3>Prima prova: il grafo del PDF</h3>
+      <p>Crea <code>data/esempio.txt</code> con queste 8 righe (il pulsante Copia mette i TAB giusti):</p>
+<pre class="codice largo" data-copia="0\t1\n1\t3\n1\t2\n2\t0\n2\t3\n3\t4\n4\t5\n5\t4\n"><code>
+0	1
+1	3
+1	2
+2	0
+2	3
+3	4
+4	5
+5	4
+</code></pre>
+<pre class="codice terminale largo"><code>
+$ java GraphSCCTest data/esempio.txt
+GRAFO LETTO DA FILE
+0
+└──── 1
+1
+├──── 3
+└──── 2
+3
+└──── 4
+2
+├──── 0
+└──── 3
+4
+└──── 5
+5
+└──── 4
+
+Calcolo delle componenti fortemente connesse: vertice , indice componente
+0 , 0
+1 , 0
+2 , 0
+3 , 1
+4 , 2
+5 , 2
+</code></pre>
+      <p>Questo è l'output di una versione di Kosaraju provata per questi appunti: coincide con la Tabella 1. La tua può dare numeri diversi, ma la partizione deve essere {0, 1, 2}, {3}, {4, 5}.</p>
+
+      <h3>Il grafo del Texas in numeri</h3>
+      <p>Calcolati sul file <code>data/roadNet-TX.txt</code> del repository:</p>
+      <div class="numeri largo">
+        <div><b>1.379.917</b><span>vertici (incroci). Gli id vanno da 0 a 1.393.382: 13.466 id non compaiono e non vengono stampati</span></div>
+        <div><b>3.843.320</b><span>archi, cioè righe del file. Ogni arco u → v ha anche il suo inverso v → u</span></div>
+        <div><b>424</b><span>componenti fortemente connesse</span></div>
+        <div><b>1.351.137</b><span>vertici nella più grande (97,9%). La seconda ne ha 27.502</span></div>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Il test non vede tutti gli errori</span>
+        <p>Siccome ogni strada è percorribile nei due sensi, su questo grafo le SCC coincidono con le componenti connesse. Un algoritmo sbagliato che ignora il verso degli archi darebbe lo stesso risultato. Per accorgertene usa <code>esempio.txt</code>, che non è simmetrico: se ottieni una sola componente invece di tre, stai ignorando il verso.</p>
+      </div>
+      <p>Due controlli rapidi sull'output del Texas: <code>1393132</code> e <code>1393133</code> devono avere lo stesso indice, <code>1393132</code> e <code>432567</code> indici diversi. Sono le coppie che il README del corso usa per Union-Find: su questo grafo simmetrico valgono anche per le SCC.</p>
+      <aside class="nota">E nessuna riga deve finire con «, null»: vorrebbe dire che un vertice manca nella mappa.</aside>
+
+      <h3>Gestione di StackOverflow su grafi grandi</h3>
+      <p>Ogni chiamata ricorsiva occupa un <em>frame</em> sullo stack del thread, e il frame resta lì finché la chiamata non termina. La memoria che serve non dipende dal numero totale di chiamate ma da quante sono aperte contemporaneamente, cioè dalla profondità della ricorsione. Sulla rete del Texas una DFS può infilarsi in un cammino lungo centinaia di migliaia di incroci: in una prova che partiva dai vertici in ordine di id, la pila arrivava a 271.817 chiamate annidate.</p>
+      <p>Con lo stack di default (1 MB con OpenJDK 21 su Linux) la versione ricorsiva va in <code>StackOverflowError</code>; con <code>-Xss1g</code> lo stack sale a 1 GB e la stessa versione termina. Le soluzioni sono due:</p>
+      <ol>
+        <li><strong>Aumentare lo stack</strong>, come suggerisce il PDF. È immediato e non cambia il codice:
+<pre class="codice terminale" data-copia style="margin-top:8px"><code>
+$ java -Xss1g GraphSCCTest data/roadNet-TX.txt > output.txt
+</code></pre></li>
+        <li><strong>Scrivere la DFS in modo iterativo</strong>, con una pila esplicita di <code>java.util.ArrayDeque</code>. La pila vive nello heap, molto più grande, e il codice funziona con qualunque opzione della JVM. Nella prova per questi appunti, la versione iterativa ha girato sul Texas con lo stack di default in circa 17 secondi in tutto.</li>
+      </ol>
+
+      <h3>La pila esplicita al lavoro</h3>
+      <p>Il trucco è salvare, insieme a ogni vertice, il suo iteratore sugli archi uscenti: è il punto in cui la chiamata ricorsiva «si era fermata». Le strutture usate:</p>
+<pre class="codice largo"><code data-lang="java">
+Set&lt;Vertex&lt;D&gt;&gt; visitati = new HashSet&lt;&gt;();
+ArrayList&lt;Vertex&lt;D&gt;&gt; ordineFine = new ArrayList&lt;&gt;();
+Deque&lt;Vertex&lt;D&gt;&gt; pilaV = new ArrayDeque&lt;&gt;();               // i vertici "in corso"
+Deque&lt;Iterator&lt;Edge&lt;D&gt;&gt;&gt; pilaIt = new ArrayDeque&lt;&gt;();     // dove era arrivato ciascuno
+</code></pre>
+<pre class="codice largo" id="codice-dfs" data-copia><code data-lang="java">
+for (Vertex&lt;D&gt; s : vertici) {
+    if (visitati.contains(s)) continue;
+    visitati.add(s);
+    pilaV.push(s);
+    pilaIt.push(graph.outEdges(s).iterator());
+    while (!pilaV.isEmpty()) {
+        Iterator&lt;Edge&lt;D&gt;&gt; it = pilaIt.peek();
+        if (it.hasNext()) {
+            Vertex&lt;D&gt; w = it.next().getDest();
+            if (!visitati.contains(w)) {             // "chiamata ricorsiva" su w
+                visitati.add(w);
+                pilaV.push(w);
+                pilaIt.push(graph.outEdges(w).iterator());
+            }
+        } else {                                     // "return": u ha finito
+            ordineFine.add(pilaV.pop());
+            pilaIt.pop();
+        }
+    }
+}
+</code></pre>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 6.</b> La stessa DFS della fase 1 di Kosaraju, eseguita con la pila esplicita. La riga evidenziata nel codice qui sopra segue l'animazione.</figcaption>
+        <div data-widget="dfs-iterativa" data-codice="#codice-dfs" style="display:grid;gap:12px"></div>
+      </figure>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4 e §5</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="q5-1">
+          <p class="testo">Perché la versione ricorsiva va in StackOverflowError sul Texas e non sul grafo d'esempio?</p>
+          <div class="opz">
+            <button>Perché il file è troppo grande da leggere.</button>
+            <button data-giusta>Perché le chiamate ricorsive aperte contemporaneamente diventano centinaia di migliaia, e ognuna occupa spazio sullo stack.</button>
+            <button>Perché ci sono troppi archi in totale.</button>
+            <button>Perché una HashMap non regge un milione di chiavi.</button>
+          </div>
+          <div class="perche" hidden><p>Conta la profondità, non il totale. Sul grafo d'esempio la profondità massima è 6; sul Texas un singolo ramo della DFS attraversa centinaia di migliaia di incroci. È l'esercizio C.10.</p></div>
+        </div>
+        <div class="domanda" data-id="q5-2">
+          <p class="testo">In roadNet-TX ogni arco ha anche il suo inverso. Quale errore il test ufficiale non riesce a scoprire?</p>
+          <div class="opz">
+            <button>Una chiave mancante nella mappa.</button>
+            <button>Un indice negativo.</button>
+            <button data-giusta>Un algoritmo che ignora il verso degli archi e calcola le componenti connesse.</button>
+            <button>Uno StackOverflowError.</button>
+          </div>
+          <div class="perche" hidden><p>Se per ogni u → v c'è anche v → u, raggiungere in un verso equivale a raggiungere nei due: SCC e componenti connesse coincidono. Il grafo d'esempio, che non è simmetrico, smaschera l'errore.</p></div>
+        </div>
+        <div class="domanda" data-id="q5-3">
+          <p class="testo">Cosa stampa il test per un id compreso tra 0 e 1.393.382 che non compare in nessun arco?</p>
+          <div class="opz">
+            <button>«id , null»</button>
+            <button>«id , -1»</button>
+            <button data-giusta>Niente: quel vertice non esiste nel grafo e il test salta la riga.</button>
+            <button>Lancia un'eccezione.</button>
+          </div>
+          <div class="perche" hidden><p>Il test crea un vertice solo quando l'id compare in un arco; per gli altri <code>nodi.get(i)</code> resta <code>null</code> e la riga non viene stampata. «id , null» compare invece quando il vertice esiste ma manca nella tua mappa.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+    </section>
+
+    <!-- ============================================================ §6 -->
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Modalità di consegna</span>
+        <h2>Si consegna un file solo</h2>
+      </div>
+      <p>Consegni esclusivamente <code>SCCcompute.java</code> su Virtuale, entro la scadenza indicata lì. La lista qui sotto riprende i requisiti del PDF più i controlli suggeriti in questi appunti; le spunte restano salvate in questo browser.</p>
+      <ul class="checklist" data-id="consegna">
+        <li><label><input type="checkbox" id="ck-1"><span>In cima al file c'è ancora <code>package algorithm.graph.SCC;</code></span></label></li>
+        <li><label><input type="checkbox" id="ck-2"><span>La firma è identica: <code>public Map&lt;Vertex&lt;D&gt;, Integer&gt; StronglyConnectedComponents(Graph&lt;D&gt; graph)</code></span></label></li>
+        <li><label><input type="checkbox" id="ck-3"><span>Compila senza errori con <code>javac GraphSCCTest.java</code> dalla radice</span></label></li>
+        <li><label><input type="checkbox" id="ck-4"><span>Gli import sono solo di <code>java.util</code> e <code>datastructure.graph</code></span></label></li>
+        <li><label><input type="checkbox" id="ck-5"><span>Eventuali classi di supporto sono annidate dentro <code>SCCcompute.java</code></span></label></li>
+        <li><label><input type="checkbox" id="ck-6"><span>Su <code>esempio.txt</code> escono 3 componenti: {0,1,2}, {3}, {4,5}</span></label></li>
+        <li><label><input type="checkbox" id="ck-7"><span>Su <code>roadNet-TX.txt</code> termina, senza nessuna riga «, null»</span></label></li>
+        <li><label><input type="checkbox" id="ck-8"><span>Ho deciso: DFS iterativa oppure ricorsiva con <code>-Xss1g</code></span></label></li>
+        <li><label><input type="checkbox" id="ck-9"><span>Il codice è diviso in metodi con nomi chiari e commentato (§7)</span></label></li>
+        <li><label><input type="checkbox" id="ck-10"><span>Consegnato <strong>solo</strong> <code>SCCcompute.java</code> su Virtuale, prima dello scritto</span></label></li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ §7 -->
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Valutazione</span>
+        <h2>Al massimo 3 punti, su tre criteri</h2>
+      </div>
+      <ol>
+        <li><strong>Correttezza dell'algoritmo</strong>: la mappa rispetta la post-condizione del §3 su ogni grafo, non solo sul Texas.</li>
+        <li><strong>Efficienza</strong>: l'obiettivo è Θ(n + m). Le scelte di strutture dati contano più dell'algoritmo: basta un <code>contains</code> su una lista per passare da secondi a ore.</li>
+        <li><strong>Codice ben strutturato e commentato</strong>: metodi brevi con un compito ciascuno, nomi che dicono cosa contengono, commenti che spiegano il perché.</li>
+      </ol>
+      <aside class="nota">Stima di comodo: 10⁹ operazioni semplici al secondo, a voler essere ottimisti.</aside>
+
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 7.</b> Quanto costa sul Texas: scegli le strutture dati e guarda come cambia la stima (n = 1.379.917, m = 3.843.320).</figcaption>
+        <div data-widget="costi" style="display:grid;gap:12px"></div>
+      </figure>
+
+      <h3>Una struttura possibile</h3>
+      <p>Un modo per far leggere il codice come il pseudocodice: il metodo pubblico chiama tre metodi privati, uno per fase. Il contenuto delle fasi è quello delle Figure 4 e 6.</p>
+<pre class="codice largo"><code data-lang="java">
+/**
+ * Calcola le SCC con l'algoritmo di Kosaraju in tempo Θ(n + m).
+ * Le visite sono iterative per non dipendere dalla dimensione dello stack.
+ */
+public Map&lt;Vertex&lt;D&gt;, Integer&gt; StronglyConnectedComponents(Graph&lt;D&gt; graph) {
+    ArrayList&lt;Vertex&lt;D&gt;&gt; vertici = graph.vertexes();                 // una volta sola: costa Θ(n)
+    ArrayList&lt;Vertex&lt;D&gt;&gt; ordineFine = primaVisita(graph, vertici);   // fase 1: DFS su G
+    Map&lt;Vertex&lt;D&gt;, ArrayList&lt;Vertex&lt;D&gt;&gt;&gt; trasposto = costruisciTrasposto(graph, vertici);  // fase 2
+    return secondaVisita(trasposto, ordineFine);                       // fase 3: DFS su Gᵀ
+}
+</code></pre>
+    </section>
+
+    <!-- ============================================================ C -->
+    <section class="sez" id="c">
+      <div class="titolo-sez extra largo">
+        <span class="num-sez">Approfondimento C · complessità computazionale</span>
+        <h2>Calcolare il costo: regole ed esercizi risolti</h2>
+        <p class="sottotitolo">Il criterio «efficienza» del §7, spiegato da zero. Prima rispondi, poi apri la soluzione un passo alla volta.</p>
+      </div>
+      <h3>Le regole per contare</h3>
+      <ul>
+        <li><strong>Le variabili.</strong> Sui grafi il costo si esprime con n (vertici) e m (archi), che crescono in modo indipendente.</li>
+        <li><strong>Θ, O, Ω.</strong> Θ(f) dice che il costo cresce esattamente come f, a meno di costanti; O(f) è solo un limite superiore, Ω(f) solo inferiore. Le costanti e i termini più piccoli si buttano: 3n² + 5n + 7 = Θ(n²).</li>
+        <li><strong>Sequenza.</strong> Due blocchi uno dopo l'altro: si sommano i costi e resta il più grande.</li>
+        <li><strong>Cicli.</strong> Si somma il costo di tutte le iterazioni. Solo se ogni iterazione costa uguale la somma diventa «numero di giri × costo di un giro».</li>
+        <li><strong>Chiamate di metodo.</strong> Una chiamata costa quanto il metodo chiamato: per la libreria leggi la javadoc (tabella del §2).</li>
+        <li><strong>Ricorsione.</strong> Si scrive un'equazione di ricorrenza e la si risolve, per esempio con l'albero di ricorsione (C.9).</li>
+        <li><strong>Analisi aggregata.</strong> Invece di moltiplicare i giri esterni per i giri interni massimi, conta il lavoro totale: è il motivo per cui le visite costano Θ(n + m) (C.3).</li>
+      </ul>
+      <aside class="nota">Regola d'oro: conta il lavoro totale, non «giri esterni × giri interni massimi».</aside>
+
+      <!-- C.1 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.1 · cicli annidati</span><h4>Il ciclo interno parte da i</h4></div>
+<pre class="codice"><code data-lang="java">
+int conta = 0;
+for (int i = 0; i &lt; n; i++)
+    for (int j = i; j &lt; n; j++)
+        conta++;
+</code></pre>
+        <div class="domanda" data-id="c1">
+          <p class="testo">Quante volte si esegue <code>conta++</code>, in ordine di grandezza?</p>
+          <div class="opz"><button>Θ(n)</button><button>Θ(n log n)</button><button data-giusta>Θ(n²)</button><button>Θ(n³)</button></div>
+          <div class="perche" hidden><p>Il ciclo interno fa n − i giri: sommati danno n(n+1)/2. La soluzione completa è qui sotto.</p></div>
+        </div>
+        <div class="fig" data-widget="triangolo"></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Fissato i, il ciclo interno va da j = i a j = n − 1: fa <strong>n − i</strong> iterazioni.</p></div></li>
+            <li><div><p>Sommo su tutti gli i da 0 a n − 1:</p><p class="formula">(n − 0) + (n − 1) + … + 2 + 1 = Σ_{k=1}^{n} k</p></div></li>
+            <li><div><p>È la somma di Gauss:</p><p class="formula">Σ_{k=1}^{n} k = n(n + 1) / 2 = n²/2 + n/2</p></div></li>
+            <li><div><p>Tengo il termine che cresce di più e butto la costante 1/2.</p><p class="risultato">conta++ si esegue Θ(n²) volte.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.2 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.2 · dimezzamento</span><h4>Quante volte si può dividere per 2</h4></div>
+<pre class="codice"><code data-lang="java">
+int i = n, giri = 0;
+while (i &gt; 1) {
+    i = i / 2;
+    giri++;
+}
+</code></pre>
+        <div class="domanda" data-id="c2">
+          <p class="testo">Quanto vale <code>giri</code> alla fine, in ordine di grandezza?</p>
+          <div class="opz"><button>Θ(n)</button><button>Θ(√n)</button><button data-giusta>Θ(log n)</button><button>Θ(1)</button></div>
+          <div class="perche" hidden><p>Ogni giro dimezza i: si arriva a 1 dopo ⌊log₂ n⌋ giri.</p></div>
+        </div>
+        <div class="fig" data-widget="dimezza"></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Dopo k giri i vale circa n / 2ᵏ. La divisione intera arrotonda per difetto, ma non cambia l'ordine di grandezza.</p></div></li>
+            <li><div><p>Il ciclo si ferma quando i ≤ 1:</p><p class="formula">n / 2ᵏ ≤ 1  ⇔  2ᵏ ≥ n  ⇔  k ≥ log₂ n</p></div></li>
+            <li><div><p>I giri sono ⌊log₂ n⌋. Per n = 1.379.917, il numero di vertici del Texas, sono 20: 2²⁰ = 1.048.576 ≤ n &lt; 2²¹.</p></div></li>
+            <li><div><p class="risultato">giri = Θ(log n). La base del logaritmo non conta: log₂ n e log₁₀ n differiscono per una costante.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.3 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.3 · analisi aggregata</span><h4>Un ciclo sui vertici, uno sui loro archi</h4></div>
+<pre class="codice"><code data-lang="java">
+for (Vertex&lt;D&gt; v : vertici)
+    for (Edge&lt;D&gt; e : graph.outEdges(v))
+        lavora(e);                      // O(1)
+</code></pre>
+        <div class="domanda" data-id="c3">
+          <p class="testo">Quanto costa il doppio ciclo?</p>
+          <div class="opz"><button>Θ(n · m)</button><button>Θ(n²)</button><button data-giusta>Θ(n + m)</button><button>Θ(m log n)</button></div>
+          <div class="perche" hidden><p>È la trappola classica: i cicli sono annidati, ma il ciclo interno gira m volte <em>in tutto</em>, non m volte per ogni vertice.</p></div>
+        </div>
+        <div class="fig" data-widget="conta-archi"></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Il ciclo esterno gira n volte; ogni giro ha almeno un costo fisso (la chiamata a <code>outEdges</code>, l'avanzamento del for): Θ(n) in tutto.</p></div></li>
+            <li><div><p>Per il vertice v il ciclo interno gira δ(v) volte, il suo grado uscente.</p></div></li>
+            <li><div><p>Ogni arco esce da un solo vertice, quindi sommando i gradi uscenti si conta ogni arco una volta:</p><p class="formula">Σ_{v ∈ V} δ(v) = m</p></div></li>
+            <li><div><p>Totale Θ(n) + Θ(m). Il limite n · (grado massimo) è vero ma troppo largo: un vertice con tanti archi non rende pesanti anche tutti gli altri.</p><p class="risultato">Θ(n + m). È lo schema di ogni visita di un grafo con liste di adiacenza.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.4 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.4 · algoritmo completo</span><h4>Il costo di Kosaraju, fase per fase</h4></div>
+        <p>Strutture: <code>HashSet</code> per i visitati, <code>ArrayList</code> per l'ordine di fine, <code>HashMap</code> di liste per G<sup>T</sup>.</p>
+        <div class="domanda" data-id="c4">
+          <p class="testo">Qual è il costo totale in tempo?</p>
+          <div class="opz"><button data-giusta>Θ(n + m)</button><button>Θ(n · m)</button><button>Θ((n + m) log n)</button><button>Θ(n²)</button></div>
+          <div class="perche" hidden><p>Tre fasi, ognuna Θ(n + m): la somma resta Θ(n + m).</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>Fase 1, DFS su G.</strong> Ogni vertice passa da bianco a grigio a nero una volta sola: Θ(n). Ogni lista di archi uscenti si scorre una volta: Σ δ(v) = m. Ogni <code>contains</code>/<code>add</code> su HashSet è O(1) in media. Totale Θ(n + m).</p></div></li>
+            <li><div><p><strong>Fase 2, trasposto.</strong> n <code>put</code> e m <code>add</code>, O(1) in media ciascuna: Θ(n + m).</p></div></li>
+            <li><div><p><strong>Fase 3, DFS su G<sup>T</sup>.</strong> Leggere <code>ordineFine</code> dalla fine costa Θ(n); la visita, per lo stesso argomento della fase 1, Θ(n + m).</p></div></li>
+            <li><div><p class="formula">Θ(n + m) + Θ(n + m) + Θ(n + m) = Θ(n + m)</p><p>Lo spazio aggiuntivo è anch'esso Θ(n + m), soprattutto per G<sup>T</sup>.</p></div></li>
+            <li><div><p class="risultato">Θ(n + m) in tempo e in spazio. Sul Texas n + m ≈ 5,2 milioni per fase.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.5 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.5 · struttura dati sbagliata</span><h4>I visitati in un ArrayList</h4></div>
+<pre class="codice"><code data-lang="java">
+ArrayList&lt;Vertex&lt;D&gt;&gt; visitati = new ArrayList&lt;&gt;();
+// ... dentro la DFS, per ogni arco u → w:
+if (!visitati.contains(w)) {
+    visitati.add(w);
+    // ...
+}
+</code></pre>
+        <div class="domanda" data-id="c5">
+          <p class="testo">Quanto costa la DFS con questa scelta, nel caso peggiore?</p>
+          <div class="opz"><button>Θ(n + m), come prima</button><button data-giusta>O(n · m)</button><button>Θ(m log n)</button><button>Θ(n)</button></div>
+          <div class="perche" hidden><p><code>ArrayList.contains</code> scorre la lista: ogni controllo può costare fino a n.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><code>ArrayList.contains</code> confronta gli elementi uno a uno dall'inizio finché trova quello cercato: con k elementi costa O(k).</p></div></li>
+            <li><div><p>Il controllo si fa una volta per ogni arco esaminato: m volte per visita.</p></div></li>
+            <li><div><p>La lista cresce fino a n elementi. Quando contiene già metà dei vertici, un controllo su un vertice assente o in fondo costa almeno n/2.</p></div></li>
+            <li><div><p class="formula">m controlli × O(n) ciascuno = O(n · m) ≈ 1,38·10⁶ × 3,84·10⁶ ≈ 5,3·10¹² sul Texas</p></div></li>
+            <li><div><p class="risultato">O(n · m) nel caso peggiore: ore invece di secondi. Con un HashSet <code>contains</code> e <code>add</code> costano O(1) in media, perché l'hash indica subito il «cassetto» in cui guardare.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.6 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.6 · costo nascosto in una chiamata</span><h4>vertexes() dentro il ciclo</h4></div>
+<pre class="codice"><code data-lang="java">
+for (int i = 0; i &lt; graph.vertexNum(); i++) {
+    Vertex&lt;D&gt; v = graph.vertexes().get(i);
+    // ...
+}
+</code></pre>
+        <div class="domanda" data-id="c6">
+          <p class="testo">Quanto costa solo scorrere i vertici così?</p>
+          <div class="opz"><button>Θ(n)</button><button>Θ(n log n)</button><button data-giusta>Θ(n²)</button><button>Θ(1)</button></div>
+          <div class="perche" hidden><p>La riga sembra innocua, ma <code>vertexes()</code> costa Θ(n) e viene chiamata n volte.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><code>vertexNum()</code> costa O(1): restituisce un contatore.</p></div></li>
+            <li><div><p><code>vertexes()</code> ha costo Θ(n) secondo la javadoc di <code>GraphAL</code>: costruisce una lista con tutti i vertici.</p></div></li>
+            <li><div><p class="formula">n giri × Θ(n) = Θ(n²) ≈ 1,9·10¹² sul Texas</p></div></li>
+            <li><div><p class="risultato">Θ(n²). Rimedio: <code>ArrayList&lt;Vertex&lt;D&gt;&gt; vertici = graph.vertexes();</code> una volta sola prima del ciclo, e il costo torna Θ(n).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.7 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.7 · confronto tra due soluzioni</span><h4>Il trasposto con areAdjacent</h4></div>
+<pre class="codice"><code data-lang="java">
+for (Vertex&lt;D&gt; u : vertici)
+    for (Vertex&lt;D&gt; w : vertici)
+        if (graph.areAdjacent(w, u) != null)       // c'è l'arco w → u?
+            trasposto.get(u).add(w);
+</code></pre>
+        <div class="domanda" data-id="c7">
+          <p class="testo">Quanto costa, rispetto alla versione della Figura 4?</p>
+          <div class="opz"><button>Θ(n + m), uguale</button><button>Θ(n²)</button><button data-giusta>Θ(n · m)</button><button>Θ(m²)</button></div>
+          <div class="perche" hidden><p>n² coppie, e ogni <code>areAdjacent(w, u)</code> scorre gli archi di w.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Il doppio ciclo prova tutte le coppie (u, w): n² chiamate.</p></div></li>
+            <li><div><p><code>areAdjacent(w, u)</code> scorre gli archi uscenti di w finché trova u: costa O(δ(w)), e proprio δ(w) quando l'arco non c'è, cioè quasi sempre.</p></div></li>
+            <li><div><p>Fissato u, il ciclo interno costa Σ_w δ(w) = m. Ripetuto per ognuno degli n valori di u:</p><p class="formula">Σ_u Σ_w δ(w) = Σ_u m = n · m</p></div></li>
+            <li><div><p class="risultato">Θ(n · m) ≈ 5,3·10¹² sul Texas. La passata su outEdges costa Θ(n + m) ≈ 5,2·10⁶: circa un milione di volte di meno.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.8 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.8 · tempo e spazio</span><h4>E se il grafo fosse una matrice di adiacenza?</h4></div>
+        <p>Invece delle liste usi <code>boolean[][] adj</code> di n × n, con <code>adj[u][w] == true</code> se c'è l'arco u → w.</p>
+        <div class="domanda" data-id="c8">
+          <p class="testo">Quanto costano tempo e memoria di una DFS?</p>
+          <div class="opz"><button>Tempo Θ(n + m), memoria Θ(n + m)</button><button data-giusta>Tempo Θ(n²), memoria Θ(n²)</button><button>Tempo Θ(n²), memoria Θ(n + m)</button><button>Tempo Θ(n · m), memoria Θ(n²)</button></div>
+          <div class="perche" hidden><p>Per trovare i vicini di un vertice devi leggere tutta la sua riga, anche se gli archi veri sono due o tre.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Gli archi uscenti di u stanno sulla riga u: per trovarli leggi n celle, qualunque sia δ(u).</p></div></li>
+            <li><div><p>La visita lo fa per ogni vertice: n · n = Θ(n²) di tempo, anche se m è piccolo.</p></div></li>
+            <li><div><p>La matrice ha n² celle. Sul Texas n² ≈ 1,9·10¹²: con <code>boolean[][]</code>, circa un byte per cella, servirebbero circa 1,9 TB di memoria.</p></div></li>
+            <li><div><p class="risultato">Tempo e memoria Θ(n²). La matrice conviene sui grafi densi, con m vicino a n². La rete stradale ha m ≈ 2,8 · n: è sparsissima, servono le liste.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.9 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.9 · ricorrenze</span><h4>Due chiamate su metà problema, più lavoro lineare</h4></div>
+<pre class="codice"><code>
+FUNZIONE(A, n):
+    se n ≤ 1: ritorna
+    FUNZIONE(prima metà di A, n/2)
+    FUNZIONE(seconda metà di A, n/2)
+    fai n operazioni su A          // come la fusione di Merge Sort
+</code></pre>
+        <div class="domanda" data-id="c9">
+          <p class="testo">Quanto vale T(n)?</p>
+          <div class="opz"><button>Θ(n)</button><button data-giusta>Θ(n log n)</button><button>Θ(n²)</button><button>Θ(log n)</button></div>
+          <div class="perche" hidden><p>log₂ n + 1 livelli, ognuno con lavoro totale n.</p></div>
+        </div>
+        <div class="fig" data-widget="albero-ricorsione"></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Scrivo la ricorrenza:</p><p class="formula">T(n) = 2 T(n/2) + c·n,   T(1) = c</p></div></li>
+            <li><div><p>Albero di ricorsione: al livello k ci sono 2ᵏ chiamate su problemi di taglia n/2ᵏ. Il lavoro del livello è 2ᵏ · c·n/2ᵏ = <strong>c·n</strong>, sempre lo stesso.</p></div></li>
+            <li><div><p>Si scende finché n/2ᵏ = 1, cioè k = log₂ n: i livelli sono log₂ n + 1.</p></div></li>
+            <li><div><p class="formula">T(n) = c·n · (log₂ n + 1) = Θ(n log n)</p><p>Conferma con il teorema principale: a = 2, b = 2, f(n) = Θ(n) = Θ(n^(log_b a)), secondo caso.</p></div></li>
+            <li><div><p class="risultato">T(n) = Θ(n log n), il costo di Merge Sort.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- C.10 -->
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio C.10 · spazio della ricorsione</span><h4>La DFS ricorsiva su una catena</h4></div>
+        <p>Il grafo è la catena 0 → 1 → 2 → … → n−1 e lanci <span class="sc">Dfs-Visit</span>(0) ricorsiva.</p>
+        <div class="domanda" data-id="c10">
+          <p class="testo">Quanto tempo serve e quanta memoria occupa la pila delle chiamate?</p>
+          <div class="opz"><button>Tempo Θ(n), spazio Θ(1)</button><button data-giusta>Tempo Θ(n), spazio Θ(n)</button><button>Tempo Θ(n²), spazio Θ(n)</button><button>Tempo Θ(log n), spazio Θ(log n)</button></div>
+          <div class="perche" hidden><p>Nessuna chiamata termina prima di aver lanciato la successiva: alla fine sono aperte tutte e n insieme.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Una chiamata <span class="sc">Dfs-Visit</span>(u) resta aperta, con il suo frame sullo stack, finché non finiscono tutte le chiamate che ha lanciato.</p></div></li>
+            <li><div><p>Sulla catena <span class="sc">Dfs-Visit</span>(0) chiama <span class="sc">Dfs-Visit</span>(1), che chiama <span class="sc">Dfs-Visit</span>(2)… La prima a terminare è <span class="sc">Dfs-Visit</span>(n−1): in quel momento sono aperte n chiamate.</p></div></li>
+            <li><div><p>Il tempo segue la ricorrenza T(n) = T(n − 1) + c, che srotolata dà c·n. Lo spazio è la profondità massima della pila:</p><p class="formula">T(n) = T(n−1) + c = T(n−2) + 2c = … = n·c = Θ(n)   ·   spazio = n frame = Θ(n)</p></div></li>
+            <li><div><p class="risultato">Tempo Θ(n), spazio Θ(n). È il problema del §5: 1 MB di stack non basta per centinaia di migliaia di frame. Con la pila esplicita lo spazio resta Θ(n), ma sta nello heap.</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <!-- ============================================================ §8 -->
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · FAQ</span>
+        <h2>Le domande frequenti del PDF</h2>
+      </div>
+      <div class="faq">
+        <details><summary>Posso modificare il file di test? <span class="risp no">No</span></summary><div><p><code>GraphSCCTest.java</code> resta com'è: chi corregge usa il suo.</p></div></details>
+        <details><summary>Posso creare nuovi file, classi o interfacce? <span class="risp si">Basta SCCcompute</span></summary><div><p>È sufficiente implementare e consegnare <code>SCCcompute.java</code>. Siccome consegni solo quel file, eventuali classi di supporto vanno dentro di lui, come classi annidate <code>private static</code>, oppure non servono (per la DFS iterativa bastano due pile).</p></div></details>
+        <details><summary>Posso usare librerie esterne? <span class="risp no">Solo java.util</span></summary><div><p>Sono consentite solo le strutture dati del package <code>java.util</code>: <code>HashMap</code>, <code>HashSet</code>, <code>ArrayList</code>, <code>ArrayDeque</code> e simili.</p></div></details>
+        <details><summary>Devo fare prima il progetto o lo scritto? <span class="risp si">Prima il progetto</span></summary><div><p>Il progetto va consegnato obbligatoriamente prima dell'esame scritto.</p></div></details>
+        <details><summary>Posso consegnare il progetto e fare lo scritto più avanti? <span class="risp si">Sì</span></summary><div><p>Il progetto consegnato resta valido per gli appelli successivi.</p></div></details>
+        <details><summary>Dove vengono pubblicati i voti? <span class="risp si">Virtuale e AlmaEsami</span></summary><div><p>I voti del progetto escono su Virtuale. Su AlmaEsami esce la proposta di voto complessiva, scritto più progetto.</p></div></details>
+        <details><summary>Posso consegnare il progetto più volte? <span class="risp no">No</span></summary><div><p>Una volta consegnato un progetto valido gli viene assegnato un voto, e non si possono fare altre consegne negli appelli successivi. Fai tutti i controlli del §6 prima di consegnare.</p></div></details>
+      </div>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §6, §7 e §8</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="q8-1">
+          <p class="testo">«Posso usare JGraphT, se semplifica il codice.»</p>
+          <div class="opz"><button>Vero</button><button data-giusta>Falso</button></div>
+          <div class="perche" hidden><p>Solo <code>java.util</code>. Con un import esterno la consegna nemmeno compila: <code>package org.jgrapht does not exist</code>.</p></div>
+        </div>
+        <div class="domanda" data-id="q8-2">
+          <p class="testo">«Posso fare prima lo scritto e consegnare il progetto dopo.»</p>
+          <div class="opz"><button>Vero</button><button data-giusta>Falso</button></div>
+          <div class="perche" hidden><p>Il progetto va consegnato prima dello scritto. È permesso il contrario: consegnare il progetto e fare lo scritto a un appello successivo.</p></div>
+        </div>
+        <div class="domanda" data-id="q8-3">
+          <p class="testo">«Se il voto del progetto non mi piace, lo riconsegno all'appello dopo.»</p>
+          <div class="opz"><button>Vero</button><button data-giusta>Falso</button></div>
+          <div class="perche" hidden><p>Dopo una consegna valida il voto resta e non sono ammesse altre consegne.</p></div>
+        </div>
+        <div class="domanda" data-id="q8-4">
+          <p class="testo">Ti serve una piccola classe di supporto, per esempio un «frame» per la DFS iterativa. Dove la metti?</p>
+          <div class="opz">
+            <button>In un nuovo file <code>Frame.java</code> nello stesso package.</button>
+            <button data-giusta>Dentro <code>SCCcompute.java</code>, come classe annidata <code>private static</code>.</button>
+            <button>In <code>GraphSCCTest.java</code>.</button>
+            <button>Da nessuna parte: le classi di supporto sono vietate.</button>
+          </div>
+          <div class="perche" hidden><p>Consegni solo <code>SCCcompute.java</code>: un file in più non arriverebbe a chi corregge e il codice non compilerebbe. Una classe annidata viaggia nello stesso file. <code>GraphSCCTest</code> non si tocca.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+    </section>
+
+    <footer class="piede">
+      <p>Fonte: «Algoritmi e Strutture di Dati — Specifiche Progetto A.A. 2025–2026» (3 pagine) e la libreria del corso su <a href="https://github.com/disiasd/asd26/" target="_blank" rel="noopener">GitHub</a>. I numeri sul grafo del Texas e i messaggi di javac sono stati verificati sul repository a novembre 2026. Gli approfondimenti A, B e C non fanno parte del PDF.</p>
+    </footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="widgets.js"></script>
+</body>
+</html>
