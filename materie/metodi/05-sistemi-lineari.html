@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sistemi lineari e condizionamento · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="05-sistemi-lineari">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Esistenza e unicità</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Sistemi triangolari</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Risolvere con LU e Cholesky</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Condizionamento</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Esercizi e ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 5</span>
+      <h1>Sistemi lineari e condizionamento</h1>
+      <p class="lede">Come si risolve Ax = b in pratica (fattorizzazione e due sostituzioni) e quanto ci si può fidare della soluzione calcolata (numero di condizionamento). È il cuore dell'HW1, es. 3.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Costi:</strong> sostituzione O(n²), fattorizzazione O(n³).</li>
+        <li><strong>Sequenza di risoluzione</strong> con LU, con PA = LU e con Cholesky: quale sistema si risolve per primo, con quale termine noto.</li>
+        <li><strong>Perché non si calcola A⁻¹</strong>.</li>
+        <li><strong>K(A) = ‖A‖‖A⁻¹‖</strong>, K₂ = σ_max/σ_min, la stima dell'errore e le cifre perse ≈ log₁₀K.</li>
+        <li>"Residuo piccolo implica errore piccolo?" <strong>No</strong>, se A è mal condizionata.</li>
+        <li>All'<strong>orale</strong>: perché l'errore su Hilbert esplode con n.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Teoria</span>
+        <h2>Esistenza e unicità, metodi diretti e iterativi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Condizioni equivalenti (A quadrata)</span>
+        <p>A non singolare ⟺ det(A) ≠ 0 ⟺ rank(A) = n ⟺ ker(A) = {0} ⟺ esiste A⁻¹ ⟺ per ogni b il sistema ha <strong>un'unica soluzione</strong>. Se A è singolare: nessuna soluzione o infinite, a seconda di b.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Perché non si calcola A⁻¹</span><p>x = A⁻¹b vale in teoria, ma calcolare l'inversa richiede <strong>più operazioni</strong>, <strong>più memoria</strong> (tutta la matrice inversa) e introduce <strong>più errori di arrotondamento</strong>. Inoltre calcola informazioni che non servono. Si risolve direttamente il sistema.</p></div>
+      <p><strong>Metodi diretti:</strong> danno la soluzione in un numero finito di operazioni (in aritmetica esatta) e si basano su Gauss e sulle fattorizzazioni. <strong>Metodi iterativi:</strong> costruiscono x⁽⁰⁾, x⁽¹⁾, … che converge alla soluzione, e sono adatti a matrici grandi e sparse.</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Triangolari</span>
+        <h2>Sostituzione in avanti e all'indietro</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le due formule</span>
+        <p><strong>In avanti</strong> (Lx = b, L triangolare inferiore): xᵢ = (bᵢ − Σⱼ&lt;ᵢ ℓᵢⱼxⱼ) / ℓᵢᵢ, con i = 1, …, n.<br>
+        <strong>All'indietro</strong> (Ux = b, U triangolare superiore): xᵢ = (bᵢ − Σⱼ&gt;ᵢ uᵢⱼxⱼ) / uᵢᵢ, con i = n, …, 1.</p>
+      </div>
+      <p><strong>Costo:</strong> le somme hanno in tutto 1 + 2 + … + (n−1) = n(n−1)/2 termini, quindi circa <strong>n² operazioni, cioè O(n²)</strong>. Molto meno dell'O(n³) della fattorizzazione.</p>
+      <ol class="pseudo">
+        <li class="titolo">SostituzioneIndietro(U, b, n)</li>
+        <li><b>per</b> <i>i</i> = <i>n</i> <b>fino a</b> 1</li>
+        <li class="rientro1"><i>s</i> = <i>b</i>[<i>i</i>]</li>
+        <li class="rientro1"><b>per</b> <i>j</i> = <i>i</i>+1 <b>a</b> <i>n</i>:  <i>s</i> = <i>s</i> − <i>U</i>[<i>i</i>,<i>j</i>]·<i>x</i>[<i>j</i>]</li>
+        <li class="rientro1"><i>x</i>[<i>i</i>] = <i>s</i> / <i>U</i>[<i>i</i>,<i>i</i>]</li>
+        <li><b>ritorna</b> <i>x</i></li>
+      </ol>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Con le fattorizzazioni</span>
+        <h2>Risolvere con LU, PA = LU e Cholesky</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le tre sequenze</span>
+        <p><strong>A = LU:</strong> LUx = b. Posto y = Ux: (1) <strong>Ly = b</strong> in avanti, (2) <strong>Ux = y</strong> all'indietro.<br>
+        <strong>PA = LU:</strong> PAx = Pb, quindi LUx = Pb: (1) <strong>Ly = Pb</strong>, (2) <strong>Ux = y</strong>. Il termine noto va <strong>permutato</strong>.<br>
+        <strong>A = LLᵀ:</strong> (1) <strong>Ly = b</strong>, (2) <strong>Lᵀx = y</strong>.</p>
+      </div>
+      <p>Costo totale ≈ O(n³) per la fattorizzazione + O(n²) per le sostituzioni. Se cambia solo b <strong>si riusa la fattorizzazione</strong> e si pagano solo le due sostituzioni.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · LU</span><h4>A = [[2,1,1],[4,−6,0],[−2,7,2]], b = (5, −2, 9)</h4></div>
+        <p>Dal capitolo 3: L = [[1,0,0],[2,1,0],[−1,−1,1]], U = [[2,1,1],[0,−8,−2],[0,0,1]].</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>Ly = b</strong>: y₁ = 5; 2·5 + y₂ = −2 → y₂ = −12; −5 + 12 + y₃ = 9 → y₃ = 2.</p></div></li>
+            <li><div><p><strong>Ux = y</strong>: x₃ = 2; −8x₂ − 2·2 = −12 → x₂ = 1; 2x₁ + 1 + 2 = 5 → x₁ = 1.</p></div></li>
+            <li><div><p class="risultato">x = (1, 1, 2)</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · PA = LU</span><h4>A = [[0,2,1],[1,−2,−3],[2,3,1]], b = (3, 0, 7)</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>P scambia le righe 1 e 3, quindi <strong>Pb = (7, 0, 3)</strong>.</p></div></li>
+            <li><div><p>Con L = [[1,0,0],[1/2,1,0],[0,−4/7,1]], Ly = Pb dà y = (7, −7/2, 1).</p></div></li>
+            <li><div><p class="risultato">Ux = y con U = [[2,3,1],[0,−7/2,−7/2],[0,0,−1]] dà x = (1, 2, −1)</p></div></li>
+          </ol>
+        </div>
+      </article>
+<pre class="codice largo" data-copia><code data-lang="python">
+from scipy.linalg import lu_factor, lu_solve
+x_esatta = np.ones(n);  b = A @ x_esatta          # problema test con soluzione nota
+x = lu_solve(lu_factor(A), b)
+err_rel = np.linalg.norm(x - x_esatta) / np.linalg.norm(x_esatta)
+
+L = np.linalg.cholesky(A)                         # solo se A è simmetrica definita positiva
+y = scipy.linalg.solve_triangular(L, b, lower=True)
+x = scipy.linalg.solve_triangular(L.T, y)
+</code></pre>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2–§3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="si-1">
+          <p class="testo">Quanto costa risolvere un sistema triangolare n×n?</p>
+          <div class="opz"><button>O(n)</button><button data-giusta>O(n²)</button><button>O(n³)</button></div>
+          <div class="perche" hidden><p>Circa n²/2 moltiplicazioni. O(n³) è il costo della fattorizzazione.</p></div>
+        </div>
+        <div class="domanda" data-id="si-2">
+          <p class="testo">Con PA = LU, il primo sistema da risolvere è…</p>
+          <div class="opz"><button>Ly = b</button><button data-giusta>Ly = Pb</button><button>Ux = Pb</button></div>
+          <div class="perche" hidden><p>Da PAx = Pb si ottiene LUx = Pb: prima si permuta il termine noto.</p></div>
+        </div>
+        <div class="domanda" data-id="si-3">
+          <p class="testo">Si deve risolvere Ax = b per 100 vettori b diversi, con la stessa A n×n. Qual è il costo complessivo migliore?</p>
+          <div class="opz"><button>100 · O(n³)</button><button data-giusta>O(n³) + 100 · O(n²)</button><button>100 · O(n²) senza fattorizzare</button></div>
+          <div class="perche" hidden><p>Si fattorizza una volta sola e poi si fanno due sostituzioni per ogni b.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Affidabilità</span>
+        <h2>Condizionamento dei sistemi lineari</h2>
+      </div>
+      <p>Si confronta il sistema esatto Ax = b con quello perturbato (A + ΔA)(x + δx) = b + δb. Il problema è <strong>ben condizionato</strong> se piccole perturbazioni relative dei dati danno piccole variazioni relative della soluzione.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · perturbazione</span><h4>A = [[1, 2], [0.499, 1.001]], b = (3, 1.5)</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>La soluzione è x = (1, 1).</p></div></li>
+            <li><div><p>Si cambiano due elementi: Ã = [[1, 2], [0.500, 1.002]]. La perturbazione relativa di A è ≈ 5.7·10⁻⁴.</p></div></li>
+            <li><div><p class="risultato">La nuova soluzione è x̃ = (3, 0): il cambiamento relativo ≈ 1.58. L'errore è amplificato di circa 3000 volte.</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="def">
+        <span class="etichetta">Numero di condizionamento</span>
+        <p><strong>K(A) = ‖A‖·‖A⁻¹‖ ≥ 1</strong> (norma indotta). Se si perturba solo b:</p>
+        <p class="formula">‖δx‖/‖x‖ ≤ K(A) · ‖δb‖/‖b‖</p>
+        <p>Se si perturbano A e b, al primo ordine: ‖δx‖/‖x‖ ≲ K(A)·(‖ΔA‖/‖A‖ + ‖δb‖/‖b‖).<br>
+        <strong>In norma 2:</strong> K₂(A) = σ_max/σ_min. Un σ_min piccolo vuol dire A quasi singolare e K grande.</p>
+      </div>
+      <p><strong>Regole pratiche:</strong> K vicino a 1 vuol dire ben condizionata. Si perdono circa <strong>log₁₀K(A) cifre decimali</strong>: in doppia precisione si hanno circa 16 cifre, quindi ne restano circa 16 − log₁₀K. <code>np.linalg.cond(A)</code> usa la norma 2.</p>
+      <div class="def">
+        <span class="etichetta">La matrice di Hilbert</span>
+        <p>Hᵢⱼ = 1/(i + j − 1). K₂(H) cresce in modo esplosivo: n = 2 → 19; n = 5 → 4.8·10⁵; n = 8 → 1.5·10¹⁰; n = 10 → 1.6·10¹³. Per n ≳ 12 supera 1/eps ≈ 10¹⁶ e la soluzione calcolata non ha più cifre corrette.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Trappole</span><p><strong>1.</strong> Un <strong>residuo piccolo</strong> ‖b − Ax̂‖ <strong>non garantisce un errore piccolo</strong> ‖x − x̂‖ se K è grande. <strong>2.</strong> Un algoritmo stabile (per esempio LU con pivoting) <strong>non elimina</strong> il mal condizionamento: quello è del problema. <strong>3.</strong> Il valore di K dipende dalla norma scelta.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="si-4">
+          <p class="testo">K(A) = 10³ e l'errore relativo su b è 10⁻⁶. Quanto vale al massimo l'errore relativo su x?</p>
+          <div class="opz"><button>10⁻⁹</button><button data-giusta>10⁻³</button><button>10⁻⁶</button></div>
+          <div class="perche" hidden><p>‖δx‖/‖x‖ ≤ K·‖δb‖/‖b‖ = 10³·10⁻⁶ = 10⁻³.</p></div>
+        </div>
+        <div class="domanda" data-id="si-5">
+          <p class="testo">Per ogni matrice invertibile, K(A) è…</p>
+          <div class="opz"><button>≤ 1</button><button data-giusta>≥ 1</button><button>uguale a det(A)</button></div>
+          <div class="perche" hidden><p>1 = ‖I‖ = ‖AA⁻¹‖ ≤ ‖A‖‖A⁻¹‖. Il determinante non misura il condizionamento.</p></div>
+        </div>
+        <div class="domanda" data-id="si-6">
+          <p class="testo">Nell'HW1, su Hilbert con n = 15, l'errore di fattorizzazione ‖PA − LU‖ è ≈ 10⁻¹⁷ ma l'errore sulla soluzione è grande. Perché?</p>
+          <div class="opz"><button>La LU è sbagliata</button><button data-giusta>Il problema è mal condizionato: K ≈ 10¹⁷</button><button>Il termine noto è sbagliato</button></div>
+          <div class="perche" hidden><p>La fattorizzazione è accurata (l'algoritmo è stabile), ma K enorme amplifica gli arrotondamenti: K·eps ≫ 1.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Allenamento</span>
+        <h2>Esercizi e ripasso</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 5.1 · da calcolatrice</span><h4>K∞ di una 2×2</h4></div>
+        <p>A = [[2, 1], [1, 1]]. Calcola K∞(A) = ‖A‖∞‖A⁻¹‖∞.</p>
+        <div class="domanda" data-id="si-7">
+          <p class="testo">K∞(A) = ?</p>
+          <div class="opz"><button>3</button><button data-giusta>9</button><button>6</button></div>
+          <div class="perche" hidden><p>‖A‖∞ = max(3, 2) = 3. A⁻¹ = [[1, −1], [−1, 2]] (det = 1), quindi ‖A⁻¹‖∞ = max(2, 3) = 3. K = 9.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>‖A‖∞: somme per righe 3 e 2, quindi 3.</p></div></li>
+            <li><div><p>det = 2 − 1 = 1, quindi A⁻¹ = [[1, −1], [−1, 2]]; somme per righe 2 e 3, quindi ‖A⁻¹‖∞ = 3.</p></div></li>
+            <li><div><p class="risultato">K∞(A) = 3·3 = 9</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-si">
+        <li><label><input type="checkbox" id="si-c1"><span>Scrivere le formule di sostituzione e il loro costo O(n²)</span></label></li>
+        <li><label><input type="checkbox" id="si-c2"><span>Scrivere la sequenza di risoluzione con LU, PA = LU, Cholesky</span></label></li>
+        <li><label><input type="checkbox" id="si-c3"><span>Spiegare perché non si usa A⁻¹ e perché si riusa la fattorizzazione</span></label></li>
+        <li><label><input type="checkbox" id="si-c4"><span>Definire K(A) e usare la stima ‖δx‖/‖x‖ ≤ K‖δb‖/‖b‖</span></label></li>
+        <li><label><input type="checkbox" id="si-c5"><span>Calcolare K∞ di una 2×2 a mano</span></label></li>
+        <li><label><input type="checkbox" id="si-c6"><span>Spiegare il comportamento di Hilbert nell'HW1</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «Sistemi lineari» (A.A. 2026/27). Esercizio 5.1 e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

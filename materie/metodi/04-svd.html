@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decomposizione ai valori singolari · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="04-svd">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Matrici ortogonali</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Il teorema SVD</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Rango, sottospazi, autovalori</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Diadi e rango basso</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Compressione e PCA</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Esercizi e ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 4</span>
+      <h1>Decomposizione ai valori singolari (SVD)</h1>
+      <p class="lede">La fattorizzazione più importante del corso: esiste per ogni matrice, rivela rango e norme, dà la migliore approssimazione a rango basso ed è alla base dei due esercizi SVD dell'HW1 (classificazione e compressione).</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li>La SVD <strong>esiste sempre</strong>, anche per matrici rettangolari o di rango non massimo.</li>
+        <li><strong>Rango = numero di σᵢ &gt; 0</strong>; ‖A‖₂ = σ₁; K₂(A) = σ₁/σₙ; σᵢ = √λᵢ(AᵀA).</li>
+        <li><strong>Eckart–Young</strong>: Aₖ è la migliore approssimazione di rango k, con ‖A − Aₖ‖₂ = σₖ₊₁.</li>
+        <li><strong>Compressione</strong>: Aₖ richiede k(m+n+1) numeri contro i m·n dell'originale. È un calcolo da calcolatrice.</li>
+        <li>All'<strong>orale (HW1, es. 1–2)</strong>: basi di vettori singolari, proiezioni, grafico dei σᵢ, errore relativo.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Richiamo</span>
+        <h2>Matrici ortogonali</h2>
+      </div>
+      <p>x e y sono ortogonali se xᵀy = 0. Un insieme è <strong>ortonormale</strong> se i vettori sono ortogonali tra loro e hanno norma 2 uguale a 1. Q quadrata è <strong>ortogonale</strong> se QᵀQ = QQᵀ = I, cioè <strong>Q⁻¹ = Qᵀ</strong>.</p>
+      <div class="def"><span class="etichetta">Proprietà chiave</span><p>Le trasformazioni ortogonali <strong>conservano</strong> prodotto scalare, norma 2, distanze e angoli: ‖Qx‖₂ = ‖x‖₂. Per questo non amplificano gli errori, e i metodi basati su matrici ortogonali sono stabili.</p></div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Teorema</span>
+        <h2>Il teorema di esistenza della SVD</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teorema</span>
+        <p>Per <strong>ogni</strong> A ∈ ℝᵐˣⁿ esistono U ∈ ℝᵐˣᵐ e V ∈ ℝⁿˣⁿ <strong>ortogonali</strong> e Σ ∈ ℝᵐˣⁿ <strong>diagonale</strong> tali che <strong>A = UΣVᵀ</strong>. Sulla diagonale di Σ ci sono i <strong>valori singolari</strong> σ₁ ≥ σ₂ ≥ … ≥ σₚ ≥ 0, con p = min(m, n).</p>
+      </div>
+      <p>Le colonne uᵢ di U sono i <strong>vettori singolari sinistri</strong> e sono una base ortonormale di ℝᵐ. Le colonne vᵢ di V sono i <strong>vettori singolari destri</strong> e sono una base ortonormale di ℝⁿ. Valgono le relazioni:</p>
+      <p class="formula">Avᵢ = σᵢuᵢ    Aᵀuᵢ = σᵢvᵢ</p>
+      <p>Quindi A manda la direzione vᵢ nella direzione uᵢ e ne moltiplica la lunghezza per σᵢ.</p>
+      <div class="def"><span class="etichetta">SVD compatta</span><p>Se rank(A) = r, si eliminano le colonne dei σ nulli: A = UᵣΣᵣVᵣᵀ, con Uᵣ ∈ ℝᵐˣʳ, Σᵣ ∈ ℝʳˣʳ, Vᵣ ∈ ℝⁿˣʳ. Contiene tutta l'informazione di A.</p></div>
+<pre class="codice largo" data-copia><code data-lang="python">
+U, s, VT = np.linalg.svd(A, full_matrices=False)   # forma ridotta: s è un VETTORE
+A_ric = U @ np.diag(s) @ VT                         # ricostruzione
+</code></pre>
+      <aside class="nota">Attenzione: NumPy restituisce <strong>Vᵀ</strong>, non V, e i valori singolari come vettore, già ordinati in modo decrescente.</aside>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Cosa rivela</span>
+        <h2>Rango, sottospazi, autovalori, norme</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Le formule da sapere</span>
+        <p><strong>Rango:</strong> r = numero di σᵢ &gt; 0. In floating point si confronta con una tolleranza (<em>rango numerico</em>).<br>
+        <strong>Sottospazi:</strong> Im(A) = span{u₁…uᵣ}; Im(Aᵀ) = span{v₁…vᵣ}; ker(A) = span{vᵣ₊₁…vₙ}.<br>
+        <strong>Autovalori:</strong> AᵀA = VΣᵀΣVᵀ, quindi <strong>σᵢ = √λᵢ(AᵀA)</strong>. Gli autovettori di AᵀA sono i vᵢ, quelli di AAᵀ sono gli uᵢ.<br>
+        <strong>Norme:</strong> ‖A‖₂ = σ₁; ‖A‖_F = √(Σσᵢ²); per A quadrata invertibile K₂(A) = σ₁/σₙ.<br>
+        <strong>Pseudoinversa</strong> (Moore–Penrose): A⁺ = VᵣΣᵣ⁻¹Uᵣᵀ, di dimensione n×m, definita per <em>ogni</em> A. Se A è invertibile, A⁺ = A⁻¹.</p>
+      </div>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>In teoria σᵢ = √λᵢ(AᵀA), ma <strong>numericamente non si calcola la SVD formando AᵀA</strong>, perché il condizionamento si eleva al quadrato. Gli algoritmi lavorano direttamente su A.</p></div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2–§3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="sv-1">
+          <p class="testo">I valori singolari di A ∈ ℝ⁵ˣ³ sono 7, 2, 0. Qual è il rango di A?</p>
+          <div class="opz"><button>3</button><button data-giusta>2</button><button>5</button></div>
+          <div class="perche" hidden><p>Il rango è il numero di σᵢ strettamente positivi, quindi 2.</p></div>
+        </div>
+        <div class="domanda" data-id="sv-2">
+          <p class="testo">Gli autovalori di AᵀA sono 16, 9, 1. Quanto vale ‖A‖₂?</p>
+          <div class="opz"><button>16</button><button data-giusta>4</button><button>26</button></div>
+          <div class="perche" hidden><p>σ₁ = √16 = 4 e ‖A‖₂ = σ₁. Con 16 si dimentica la radice.</p></div>
+        </div>
+        <div class="domanda" data-id="sv-3">
+          <p class="testo">A quadrata ha σ₁ = 100 e σₙ = 0.01. Quanto vale K₂(A)?</p>
+          <div class="opz"><button>100</button><button data-giusta>10⁴</button><button>10⁻⁴</button></div>
+          <div class="perche" hidden><p>K₂ = σ₁/σₙ = 100/0.01 = 10⁴.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Diadi</span>
+        <h2>Decomposizione diadica e approssimazione a rango basso</h2>
+      </div>
+      <p>La SVD compatta si scrive come <strong>somma di diadi</strong>, cioè di matrici di rango 1:</p>
+      <p class="formula">A = σ₁u₁v₁ᵀ + σ₂u₂v₂ᵀ + … + σᵣuᵣvᵣᵀ</p>
+      <p>Tenendo solo i primi k termini si ottiene la <strong>SVD troncata</strong> Aₖ = Σᵢ≤ₖ σᵢuᵢvᵢᵀ, che ha rango k. Le diadi sono ordinate per importanza: σ₁ ≥ σ₂ ≥ …</p>
+      <div class="def">
+        <span class="etichetta">Teorema di Eckart–Young–Mirsky</span>
+        <p>Aₖ è la <strong>migliore approssimazione di rango ≤ k</strong>, sia in norma 2 sia in norma di Frobenius:<br>
+        <strong>‖A − Aₖ‖₂ = σₖ₊₁</strong>    <strong>‖A − Aₖ‖_F = √(σ²ₖ₊₁ + … + σ²ᵣ)</strong></p>
+      </div>
+      <p>La frazione di <strong>energia</strong> conservata è Eₖ = (σ₁² + … + σₖ²)/(σ₁² + … + σᵣ²). Se i σ decadono in fretta bastano poche diadi, se decadono piano ne servono molte.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof</span><h4>Valori singolari 5.0322, 2.7962, 2.2038, 0.0322</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>k = 1: errore in norma 2 = σ₂ = <strong>2.7962</strong>.</p></div></li>
+            <li><div><p>k = 2: errore in norma 2 = σ₃ = <strong>2.2038</strong>; errore F = √(2.2038² + 0.0322²) ≈ 2.2041.</p></div></li>
+            <li><div><p class="risultato">k = 3: errore = σ₄ = 0.0322. La matrice è quasi di rango 3.</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Applicazioni</span>
+        <h2>Compressione delle immagini e PCA</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Compressione</span>
+        <p>A ∈ ℝᵐˣⁿ richiede <strong>m·n</strong> numeri. Aₖ = UₖΣₖVₖᵀ ne richiede mk + k + nk = <strong>k(m+n+1)</strong>. Si comprime davvero se k(m+n+1) &lt; mn. Il <strong>fattore di compressione</strong> è mn / (k(m+n+1)). Con k piccolo si comprime di più ma con più errore.</p>
+      </div>
+      <p>Nell'HW1, es. 2 (immagine <code>camera</code> 512×512), le prime diadi rappresentano le strutture grandi e uniformi, le successive aggiungono i dettagli. Il grafico dei σᵢ con <code>semilogy</code> mostra il decadimento.</p>
+      <div class="def">
+        <span class="etichetta">Classificazione con la SVD (HW1, es. 1)</span>
+        <p>Per ogni classe di cifre si mettono le immagini come colonne di una matrice e se ne fa la SVD. Le prime k colonne Uₖ sono una <strong>base del sottospazio</strong> della cifra. Una nuova immagine y va nella classe per cui il residuo della <strong>proiezione</strong> ‖y − UₖUₖᵀy‖₂ è minimo.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">PCA con la SVD</span>
+        <p>Si <strong>centra</strong> la matrice dei dati, X_c = X − media delle colonne (la centratura è essenziale), e si calcola X_c = UΣVᵀ. Le colonne di V sono le <strong>direzioni principali</strong>, le varianze sono λᵢ = σᵢ²/(N−1) e le coordinate nuove (<em>score</em>) sono Z = X_cV = UΣ. Sul dataset Iris le prime 2 componenti spiegano il 97.8% della varianza.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4–§5</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="sv-4">
+          <p class="testo">Valori singolari 10, 5, 1, 0.1. Quanto vale ‖A − A₂‖₂?</p>
+          <div class="opz"><button>5</button><button data-giusta>1</button><button>1.005</button></div>
+          <div class="perche" hidden><p>‖A − Aₖ‖₂ = σₖ₊₁ = σ₃ = 1. Il valore 1.005 ≈ √(1² + 0.1²) è l'errore in norma di Frobenius.</p></div>
+        </div>
+        <div class="domanda" data-id="sv-5">
+          <p class="testo">Immagine 100×200 approssimata con k = 5 diadi. Quanti numeri si memorizzano?</p>
+          <div class="opz"><button>1500</button><button data-giusta>1505</button><button>20000</button></div>
+          <div class="perche" hidden><p>k(m+n+1) = 5·(100 + 200 + 1) = 1505. L'originale ne ha 20000, quindi il fattore di compressione è circa 13.3.</p></div>
+        </div>
+        <div class="domanda" data-id="sv-6">
+          <p class="testo">Prima di fare la PCA con la SVD bisogna…</p>
+          <div class="opz"><button>normalizzare le righe a norma 1</button><button data-giusta>sottrarre a ogni colonna la sua media</button><button>calcolare AᵀA</button></div>
+          <div class="perche" hidden><p>La PCA descrive le variazioni attorno al centro dei dati, quindi va prima centrata la matrice.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Allenamento</span>
+        <h2>Esercizi e ripasso</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.1 · stile scritto</span><h4>Errore relativo di compressione</h4></div>
+        <p>Valori singolari 6, 3, 2. Calcola l'errore relativo in norma di Frobenius dell'approssimazione con k = 1.</p>
+        <div class="domanda" data-id="sv-7">
+          <p class="testo">‖A − A₁‖_F / ‖A‖_F ≈ ?</p>
+          <div class="opz"><button>0.50</button><button data-giusta>0.52</button><button>0.86</button></div>
+          <div class="perche" hidden><p>√(9 + 4)/√(36 + 9 + 4) = √13/7 ≈ 3.606/7 ≈ 0.515.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p class="formula">‖A‖_F = √(36 + 9 + 4) = √49 = 7</p></div></li>
+            <li><div><p class="formula">‖A − A₁‖_F = √(σ₂² + σ₃²) = √13 ≈ 3.606</p></div></li>
+            <li><div><p class="risultato">Errore relativo ≈ 0.515, cioè circa 52%</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-sv">
+        <li><label><input type="checkbox" id="sv-c1"><span>Enunciare il teorema SVD con le dimensioni di U, Σ e V</span></label></li>
+        <li><label><input type="checkbox" id="sv-c2"><span>Leggere dalla SVD rango, ‖A‖₂, ‖A‖_F e K₂(A)</span></label></li>
+        <li><label><input type="checkbox" id="sv-c3"><span>Legare i σᵢ agli autovalori di AᵀA (e dire perché non calcolarla così)</span></label></li>
+        <li><label><input type="checkbox" id="sv-c4"><span>Enunciare Eckart–Young e calcolare l'errore di Aₖ nelle due norme</span></label></li>
+        <li><label><input type="checkbox" id="sv-c5"><span>Calcolare numeri memorizzati e fattore di compressione</span></label></li>
+        <li><label><input type="checkbox" id="sv-c6"><span>Spiegare la classificazione con le basi Uₖ (HW1, es. 1)</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «Decomposizione ai valori singolari (SVD)» (A.A. 2026/27); testo dell'HW1 del laboratorio. Esercizio 6.1 e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

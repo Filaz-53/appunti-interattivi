@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="it" data-materia="metodi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fattorizzazioni LU e Cholesky · Metodi Numerici per l'Analisi dei Dati</title>
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="03-fattorizzazioni">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Perché fattorizzare</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>LU con Gauss</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Pivoting: PA = LU</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Cholesky</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Autovalori</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Esercizi e ripasso</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Metodi Numerici per l'Analisi dei Dati · capitolo 3</span>
+      <h1>Fattorizzazioni LU e Cholesky</h1>
+      <p class="lede">Si scrive A come prodotto di matrici "facili", per esempio triangolari, e così un problema difficile diventa una sequenza di problemi semplici. Qui ci sono le fattorizzazioni triangolari (LU, PA = LU, Cholesky) e quella agli autovalori. La SVD ha un capitolo a sé.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <ul>
+        <li><strong>Quando esiste</strong> ciascuna fattorizzazione: LU, PA = LU per ogni A non singolare, Cholesky solo se A è simmetrica definita positiva.</li>
+        <li><strong>Costi:</strong> LU ≈ n³/3, Cholesky ≈ n³/6.</li>
+        <li><strong>A cosa serve il pivoting</strong>: evita i pivot nulli o troppo piccoli, quindi dà stabilità.</li>
+        <li>Fare <strong>un passo di Gauss a mano</strong> su una 3×3: calcolare i moltiplicatori e un elemento di L o di U.</li>
+        <li>Definizione di <strong>autovalore</strong> e collegamento con le matrici simmetriche.</li>
+        <li>All'<strong>orale (HW1, es. 3)</strong>: <code>lu</code>, <code>lu_factor</code>, <code>cholesky</code> di SciPy/NumPy e l'errore di fattorizzazione.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Idea</span>
+        <h2>Perché fattorizzare</h2>
+      </div>
+      <p>A = F₁F₂⋯Fᵣ, con fattori dotati di struttura. Una buona fattorizzazione dà <strong>efficienza</strong> (le operazioni successive costano meno), <strong>stabilità</strong> (limita la propagazione degli arrotondamenti) e <strong>interpretabilità</strong> (rende visibili proprietà nascoste).</p>
+      <div class="def">
+        <span class="etichetta">Due famiglie</span>
+        <p><strong>Triangolari</strong> (LU, Cholesky): adatte ai sistemi lineari. · <strong>Ortogonali</strong> (QR, autovalori di matrici simmetriche, SVD): fondamentali per minimi quadrati, autovalori, valori singolari e analisi dei dati.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · LU</span>
+        <h2>La fattorizzazione LU con l'eliminazione di Gauss</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>A = LU, con L <strong>triangolare inferiore a diagonale unitaria</strong> e U <strong>triangolare superiore</strong>.</p>
+      </div>
+      <p>Gauss annulla, colonna dopo colonna, gli elementi sotto la diagonale. Al passo k, per l'elemento in riga i &gt; k:</p>
+      <p class="formula">mᵢₖ = −aᵢₖ / aₖₖ  e  Rᵢ ← Rᵢ + mᵢₖ·Rₖ</p>
+      <p>Alla fine si ottiene U. In L, sotto la diagonale, vanno i <strong>moltiplicatori cambiati di segno</strong>, cioè ℓᵢₖ = aᵢₖ / aₖₖ. Il costo è circa <strong>n³/3</strong> operazioni, quindi O(n³).</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · Gauss a mano</span><h4>A = [[2, 1, 1], [4, −6, 0], [−2, 7, 2]]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>Passo 1.</strong> Il pivot è a₁₁ = 2. Moltiplicatori: m₂₁ = −4/2 = −2 e m₃₁ = −(−2)/2 = 1.</p><p class="formula">A⁽²⁾ = [[2, 1, 1], [0, −8, −2], [0, 8, 3]]</p></div></li>
+            <li><div><p><strong>Passo 2.</strong> Il pivot è −8. Moltiplicatore: m₃₂ = −8/(−8) = 1, quindi R₃ ← R₃ + R₂.</p><p class="formula">U = [[2, 1, 1], [0, −8, −2], [0, 0, 1]]</p></div></li>
+            <li><div><p>In L vanno i moltiplicatori con il segno cambiato: ℓ₂₁ = 2, ℓ₃₁ = −1, ℓ₃₂ = −1.</p><p class="formula">L = [[1, 0, 0], [2, 1, 0], [−1, −1, 1]]</p></div></li>
+            <li><div><p class="risultato">Verifica sulla terza riga di LU: −1·(2,1,1) − 1·(0,−8,−2) + (0,0,1) = (−2, 7, 2) ✓</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>La LU <strong>senza pivoting non esiste per ogni matrice non singolare</strong>: basta un pivot nullo per bloccarla, anche se det(A) ≠ 0.</p></div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Pivoting</span>
+        <h2>Il pivoting: PA = LU</h2>
+      </div>
+      <p>Ci sono due problemi con il pivot uₖₖ:</p>
+      <ol>
+        <li><strong>Pivot nullo:</strong> la divisione non è definita, anche se A è invertibile. Esempio: A = [[0, 1], [1, 1]] ha det = −1, ma il primo pivot è 0. Basta scambiare le righe.</li>
+        <li><strong>Pivot piccolo:</strong> con A = [[ε, 1], [1, 1]] e ε ≪ 1 il moltiplicatore è −1/ε, cioè enorme. Si mescolano numeri di grandezza molto diversa, con cancellazione e perdita di cifre. Scambiando le righe il pivot diventa 1 e il moltiplicatore −ε.</li>
+      </ol>
+      <div class="def">
+        <span class="etichetta">Matrici di permutazione</span>
+        <p>P si ottiene permutando le righe dell'identità. <strong>PA permuta le righe</strong> di A, <strong>AP ne permuta le colonne</strong>. P è ortogonale: P⁻¹ = Pᵀ.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teorema (pivoting parziale)</span>
+        <p>Per ogni A ∈ ℝⁿˣⁿ esiste una permutazione P tale che <strong>PA = LU</strong>. Se A non è singolare la fattorizzazione si completa in n − 1 passi. Al passo k si sceglie come pivot l'elemento di <strong>modulo massimo</strong> nella colonna k, tra le righe k…n, e lo si porta in riga k. Così si ha sempre |mᵢₖ| ≤ 1.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof · pivoting parziale</span><h4>A = [[0, 2, 1], [1, −2, −3], [2, 3, 1]]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>a₁₁ = 0, quindi senza pivoting ci si blocca. Nella colonna 1 il modulo massimo è |2|, in riga 3: si scambiano R₁ e R₃.</p></div></li>
+            <li><div><p>Il pivot è 2. m₂₁ = −1/2 e m₃₁ = 0.</p><p class="formula">[[2, 3, 1], [0, −7/2, −7/2], [0, 2, 1]]</p></div></li>
+            <li><div><p>Nella colonna 2 |−7/2| &gt; |2|, quindi nessuno scambio. m₃₂ = −2/(−7/2) = 4/7.</p><p class="formula">U = [[2, 3, 1], [0, −7/2, −7/2], [0, 0, −1]]</p></div></li>
+            <li><div><p class="risultato">PA = LU con P che scambia le righe 1 e 3, e L = [[1,0,0], [1/2,1,0], [0,−4/7,1]]</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <p>Il pivoting <strong>non cambia l'ordine del costo</strong>, che resta O(n³), ma riduce la crescita dei moltiplicatori. È la strategia standard per matrici dense.</p>
+<pre class="codice largo" data-copia><code data-lang="python">
+from scipy.linalg import lu, lu_factor, lu_solve
+P, L, U = lu(A)            # ATTENZIONE: SciPy restituisce A = P @ L @ U
+lu_piv = lu_factor(A)      # forma compatta (LU in una matrice + vettore piv) da riusare
+x = lu_solve(lu_piv, b)    # risolve Ax = b riusando la fattorizzazione
+</code></pre>
+      <aside class="nota">Per l'orale: <code>scipy.linalg.lu</code> usa la convenzione A = P·L·U, cioè la P è "dall'altra parte" rispetto a PA = LU. L'errore di fattorizzazione si calcola quindi come ‖A − P@L@U‖.</aside>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §2–§3</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="fa-1">
+          <p class="testo">Quale affermazione è vera per ogni matrice quadrata non singolare A?</p>
+          <div class="opz"><button>Esiste sempre A = LU senza scambi</button><button data-giusta>Esiste sempre PA = LU</button><button>Esiste sempre A = LLᵀ</button></div>
+          <div class="perche" hidden><p>Con il pivoting la fattorizzazione esiste sempre. Senza pivoting può mancare per un pivot nullo; Cholesky richiede una matrice simmetrica definita positiva.</p></div>
+        </div>
+        <div class="domanda" data-id="fa-2">
+          <p class="testo">Il pivoting parziale sceglie come pivot…</p>
+          <div class="opz"><button>il primo elemento non nullo della colonna</button><button data-giusta>l'elemento di modulo massimo della colonna</button><button>l'elemento di modulo minimo della riga</button></div>
+          <div class="perche" hidden><p>Il modulo massimo garantisce |mᵢₖ| ≤ 1, quindi i moltiplicatori non amplificano gli errori.</p></div>
+        </div>
+        <div class="domanda" data-id="fa-3">
+          <p class="testo">Gauss su A = [[3, 1], [6, 5]]: quanto vale l'elemento u₂₂ di U?</p>
+          <div class="opz"><button>5</button><button data-giusta>3</button><button>−1</button></div>
+          <div class="perche" hidden><p>m₂₁ = −6/3 = −2, quindi R₂ ← R₂ − 2R₁ = (0, 5 − 2) = (0, 3). Si ha u₂₂ = 3 e ℓ₂₁ = 2.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Cholesky</span>
+        <h2>La fattorizzazione di Cholesky</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione e teorema</span>
+        <p>A è <strong>definita positiva</strong> se xᵀAx &gt; 0 per ogni x ≠ 0. Una matrice simmetrica definita positiva ha tutti gli autovalori &gt; 0. Se A è <strong>simmetrica e definita positiva</strong>, esiste un'<strong>unica</strong> L triangolare inferiore con diagonale positiva tale che <strong>A = LLᵀ</strong>. Il costo è circa <strong>n³/6</strong>, la <strong>metà della LU</strong>, perché sfrutta la simmetria.</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio della prof</span><h4>A = [[4, 2, 2], [2, 5, 1], [2, 1, 5]]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>ℓ₁₁ = √4 = 2; ℓ₂₁ = 2/2 = 1; ℓ₃₁ = 2/2 = 1.</p></div></li>
+            <li><div><p>ℓ₂₂ = √(5 − 1²) = 2; ℓ₃₂ = (1 − 1·1)/2 = 0.</p></div></li>
+            <li><div><p>ℓ₃₃ = √(5 − 1² − 0²) = 2.</p></div></li>
+            <li><div><p class="risultato">L = [[2, 0, 0], [1, 2, 0], [1, 0, 2]] e LLᵀ = A ✓</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="avviso"><span class="etichetta">Trappola</span><p>Simmetrica <strong>non basta</strong>: serve anche definita positiva. Se un elemento sotto radice diventa ≤ 0, la matrice non è definita positiva e <code>np.linalg.cholesky</code> solleva <code>LinAlgError</code>. Nell'HW1 succede con Hilbert per n grande: in teoria è definita positiva, ma numericamente perde la positività.</p></div>
+      <aside class="nota">Un criterio rapido: se A è simmetrica, a <strong>diagonale strettamente dominante</strong> e con diagonale positiva, allora è definita positiva. È il caso della 5×5 dell'HW1.</aside>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Autovalori</span>
+        <h2>Fattorizzazione agli autovalori</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>λ è un <strong>autovalore</strong> di A se esiste v ≠ 0 con <strong>Av = λv</strong>; v è l'autovettore associato. A non cambia la direzione di v, la moltiplica solo per λ. Gli autovalori sono le radici del <strong>polinomio caratteristico</strong> p(λ) = det(λI − A) = 0.</p>
+      </div>
+      <p><strong>Diagonalizzazione:</strong> se A ha n autovettori linearmente indipendenti, con V = [v₁…vₙ] e Λ = diag(λᵢ) si ha <strong>A = VΛV⁻¹</strong>. Autovalori tutti distinti bastano a garantirla, ma non sono necessari.</p>
+      <div class="def">
+        <span class="etichetta">Caso simmetrico (teorema spettrale)</span>
+        <p>Se A è reale e simmetrica, gli autovalori sono <strong>reali</strong> e gli autovettori formano una <strong>base ortonormale</strong>: <strong>A = VΛVᵀ</strong>, con V⁻¹ = Vᵀ. In NumPy si usa <code>np.linalg.eigh</code> invece di <code>eig</code>. Per una matrice generale gli autovalori possono essere complessi.</p>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §4–§5</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="fa-4">
+          <p class="testo">Quanto costa Cholesky rispetto alla LU?</p>
+          <div class="opz"><button data-giusta>Circa la metà (n³/6 contro n³/3)</button><button>Circa il doppio</button><button>Lo stesso</button></div>
+          <div class="perche" hidden><p>Sfrutta la simmetria: si calcola solo L, perché U = Lᵀ.</p></div>
+        </div>
+        <div class="domanda" data-id="fa-5">
+          <p class="testo">A = [[1, 2], [2, 1]] è simmetrica. Si può fare Cholesky?</p>
+          <div class="opz"><button>Sì, perché è simmetrica</button><button data-giusta>No, perché non è definita positiva</button><button>Sì, perché ha determinante non nullo</button></div>
+          <div class="perche" hidden><p>Gli autovalori sono 3 e −1, quindi non è definita positiva. Al secondo passo: ℓ₂₂ = √(1 − 2²) = √(−3), impossibile.</p></div>
+        </div>
+        <div class="domanda" data-id="fa-6">
+          <p class="testo">Per una matrice reale simmetrica gli autovalori sono…</p>
+          <div class="opz"><button>sempre positivi</button><button data-giusta>sempre reali</button><button>possibilmente complessi</button></div>
+          <div class="perche" hidden><p>Lo dice il teorema spettrale. Sono positivi solo se la matrice è anche definita positiva.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Allenamento</span>
+        <h2>Esercizi e ripasso</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.1 · Cholesky a mano</span><h4>A = [[9, 3], [3, 5]]</h4></div>
+        <div class="domanda" data-id="fa-7">
+          <p class="testo">Quanto vale ℓ₂₂?</p>
+          <div class="opz"><button>√5</button><button data-giusta>2</button><button>1</button></div>
+          <div class="perche" hidden><p>ℓ₁₁ = 3, ℓ₂₁ = 3/3 = 1, ℓ₂₂ = √(5 − 1²) = 2.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>ℓ₁₁ = √9 = 3; ℓ₂₁ = a₂₁/ℓ₁₁ = 3/3 = 1.</p></div></li>
+            <li><div><p>ℓ₂₂ = √(a₂₂ − ℓ₂₁²) = √(5 − 1) = 2.</p></div></li>
+            <li><div><p class="risultato">L = [[3, 0], [1, 2]]. Verifica: LLᵀ = [[9, 3], [3, 1+4]] = A ✓</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <span class="etichetta">Checklist: sai farlo senza guardare?</span>
+      <ul class="checklist" data-id="ripasso-fa">
+        <li><label><input type="checkbox" id="fa-c1"><span>Fare Gauss a mano su una 3×3 e scrivere L e U</span></label></li>
+        <li><label><input type="checkbox" id="fa-c2"><span>Spiegare perché serve il pivoting (pivot nullo, pivot piccolo) e cosa sceglie</span></label></li>
+        <li><label><input type="checkbox" id="fa-c3"><span>Dire quando esiste LU, PA = LU e Cholesky</span></label></li>
+        <li><label><input type="checkbox" id="fa-c4"><span>Ricordare i costi n³/3 e n³/6</span></label></li>
+        <li><label><input type="checkbox" id="fa-c5"><span>Calcolare Cholesky di una 2×2</span></label></li>
+        <li><label><input type="checkbox" id="fa-c6"><span>Definire autovalore e autovettore; enunciare il teorema spettrale</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonte: dispense della prof.ssa Loli Piccolomini, «Operazioni sulle matrici: fattorizzazione di matrici» (A.A. 2026/27). Esercizio 6.1 e quiz scritti da noi. Revisione del 04/11/2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>
