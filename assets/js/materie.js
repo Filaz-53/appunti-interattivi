@@ -30,9 +30,9 @@ window.MATERIE = [
     tinta: 262,
     descrizione: "Il corso completo (37635, 12 CFU): appunti di Berto, lucidi, esercizi risolti ed esami del professore dal 2020 al 2026.",
     argomenti: [
-      { id: "01-introduzione", titolo: "Introduzione agli algoritmi", sottotitolo: "Algoritmo e programma, l'algoritmo di Euclide, sei modi di calcolare Fibonacci, valore e dimensione dell'input.", stato: "in-arrivo" },
-      { id: "02-notazione-asintotica", titolo: "Notazione asintotica e ricorrenze", sottotitolo: "O, Ω, Θ, o, ω, ordini di crescita, caso ottimo/medio/pessimo, analisi ammortizzata, equazioni di ricorrenza e Master Theorem.", stato: "in-arrivo" },
-      { id: "03-ordinamento", titolo: "Ordinamento e selezione", sottotitolo: "SelectionSort, InsertionSort, MergeSort, QuickSort, limite Ω(n log n), CountingSort, RadixSort, selezione.", stato: "in-arrivo" },
+      { id: "01-introduzione", titolo: "Introduzione agli algoritmi", sottotitolo: "Algoritmo e programma, l'algoritmo di Euclide, sei modi di calcolare Fibonacci, valore e dimensione dell'input.", fonte: "Lucidi «Introduzione agli algoritmi», appunti di Berto e tr4v4" },
+      { id: "02-notazione-asintotica", titolo: "Notazione asintotica e ricorrenze", sottotitolo: "O, Ω, Θ, o, ω, ordini di crescita, caso ottimo/medio/pessimo, analisi ammortizzata, equazioni di ricorrenza e Master Theorem.", fonte: "Lucidi «Notazione asintotica» ed «Equazioni di ricorrenza» con esercizi risolti" },
+      { id: "03-ordinamento", titolo: "Ordinamento e selezione", sottotitolo: "SelectionSort, InsertionSort, MergeSort, QuickSort, limite Ω(n log n), CountingSort, RadixSort, selezione.", fonte: "Lucidi «Ordinamento» e «Selezione», esercizio sulla bandiera nazionale" },
       { id: "04-strutture-elementari", titolo: "Strutture dati elementari", sottotitolo: "Dizionari, array dinamici, liste, pile e code.", stato: "in-arrivo" },
       { id: "05-alberi", titolo: "Alberi, BST e AVL", sottotitolo: "Alberi e visite, alberi binari di ricerca, alberi AVL con rotazioni.", stato: "in-arrivo" },
       { id: "06-tabelle-hash", titolo: "Tabelle hash", sottotitolo: "Funzioni hash, concatenamento, indirizzamento aperto con ispezione lineare, quadratica e doppio hashing.", stato: "in-arrivo" },

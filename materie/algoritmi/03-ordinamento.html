@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ordinamento e selezione · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="SelectionSort, InsertionSort, BubbleSort, QuickSort, MergeSort, limite inferiore Ω(n log n), CountingSort, BucketSort, RadixSort e selezione del k-esimo minimo, con simulatore passo per passo.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="03-ordinamento">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Il problema</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Algoritmi incrementali</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>QuickSort</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>MergeSort e HeapSort</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Limite inferiore</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Ordinare in tempo lineare</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Riassunto</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Selezione</span></a></li>
+        <li><a href="#s9"><span class="n">§9</span><span>Verifica ed esercizi</span></a></li>
+        <li><a href="#esami"><span class="n">§10</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 3</span>
+      <h1>Ordinamento e selezione</h1>
+      <p class="lede">Nove algoritmi di ordinamento, dal quadratico al lineare, con un simulatore che li esegue passo per passo sullo stesso array. Poi il limite inferiore Ω(n log n) per gli ordinamenti basati su confronti e il problema della selezione del k-esimo minimo.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Definizioni</span>
+        <h2>Il problema dell'ordinamento</h2>
+      </div>
+      <p>Dato un array v[1..n], si cerca una permutazione p[1..n] degli indici tale che v[p[1]] ≤ v[p[2]] ≤ … ≤ v[p[n]]. Esempio: v = [7, 32, 88, 21, 92, −4], p = [6, 1, 4, 2, 3, 5]. In generale ogni elemento ha una <strong>chiave</strong> (confrontabile) e un <strong>contenuto</strong> arbitrario, e si ordina per chiave.</p>
+      <div class="def">
+        <span class="etichetta">Due proprietà</span>
+        <p><strong>In loco</strong>: l'algoritmo permuta gli elementi direttamente nell'array, senza un array di appoggio.<br>
+        <strong>Stabile</strong>: elementi con la stessa chiave restano nell'ordine in cui comparivano. Serve quando si ordina per una chiave dopo averlo fatto per un'altra (per esempio per anno di nascita, poi per nome), ed è indispensabile in RadixSort.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Θ(n²)</span>
+        <h2>Algoritmi incrementali</h2>
+      </div>
+      <p>Partendo da un prefisso ordinato A[1..k], lo estendono di un elemento alla volta.</p>
+      <h3>SelectionSort</h3>
+      <p>Cerca il minimo in A[k..n] e lo scambia con A[k]. Il k-esimo minimo richiede n − k confronti: in tutto Σ<sub>k=1..n−1</sub>(n − k) = n(n−1)/2 = <strong>Θ(n²) in ogni caso</strong>, perché il minimo va cercato fino in fondo anche se l'array è già ordinato.</p>
+      <aside class="nota">Non è stabile: lo scambio sposta un elemento lontano, oltre i suoi uguali. Con [2<sub>a</sub>, 2<sub>b</sub>, 1] il primo scambio dà [1, 2<sub>b</sub>, 2<sub>a</sub>].</aside>
+      <h3>InsertionSort</h3>
+      <p>Inserisce A[k] nella posizione giusta del prefisso ordinato A[1..k−1]. Nella versione dei lucidi la posizione j si cerca <strong>da sinistra</strong>, fermandosi al primo elemento maggiore di x, poi si spostano A[j..k−1] di un posto. Nel caso pessimo servono k confronti per l'elemento k: Σ k = Θ(n²).</p>
+      <div class="avviso">
+        <span class="etichetta">Caso ottimo: dipende da come si scrive</span>
+        <p>Con la ricerca da sinistra, su un array già ordinato si scorre tutto il prefisso ogni volta: Θ(n²) anche nel caso ottimo (è il valore nella tabella dei lucidi). Se invece si scorre <strong>da destra</strong>, spostando gli elementi finché sono maggiori di x, su un array ordinato ogni inserimento costa un confronto: <strong>caso ottimo Θ(n)</strong>, pessimo (array decrescente) sempre Θ(n²). È la risposta all'esercizio «come modificarlo per avere caso ottimo Θ(n)?».</p>
+      </div>
+      <p>InsertionSort è <strong>stabile</strong>: x si ferma prima del primo elemento strettamente maggiore, quindi dopo i suoi uguali.</p>
+      <h3>BubbleSort</h3>
+      <p>Fa scansioni dell'array scambiando le coppie adiacenti fuori ordine; se una scansione non fa scambi, l'array è ordinato. <strong>Invariante</strong>: dopo l'i-esima scansione gli i elementi più grandi occupano le ultime i posizioni, in ordine definitivo. Caso ottimo Θ(n) (una scansione senza scambi), pessimo Θ(n²). È stabile.</p>
+      <aside class="nota">Il comportamento «tende» a dipendere dal disordine, ma su [2, 3, 4, 5, 6, 7, 8, 9, 1] servono comunque n − 1 scansioni: l'1 avanza di una sola posizione per volta.</aside>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Simulatore degli algoritmi di ordinamento. Scegli l'algoritmo, scrivi un array (o premi Casuale) e segui il codice riga per riga: giallo = confronto, arancio = scambio o spostamento, viola = pivot o elemento in esame, blu = posizione definitiva.</figcaption>
+        <div data-widget="ordina" data-alg="selection"></div>
+      </figure>
+      <div class="def">
+        <span class="etichetta">Il caso medio di BubbleSort è Θ(n²) (esercizio del corso)</span>
+        <p>Un valore che parte dalla posizione i e deve arrivare in j fa almeno |i − j| scambi. Per il valore centrale (i = n/2), con j uniforme in [1, n], la distanza media è n/4; gli altri valori in media sono più lontani. Quindi ogni valore fa in media almeno n/4 scambi, e gli n valori fanno almeno n · n/4 = Θ(n²) assegnamenti. Poiché il caso pessimo è Θ(n²), anche il medio è Θ(n²).</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Divide et impera, 1</span>
+        <h2>QuickSort</h2>
+      </div>
+      <p>Inventato da C. A. R. Hoare nel 1962. Si sceglie un <strong>pivot</strong> x, si partiziona A[i..f] in A[i..m−1] (elementi ≤ x) e A[m+1..f] (elementi &gt; x) con x in posizione m, poi si ordinano ricorsivamente le due parti. La combinazione non fa nulla: le parti ordinate e il pivot sono già al loro posto.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">Partition(A, i, f) → int</li>
+        <li><i>x</i> = <i>A</i>[<i>i</i>];  <i>inf</i> = <i>i</i>;  <i>sup</i> = <i>f</i> + 1   <span class="sc">(pivot: il primo elemento)</span></li>
+        <li><b>while</b> true <b>do</b></li>
+        <li class="rientro1"><b>do</b> <i>inf</i> = <i>inf</i> + 1 <b>while</b> <i>inf</i> ≤ <i>f</i> <b>and</b> <i>A</i>[<i>inf</i>] ≤ <i>x</i></li>
+        <li class="rientro1"><b>do</b> <i>sup</i> = <i>sup</i> − 1 <b>while</b> <i>A</i>[<i>sup</i>] &gt; <i>x</i></li>
+        <li class="rientro1"><b>if</b> <i>inf</i> &lt; <i>sup</i> <b>then</b> scambia <i>A</i>[<i>inf</i>] e <i>A</i>[<i>sup</i>] <b>else break</b></li>
+        <li>scambia <i>A</i>[<i>i</i>] e <i>A</i>[<i>sup</i>]</li>
+        <li><b>return</b> <i>sup</i></li>
+      </ol>
+      <p>A[i..inf−1] contiene solo elementi ≤ pivot, A[sup+1..f] solo elementi &gt; pivot. Quando nessuno dei due indici può avanzare si scambiano A[inf] e A[sup]; quando si incrociano, il pivot va in A[sup]. Sui dati dei lucidi [12, 7, 3, 2, 14, 22, 1, 3] si ottiene [1, 7, 3, 2, 3, 12, 22, 14] con il pivot 12 in posizione 6: provalo nel simulatore con «Quick».</p>
+      <div class="def">
+        <span class="etichetta">Costo</span>
+        <p>Partition costa Θ(f − i). <strong>Caso pessimo</strong>: la partizione è sempre 0 e n − 1, T(n) = T(n − 1) + n = <strong>Θ(n²)</strong>; con il pivot nel primo elemento succede su un array <em>già ordinato</em> (o ordinato al contrario). <strong>Caso ottimo</strong>: partizioni a metà, T(n) = 2T(n/2) + n = <strong>Θ(n log n)</strong>.</p>
+        <p><strong>Caso medio</strong>: se tutte le partizioni sono equiprobabili, T(n) = n − 1 + (2/n) Σ<sub>a=0..n−1</sub> T(a). Per sostituzione si dimostra T(n) ≤ 2n ln n, cioè <strong>Θ(n log n)</strong>.</p>
+      </div>
+      <p><strong>Versione randomizzata</strong>: il pivot si sceglie a caso in A[i..f] (e si scambia con A[i]). Così nessun input fisso provoca il caso pessimo e le partizioni sono equiprobabili, come nell'ipotesi del caso medio.</p>
+      <aside class="nota">QuickSort è in loco ma non stabile, e la ricorsione usa la pila: O(log n) di memoria in media.</aside>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Divide et impera, 2</span>
+        <h2>MergeSort e HeapSort</h2>
+      </div>
+      <p>MergeSort (von Neumann, 1945) divide A a metà <em>senza permutare</em>, ordina ricorsivamente le due metà e le <strong>fonde</strong>. È il duale di QuickSort: divisione banale e combinazione complessa, contro divisione complessa e combinazione nulla.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">Merge(A, i1, f1, f2)</li>
+        <li>sia <i>X</i> un array di <i>f2</i> − <i>i1</i> + 1 elementi;  <i>i2</i> = <i>f1</i> + 1;  <i>k</i> = 1</li>
+        <li><b>while</b> <i>i1</i> ≤ <i>f1</i> <b>and</b> <i>i2</i> ≤ <i>f2</i> <b>do</b></li>
+        <li class="rientro1"><b>if</b> <i>A</i>[<i>i1</i>] ≤ <i>A</i>[<i>i2</i>] <b>then</b> <i>X</i>[<i>k</i>] = <i>A</i>[<i>i1</i>]; <i>i1</i>++ <b>else</b> <i>X</i>[<i>k</i>] = <i>A</i>[<i>i2</i>]; <i>i2</i>++</li>
+        <li class="rientro1"><i>k</i>++</li>
+        <li>copia in <i>X</i> gli elementi rimasti della metà non finita</li>
+        <li>ricopia <i>X</i> nelle posizioni da cui erano partiti gli elementi</li>
+      </ol>
+      <div class="avviso">
+        <span class="etichetta">Stabilità e il «&lt;» dei lucidi</span>
+        <p>Il codice Java dei lucidi confronta con <code>A[i1].compareTo(A[i2]) &lt; 0</code>: a parità di chiave prende l'elemento di <em>destra</em>, e così MergeSort non sarebbe stabile. Per avere la stabilità dichiarata nella tabella riassuntiva serve <strong>≤</strong> (a parità, prima l'elemento di sinistra), come qui e nel simulatore.</p>
+      </div>
+      <p>Costo: T(n) = 2T(n/2) + n = <strong>Θ(n log n) in ogni caso</strong>, perché non dipende dalla disposizione iniziale. Svantaggio: <strong>non è in loco</strong>, serve memoria aggiuntiva Θ(n) per X (più O(log n) di pila).</p>
+      <p><strong>HeapSort</strong> costruisce un max-heap sull'array con heapify (O(n)), poi estrae n volte il massimo e lo mette in fondo (O(log n) ciascuna): <strong>O(n log n)</strong>, in loco, non stabile. È spiegato con lo heap nel <a href="07-heap.html">capitolo 7</a>.</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Non si può fare meglio</span>
+        <h2>Il limite inferiore Ω(n log n)</h2>
+      </div>
+      <p>Tutti gli algoritmi visti finora sono <strong>basati su confronti</strong>: decidono solo confrontando due elementi. Ognuno si può descrivere con un <strong>albero di decisione</strong>, un albero binario in cui ogni nodo interno è un confronto e ogni foglia un ordine finale. Un cammino radice-foglia è la sequenza di confronti su un input; l'<strong>altezza</strong> è il numero di confronti nel caso pessimo.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 2.</b> L'albero di decisione dei lucidi per n = 3 (valori distinti).</figcaption>
+        <div data-widget="albero-decisione"></div>
+      </figure>
+      <div class="def">
+        <span class="etichetta">Lemmi e teorema</span>
+        <p><strong>Lemma 1.</strong> L'albero di decisione per n elementi ha almeno n! foglie: ogni permutazione dell'input è una possibile soluzione.<br>
+        <strong>Lemma 2.</strong> Un albero binario in cui ogni nodo interno ha 2 figli e con k foglie ha altezza almeno log₂ k (induzione strutturale: h(k₁ + k₂) = 1 + max(h(k₁), h(k₂)) ≥ 1 + log k₁ = log 2k₁ ≥ log(k₁ + k₂) se k₁ ≥ k₂).<br>
+        <strong>Teorema.</strong> Ogni algoritmo di ordinamento basato su confronti fa <strong>Ω(n log n)</strong> confronti nel caso pessimo: l'altezza è almeno log n! = Θ(n log n) (Stirling: n! ≈ √(2πn)(n/e)ⁿ).</p>
+      </div>
+      <p>Di conseguenza MergeSort e HeapSort sono <strong>asintoticamente ottimi</strong> tra gli ordinamenti per confronti.</p>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Cambiare le ipotesi</span>
+        <h2>Ordinare in tempo lineare</h2>
+      </div>
+      <p>Il limite Ω(n log n) vale solo per gli algoritmi basati su confronti. Se si sa qualcosa sui valori, si può fare meglio.</p>
+      <div class="def">
+        <span class="etichetta">CountingSort</span>
+        <p>Valori interi in [0, k − 1]. Si contano le occorrenze di ogni valore in Y[0..k−1], poi si riscrive A leggendo Y in ordine. Costo <strong>O(n + k)</strong>, memoria aggiuntiva O(k): lineare se k = O(n). Non sposta record ma riscrive valori, quindi la stabilità non si applica.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">BucketSort</span>
+        <p>Record con chiave intera in [1, k]: Y è un array di k liste, ogni record si <em>appende</em> alla lista della sua chiave, poi si concatenano le liste. Costo <strong>O(n + k)</strong>, stabile (le liste mantengono l'ordine di arrivo).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">RadixSort</span>
+        <p>Si ordina cifra per cifra, <strong>dalla meno significativa</strong>, con un ordinamento stabile (BucketSort sulle b cifre possibili). Dopo i passate i numeri sono ordinati rispetto alle ultime i cifre. Con n numeri di d cifre in base b: <strong>O(d(n + b))</strong>. Scegliendo b = Θ(n) per interi in [0, k − 1]: O(n(1 + log k / log n)).</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio dei lucidi</span><h4>RadixSort in base 10 su 1204, 7132, 2001, 0909, 8192, 1351, 0019</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Per unità: 2001, 1351, 7132, 8192, 1204, 0909, 0019</p></div></li>
+            <li><div><p>Per decine: 2001, 1204, 0909, 0019, 7132, 1351, 8192</p></div></li>
+            <li><div><p>Per centinaia: 2001, 0019, 7132, 8192, 1204, 1351, 0909</p></div></li>
+            <li><div><p class="risultato">Per migliaia: 0019, 0909, 1204, 1351, 2001, 7132, 8192. A ogni passo, a parità di cifra, si conserva l'ordine del passo prima: per questo serve la stabilità.</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <aside class="nota">Esempio numerico dei lucidi: un milione di interi a 32 bit con base b = 2¹⁶ si ordinano in due passate lineari, al prezzo di O(n + b) memoria in più.</aside>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Da sapere a memoria</span>
+        <h2>Riassunto</h2>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Algoritmo</th><th>Stabile</th><th>In loco</th><th>Ottimo</th><th>Medio</th><th>Pessimo</th></tr></thead>
+          <tbody>
+            <tr><td>SelectionSort</td><td>no</td><td>sì</td><td>Θ(n²)</td><td>Θ(n²)</td><td>Θ(n²)</td></tr>
+            <tr><td>InsertionSort</td><td>sì</td><td>sì</td><td>Θ(n²) · Θ(n) da destra</td><td>Θ(n²)</td><td>Θ(n²)</td></tr>
+            <tr><td>BubbleSort</td><td>sì</td><td>sì</td><td>Θ(n)</td><td>Θ(n²)</td><td>Θ(n²)</td></tr>
+            <tr><td>QuickSort</td><td>no</td><td>sì</td><td>Θ(n log n)</td><td>Θ(n log n)</td><td>Θ(n²)</td></tr>
+            <tr><td>MergeSort</td><td>sì</td><td>no</td><td>Θ(n log n)</td><td>Θ(n log n)</td><td>Θ(n log n)</td></tr>
+            <tr><td>HeapSort</td><td>no</td><td>sì</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td></tr>
+            <tr><td>CountingSort</td><td>n.a.</td><td>no</td><td>O(n + k)</td><td>O(n + k)</td><td>O(n + k)</td></tr>
+            <tr><td>BucketSort</td><td>sì</td><td>no</td><td>O(n + k)</td><td>O(n + k)</td><td>O(n + k)</td></tr>
+            <tr><td>RadixSort</td><td>sì</td><td>no</td><td>O(d(n + b))</td><td>O(d(n + b))</td><td>O(d(n + b))</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Le idee da portarsi via: <strong>divide et impera</strong> (MergeSort divide facile e combina difficile, QuickSort il contrario), <strong>strutture dati efficienti</strong> (HeapSort), <strong>randomizzazione</strong> per evitare il caso pessimo, e <strong>dipendenza dal modello</strong>: cambiando le ipotesi si scende sotto n log n.</p>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Il k-esimo minimo</span>
+        <h2>Selezione</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Problema</span>
+        <p>Dato A[1..n] di valori distinti e 1 ≤ k ≤ n, trovare l'elemento maggiore di esattamente k − 1 elementi. Con k = ⌈n/2⌉ è il <strong>mediano</strong>. Utile per esempio per i primi k risultati di un motore di ricerca, senza ordinarli tutti.</p>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Metodo</th><th>Idea</th><th>Costo</th></tr></thead>
+          <tbody>
+            <tr><td>minimum</td><td>una scansione</td><td>n − 1 confronti</td></tr>
+            <tr><td>minimum2 (secondo minimo)</td><td>tiene min1 e min2; nel caso pessimo (array decrescente) due confronti per elemento</td><td>2n − 3 confronti</td></tr>
+            <tr><td>select</td><td>SelectionSort fermato al passo k</td><td>Θ(kn)</td></tr>
+            <tr><td>heapselect</td><td>min-heap con heapify, poi k − 1 deleteMin</td><td>O(n + k log n)</td></tr>
+            <tr><td>quickSelect</td><td>partiziona come QuickSort, ma ricorre su una sola parte</td><td>medio O(n), pessimo Θ(n²)</td></tr>
+            <tr><td>mediano dei mediani</td><td>sceglie un pivot che garantisce partizioni bilanciate (sul libro di testo)</td><td>O(n) nel caso pessimo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="nota">heapselect è O(n) se k = O(n / log n), per esempio i primi 10 risultati su 104.000. Per il mediano invece diventa O(n log n).</aside>
+      <ol class="pseudo largo">
+        <li class="titolo">quickSelect(Array A, int k) → elem</li>
+        <li>scegli un elemento <i>x</i> in <i>A</i></li>
+        <li><i>A1</i> = {<i>y</i> ∈ <i>A</i> : <i>y</i> &lt; <i>x</i>};  <i>A2</i> = {<i>y</i> ∈ <i>A</i> : <i>y</i> = <i>x</i>};  <i>A3</i> = {<i>y</i> ∈ <i>A</i> : <i>y</i> &gt; <i>x</i>}</li>
+        <li><b>if</b> <i>k</i> ≤ |<i>A1</i>| <b>then return</b> quickSelect(<i>A1</i>, <i>k</i>)</li>
+        <li><b>else if</b> <i>k</i> &gt; |<i>A1</i>| + |<i>A2</i>| <b>then return</b> quickSelect(<i>A3</i>, <i>k</i> − |<i>A1</i>| − |<i>A2</i>|)</li>
+        <li><b>else return</b> <i>x</i></li>
+      </ol>
+      <p>Caso ottimo Θ(n) (un solo partizionamento), pessimo T(n) = T(n − 1) + n = Θ(n²). <strong>Caso medio</strong>: con l'ipotesi pessimista di ricorrere sempre sulla parte più lunga, lunga tra n/2 e n − 1 con uguale probabilità, T(n) = n − 1 + (2/n) Σ<sub>i=n/2..n−1</sub> T(i). Per sostituzione con T(n) ≤ cn si ottiene (1 + 3c/4)n ≤ cn, vero per c ≥ 4: <strong>T(n) ≤ 4n</strong>.</p>
+      <h3>Il problema della bandiera nazionale</h3>
+      <p>Le tre parti A1, A2, A3 si ottengono in tempo lineare con una variante di partition che raggruppa anche gli uguali al pivot. È l'esercizio della bandiera: elementi verdi, bianchi e rossi, da ordinare con <strong>una sola scansione</strong>, memoria O(1), senza contatori né array di appoggio.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">BandieraNazionale(A[1..n])</li>
+        <li><i>i</i> = 1;  <i>j</i> = 1;  <i>k</i> = <i>n</i></li>
+        <li><b>while</b> <i>j</i> ≤ <i>k</i> <b>do</b></li>
+        <li class="rientro1"><b>if</b> <i>A</i>[<i>j</i>] = verde <b>then</b> scambia <i>A</i>[<i>i</i>] e <i>A</i>[<i>j</i>];  <i>i</i>++;  <i>j</i>++</li>
+        <li class="rientro1"><b>else if</b> <i>A</i>[<i>j</i>] = rosso <b>then</b> scambia <i>A</i>[<i>j</i>] e <i>A</i>[<i>k</i>];  <i>k</i>−−</li>
+        <li class="rientro1"><b>else</b> <i>j</i>++   <span class="sc">(bianco)</span></li>
+      </ol>
+      <div class="avviso">
+        <span class="etichetta">Correzione rispetto alla soluzione distribuita</span>
+        <p>La soluzione del corso usa <code>while j &lt; k</code>, ma così la cella in cui j e k si incontrano non viene mai esaminata: su [bianco, verde] il ciclo termina subito dopo il bianco e lascia il verde in fondo. Con <strong>j ≤ k</strong> l'ultima cella viene esaminata e l'invariante garantisce il risultato. Il ciclo fa n iterazioni, perché a ogni giro j cresce oppure k cala.</p>
+      </div>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 3.</b> La bandiera nazionale. Le annotazioni sono i tre indici; l'invariante vale a ogni passo.</figcaption>
+        <div data-widget="bandiera"></div>
+      </figure>
+    </section>
+
+    <section class="sez" id="s9">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§9 · Ripasso</span>
+        <h2>Verifica ed esercizi</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 3</h3><span class="etichetta">7 domande</span></div>
+        <div class="domanda" data-id="or-1">
+          <p class="testo">QuickSort con pivot nel primo elemento, su un array già ordinato, costa…</p>
+          <div class="opz"><button>Θ(n)</button><button>Θ(n log n)</button><button data-giusta>Θ(n²)</button></div>
+          <div class="perche" hidden><p>Il pivot è sempre il minimo: partizioni 0 e n − 1, T(n) = T(n − 1) + n. La versione randomizzata evita questo input.</p></div>
+        </div>
+        <div class="domanda" data-id="or-2">
+          <p class="testo">Quale di questi algoritmi non ordina in loco?</p>
+          <div class="opz"><button>HeapSort</button><button data-giusta>MergeSort</button><button>QuickSort</button></div>
+          <div class="perche" hidden><p>Il merge usa l'array di appoggio X, Θ(n) memoria aggiuntiva.</p></div>
+        </div>
+        <div class="domanda" data-id="or-3">
+          <p class="testo">Perché RadixSort deve usare un ordinamento stabile su ogni cifra?</p>
+          <div class="opz"><button>Per ordinare in loco</button><button data-giusta>Perché a parità di cifra deve restare l'ordine ottenuto con le cifre meno significative</button><button>Perché altrimenti costa Θ(n²)</button></div>
+          <div class="perche" hidden><p>Dopo i passate i numeri sono ordinati sulle ultime i cifre: la passata i+1 non deve rompere quell'ordine tra numeri con la stessa cifra i+1.</p></div>
+        </div>
+        <div class="domanda" data-id="or-4">
+          <p class="testo">Il limite Ω(n log n) vale per CountingSort?</p>
+          <div class="opz"><button>Sì, per ogni algoritmo di ordinamento</button><button data-giusta>No, vale solo per gli algoritmi basati su confronti</button></div>
+          <div class="perche" hidden><p>CountingSort non confronta elementi: usa i valori come indici. È lineare se k = O(n).</p></div>
+        </div>
+        <div class="domanda" data-id="or-5">
+          <p class="testo">Quante foglie ha, almeno, l'albero di decisione di un ordinamento di 4 elementi?</p>
+          <div class="opz"><button>16</button><button data-giusta>24</button><button>4</button></div>
+          <div class="perche" hidden><p>4! = 24 permutazioni, quindi altezza ≥ ⌈log₂ 24⌉ = 5 confronti nel caso pessimo.</p></div>
+        </div>
+        <div class="domanda" data-id="or-6">
+          <p class="testo">heapselect per trovare il mediano costa…</p>
+          <div class="opz"><button>O(n)</button><button data-giusta>O(n log n)</button><button>O(n²)</button></div>
+          <div class="perche" hidden><p>O(n + k log n) con k = n/2. Per il mediano conviene quickSelect, lineare in media.</p></div>
+        </div>
+        <div class="domanda" data-id="or-7">
+          <p class="testo">BubbleSort su un array già ordinato fa…</p>
+          <div class="opz"><button data-giusta>una scansione, n − 1 confronti, nessuno scambio</button><button>n − 1 scansioni</button><button>n(n−1)/2 scambi</button></div>
+          <div class="perche" hidden><p>La prima scansione non fa scambi, e il flag fa uscire dal ciclo: Θ(n).</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 9.1 · simulazione</span><h4>Partition su [6, 9, 2, 7, 1, 8, 3]</h4></div>
+        <div class="domanda" data-id="or-8">
+          <p class="testo">Dove finisce il pivot 6?</p>
+          <div class="opz"><button>in posizione 3</button><button data-giusta>in posizione 4</button><button>in posizione 6</button></div>
+          <div class="perche" hidden><p>Ci sono tre elementi minori di 6 (2, 1, 3), quindi il pivot va in posizione 4.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>x = 6. inf si ferma su 9 (posizione 2), sup su 3 (posizione 7): scambio → [6, 3, 2, 7, 1, 8, 9].</p></div></li>
+            <li><div><p>inf si ferma su 7 (posizione 4), sup su 1 (posizione 5): scambio → [6, 3, 2, 1, 7, 8, 9].</p></div></li>
+            <li><div><p>inf si ferma su 7 (posizione 5), sup su 1 (posizione 4): si sono incrociati.</p></div></li>
+            <li><div><p class="risultato">Scambio A[1] e A[4]: [1, 3, 2, 6, 7, 8, 9], pivot in posizione 4. Puoi verificarlo nel simulatore incollando l'array.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 9.2 · progettazione</span><h4>Due elementi con somma x</h4></div>
+        <p>Dato un array A di n interi e un intero x, dire se esistono due elementi di A con somma x, in tempo o(n²).</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Si ordina A con MergeSort o HeapSort: O(n log n).</p></div></li>
+            <li><div><p>Si usano due indici i = 1 e j = n. Se A[i] + A[j] = x si risponde sì; se è minore di x si incrementa i, se è maggiore si decrementa j; ci si ferma quando i ≥ j.</p></div></li>
+            <li><div><p>Ogni passo avvicina i e j, quindi la scansione è O(n): se la coppia esiste, nessuno dei due indici può superarla.</p></div></li>
+            <li><div><p class="risultato">Costo totale O(n log n) + O(n) = O(n log n). In alternativa: per ogni A[i], ricerca binaria di x − A[i], sempre O(n log n).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <ul class="checklist" data-id="ripasso-03">
+        <li><label><input type="checkbox" id="r03-1"><span>So simulare a mano partition e merge.</span></label></li>
+        <li><label><input type="checkbox" id="r03-2"><span>So i costi nei tre casi e quali algoritmi sono stabili e in loco.</span></label></li>
+        <li><label><input type="checkbox" id="r03-3"><span>So dimostrare il limite Ω(n log n) con l'albero di decisione.</span></label></li>
+        <li><label><input type="checkbox" id="r03-4"><span>So quando CountingSort, BucketSort e RadixSort sono lineari.</span></label></li>
+        <li><label><input type="checkbox" id="r03-5"><span>So scrivere quickSelect e la bandiera nazionale.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§10 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="ordinamento,selezione"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Ordinamento» e «Selezione del k-esimo minimo» (G. Zavattaro, dal materiale di M. Marzolla e A. Montresor), esercizio «BubbleSort e bandiera nazionale», appunti di Berto, tr4v4 e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. Corretti rispetto al materiale: la condizione del ciclo della bandiera e il confronto nel merge.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

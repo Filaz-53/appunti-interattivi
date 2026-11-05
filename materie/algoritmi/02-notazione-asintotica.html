@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Notazione asintotica e ricorrenze · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="O, Ω, Θ, o, ω, ordini di crescita, caso ottimo, medio e pessimo, analisi ammortizzata, equazioni di ricorrenza e Master Theorem, con esercizi risolti.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="02-notazione-asintotica">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Funzione di costo</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>O, Ω e Θ</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>o, ω, limiti e proprietà</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Ordini di crescita</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Caso ottimo, medio, pessimo</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Analisi ammortizzata</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Equazioni di ricorrenza</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Master Theorem</span></a></li>
+        <li><a href="#s9"><span class="n">§9</span><span>Esercizi risolti</span></a></li>
+        <li><a href="#esami"><span class="n">§10</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 2</span>
+      <h1>Notazione asintotica e ricorrenze</h1>
+      <p class="lede">Lo strumento con cui si misura ogni algoritmo del corso: si guarda come crescono tempo e memoria al crescere dell'input, ignorando costanti e termini di ordine inferiore. Poi si impara a risolvere le equazioni di ricorrenza degli algoritmi ricorsivi.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <p>L'esercizio 1 dello scritto è <strong>sempre</strong> un'analisi di costo (vedi la <a href="mappa-esami.html">mappa degli esami</a>): una funzione <code>mystery1</code> con cicli che chiama una <code>mystery2</code> ricorsiva. Serve saper fare tre cose:</p>
+      <ul>
+        <li><strong>contare</strong> le iterazioni dei cicli (sommatorie notevoli, cicli che dimezzano);</li>
+        <li><strong>scrivere e risolvere</strong> l'equazione di ricorrenza della parte ricorsiva (Master Theorem o iterazione);</li>
+        <li><strong>dimostrare</strong> con la definizione o con i limiti che f(n) = O(g(n)), Ω o Θ.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Il punto di partenza</span>
+        <h2>Funzione di costo e comportamento asintotico</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Dato n ≥ 0, la <strong>funzione di costo</strong> f(n) ≥ 0 è la quantità di risorse (tempo di calcolo o memoria) richiesta da un algoritmo su un input di dimensione n.</p>
+      </div>
+      <p>Secondi e megabyte dipendono da macchina e linguaggio. Il <strong>comportamento asintotico</strong> invece ignora le costanti additive e moltiplicative e i termini di ordine inferiore, e descrive solo <em>quanto velocemente</em> crescono le risorse: così si confrontano algoritmi indipendentemente dall'hardware.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio dei lucidi</span><h4>f<sub>A</sub>(n) = 10³ n contro f<sub>B</sub>(n) = 10⁻³ n²</h4></div>
+        <div class="domanda" data-id="na-1">
+          <p class="testo">Da quale n in poi A è più veloce di B?</p>
+          <div class="opz"><button>Da n = 1000</button><button data-giusta>Da n = 10⁶</button><button>Mai: B ha la costante più piccola</button></div>
+          <div class="perche" hidden><p>10³n &lt; 10⁻³n² ⇔ n &gt; 10⁶. Prima di quel punto vince B grazie alla costante, dopo vince sempre A: è questo che dice l'analisi asintotica.</p></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Le tre notazioni principali</span>
+        <h2>O-grande, Ω-grande e Θ</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">O-grande · limite superiore</span>
+        <p class="formula">O(g(n)) = { f(n) | ∃ c &gt; 0, n₀ ≥ 0 tali che ∀ n ≥ n₀: f(n) ≤ c·g(n) }</p>
+        <p>Le funzioni con ordine di crescita <strong>minore o uguale</strong> a g(n). Per abuso di notazione si scrive f(n) = O(g(n)) invece di f(n) ∈ O(g(n)).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Ω-grande · limite inferiore</span>
+        <p class="formula">Ω(g(n)) = { f(n) | ∃ c &gt; 0, n₀ ≥ 0 tali che ∀ n ≥ n₀: f(n) ≥ c·g(n) }</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Θ · stesso ordine</span>
+        <p class="formula">Θ(g(n)) = { f(n) | ∃ c₁, c₂ &gt; 0, n₀ ≥ 0 tali che ∀ n ≥ n₀: c₁·g(n) ≤ f(n) ≤ c₂·g(n) }</p>
+        <p><strong>Teorema.</strong> f(n) = Θ(g(n)) se e solo se f(n) = O(g(n)) e f(n) = Ω(g(n)).</p>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempi dei lucidi · dalla definizione</span><h4>Trovare le costanti</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>3n² + 10n = O(n²).</strong> Serve c ≥ (3n² + 10n)/n² = 3 + 10/n. Con n₀ = 1 basta c = 13; con n₀ = 10 basta c = 4.</p></div></li>
+            <li><div><p><strong>n³ + 2n² = Ω(n²).</strong> Serve c ≤ (n³ + 2n²)/n² = n + 2, vero per ogni 0 &lt; c ≤ 2 e n₀ = 0.</p></div></li>
+            <li><div><p><strong>n³ + 2n² = Θ(n³).</strong> Serve c₁ ≤ 1 + 2/n ≤ c₂: basta c₁ = 1, c₂ = 3, n₀ = 1.</p></div></li>
+            <li><div><p class="risultato">Metodo: si porta tutto nella forma c ≤ f/g (o ≥) e si cerca un valore di c valido da un certo n₀ in poi.</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Strumenti</span>
+        <h2>o-piccolo, ω-piccolo, limiti e proprietà</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">o-piccolo e ω-piccolo</span>
+        <p class="formula">o(g(n)) = { f(n) | ∀ c &gt; 0 ∃ n₀ ≥ 0: ∀ n ≥ n₀, f(n) &lt; c·g(n) }</p>
+        <p class="formula">ω(g(n)) = { f(n) | ∀ c &gt; 0 ∃ n₀ ≥ 0: ∀ n ≥ n₀, f(n) &gt; c·g(n) }</p>
+        <p>La differenza con O e Ω è il quantificatore: <strong>per qualche</strong> costante contro <strong>per tutte</strong>. Esempi: 2n = o(n²) ma 2n² ≠ o(n²); n²/2 = ω(n) ma n²/2 ≠ ω(n²). Se f = o(g) allora f = O(g), non il contrario.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Confronto con i limiti</span>
+        <p>Se lim<sub>n→∞</sub> f(n)/g(n) esiste ed è:</p>
+        <p><strong>0</strong> ⇒ f = o(g), quindi f = O(g) · <strong>∞</strong> ⇒ f = ω(g), quindi f = Ω(g) · <strong>k &gt; 0</strong> ⇒ f = Θ(g)</p>
+      </div>
+      <aside class="nota">Analogia con i numeri reali: O è ≤, o è &lt;, Ω è ≥, ω è &gt;, Θ è =. Ma non tutte le funzioni sono confrontabili: n e n<sup>1 + sin n</sup> non lo sono, perché la seconda oscilla tra 1 e n².</aside>
+      <div class="avviso">
+        <span class="etichetta">Quando il limite non esiste</span>
+        <p>(2 + (−1)ⁿ)n² = Θ(n²), ma il limite del rapporto oscilla tra 1 e 3 e non esiste. Il limite è un criterio sufficiente, non necessario: in questi casi si torna alla definizione (c₁ = 1, c₂ = 3).</p>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Proprietà</th><th>Enunciato</th><th>Vale per</th></tr></thead>
+          <tbody>
+            <tr><td>Transitività</td><td>f = O(g) e g = O(h) ⇒ f = O(h)</td><td>O, Ω, Θ, o, ω</td></tr>
+            <tr><td>Riflessività</td><td>f = O(f)</td><td>O, Ω, Θ (non o, ω)</td></tr>
+            <tr><td>Simmetria</td><td>f = Θ(g) ⇔ g = Θ(f)</td><td>Θ</td></tr>
+            <tr><td>Simmetria trasposta</td><td>f = O(g) ⇔ g = Ω(f);  f = o(g) ⇔ g = ω(f)</td><td>O/Ω, o/ω</td></tr>
+            <tr><td>Somma</td><td>f₁ = O(g₁), f₂ = O(g₂) ⇒ f₁ + f₂ = O(g₁ + g₂)</td><td></td></tr>
+            <tr><td>Prodotto</td><td>f₁ = O(g₁), f₂ = O(g₂) ⇒ f₁ · f₂ = O(g₁ · g₂)</td><td></td></tr>
+            <tr><td>Costante</td><td>f = O(g), a &gt; 0 ⇒ a·f = O(g)</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Notazione nelle equazioni.</strong> 2n² + 3n + 1 = 2n² + Θ(n) significa che esiste una f(n) ∈ Θ(n) che rende vera l'uguaglianza. 2n² + Θ(n) = Θ(n²) significa che per ogni f(n) ∈ Θ(n) il membro sinistro è Θ(n²).</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · La scala</span>
+        <h2>Ordini di crescita</h2>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Ordine</th><th>Nome</th><th>Ordine</th><th>Nome</th></tr></thead>
+          <tbody>
+            <tr><td>O(1)</td><td>costante</td><td>O(n log n)</td><td>pseudolineare</td></tr>
+            <tr><td>O(log n)</td><td>logaritmico</td><td>O(n<sup>k</sup>), k &gt; 1</td><td>polinomiale (quadratico, cubico)</td></tr>
+            <tr><td>O(log<sup>k</sup> n), k ≥ 1</td><td>polilogaritmico</td><td>O(c<sup>n</sup>), c &gt; 1</td><td>esponenziale</td></tr>
+            <tr><td>O(n<sup>k</sup>), 0 &lt; k &lt; 1</td><td>sublineare</td><td>O(n!)</td><td>fattoriale</td></tr>
+            <tr><td>O(n)</td><td>lineare</td><td>O(n<sup>n</sup>)</td><td>esponenziale in base n</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="nota">Convenzioni del corso: log n = log₂ n, e log<sup>k</sup> n = (log n)<sup>k</sup>. La base del logaritmo non conta: log<sub>a</sub> n = log<sub>b</sub> n / log<sub>b</sub> a = Θ(log<sub>b</sub> n).</aside>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Quanto vale ogni funzione per l'n scelto e quanto ci metterebbe una macchina da 10⁹ operazioni al secondo.</figcaption>
+        <div data-widget="crescita"></div>
+      </figure>
+      <div class="def">
+        <span class="etichetta">Fatti da ricordare (esercizi dei lucidi)</span>
+        <p>log<sup>k</sup> n = o(n<sup>ε</sup>) per ogni k ≥ 1, ε &gt; 0 · n<sup>k</sup> = o(c<sup>n</sup>) per c &gt; 1 · aⁿ = o(bⁿ) se 1 &lt; a &lt; b · 2<sup>n+100</sup> = Θ(2ⁿ) ma 2<sup>2n</sup> = ω(2ⁿ) · n<sup>log c</sup> = c<sup>log n</sup> · <strong>log n! = Θ(n log n)</strong></p>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Costo di un algoritmo</span>
+        <h2>Costo, complessità e i tre casi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizioni</span>
+        <p>Un <strong>algoritmo</strong> A ha <strong>costo computazionale</strong> O(f(n)) se la quantità di risorse per eseguire A su un qualsiasi input di dimensione n è O(f(n)).</p>
+        <p>Un <strong>problema</strong> P ha <strong>complessità computazionale</strong> O(f(n)) se esiste un algoritmo che risolve P con costo O(f(n)). Le definizioni valgono anche con le altre notazioni.</p>
+      </div>
+      <p><strong>Caso ottimo</strong>: comportamento nelle condizioni migliori. <strong>Caso pessimo</strong>: nelle condizioni peggiori. <strong>Caso medio</strong>: media su tutti i possibili input. Progettando algoritmi interessano soprattutto il pessimo e il medio.</p>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">min(Array A[1..n]) → int</li>
+            <li><i>m</i> = 1</li>
+            <li><b>for</b> <i>i</i> = 2, …, <i>n</i> <b>do</b></li>
+            <li class="rientro1"><b>if</b> <i>A</i>[<i>i</i>] &lt; <i>A</i>[<i>m</i>] <b>then</b></li>
+            <li class="rientro2"><i>m</i> = <i>i</i></li>
+            <li><b>return</b> <i>m</i></li>
+          </ol>
+          <p>Il ciclo gira sempre n − 1 volte: i tre casi coincidono, e si può dire <strong>Θ(n)</strong> (non solo O(n)).</p>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">search(Array A[1..n], int x) → int</li>
+            <li><b>for</b> <i>i</i> = 1, …, <i>n</i> <b>do</b></li>
+            <li class="rientro1"><b>if</b> <i>A</i>[<i>i</i>] == <i>x</i> <b>then</b></li>
+            <li class="rientro2"><b>return</b> <i>i</i></li>
+            <li><b>return</b> −1</li>
+          </ol>
+          <p>Ottimo O(1) (x è il primo), pessimo Θ(n) (x è l'ultimo o manca). Medio: con probabilità uniforme P<sub>i</sub> = 1/n e costo T<sub>i</sub> = i,</p>
+          <p class="formula">Σ P<sub>i</sub>T<sub>i</sub> = (1/n)·n(n+1)/2 = (n+1)/2 = Θ(n)</p>
+        </div>
+      </div>
+      <div class="def">
+        <span class="etichetta">Sommatorie notevoli</span>
+        <p class="formula">Σ<sub>i=1..n</sub> i = n(n+1)/2 · Σ<sub>i=1..n</sub> i² = n(n+1)(2n+1)/6 · Σ<sub>i=0..n</sub> xⁱ = (x<sup>n+1</sup> − 1)/(x − 1)</p>
+        <p class="formula">Σ<sub>i=0..∞</sub> xⁱ = 1/(1 − x) per |x| &lt; 1 · Σ<sub>i=1..n</sub> 1/i ≤ ln n + 1 · Σ<sub>i=1..n</sub> log i = log n! = Θ(n log n)</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Sequenze di operazioni</span>
+        <h2>Analisi ammortizzata</h2>
+      </div>
+      <p>Il <strong>costo medio</strong> è la media del costo di <em>una</em> operazione; il <strong>costo ammortizzato</strong> è il costo medio di una <em>sequenza</em> di operazioni. Serve quando un'operazione è a volte molto costosa e a volte molto economica: il caso pessimo è troppo pessimista, e il caso medio richiede ipotesi probabilistiche difficili.</p>
+      <ol class="pseudo">
+        <li class="titolo">increment(Array A[1..k])</li>
+        <li><i>i</i> = <i>k</i></li>
+        <li><b>while</b> <i>i</i> ≥ 1 <b>and</b> <i>A</i>[<i>i</i>] == 1 <b>do</b></li>
+        <li class="rientro1"><i>A</i>[<i>i</i>] = 0</li>
+        <li class="rientro1"><i>i</i> = <i>i</i> − 1</li>
+        <li><b>if</b> <i>i</i> ≥ 1 <b>then</b>   <span class="sc">(se i = 0: overflow)</span></li>
+        <li class="rientro1"><i>A</i>[<i>i</i>] = 1</li>
+      </ol>
+      <p>Il bit più significativo è A[1]. Un incremento costa O(1) nel caso ottimo (A[k] = 0) e O(k) nel pessimo (tutti 1): n incrementi costano tra Ω(n) e O(nk). Ma la stima O(nk) è larga.</p>
+      <div class="def">
+        <span class="etichetta">Metodo dell'aggregazione</span>
+        <p>Si limita il costo totale di n operazioni e si divide per n. A[k] cambia a ogni incremento, A[k−1] ogni 2, A[k−2] ogni 4…</p>
+        <p class="formula">n + n/2 + n/4 + … + n/2<sup>k−1</sup> = Σ<sub>i=0..k−1</sub> n/2ⁱ ≤ n · Σ<sub>i=0..∞</sub> 1/2ⁱ = 2n</p>
+        <p>Costo totale O(n), quindi <strong>costo ammortizzato O(1)</strong> per incremento.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Metodo degli accantonamenti</span>
+        <p>A ogni operazione si addebita un costo ammortizzato; la differenza con il costo reale si accumula come credito, che paga le operazioni future più care. Il costo ammortizzato è corretto se il <strong>credito non è mai negativo</strong>. Qui: <strong>2 €</strong> per ogni bit portato da 0 a 1, 1 € paga il cambio e 1 € resta sul bit e pagherà il suo ritorno a 0. Ogni 1 ha sempre 1 € di credito; ogni incremento porta a 1 un solo bit: n incrementi costano 2n €, cioè O(1) l'uno.</p>
+      </div>
+      <aside class="nota">L'esempio dei lucidi: spese mensili con picchi fino a 2000 €. Aggregazione: 9300 € in un anno, 775 € al mese. Accantonamenti: con un budget di 775 € al mese si fallisce ad aprile, con 800 € il credito resta positivo.</aside>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 2.</b> Il contatore binario a 5 bit. Il segno «1€» sopra un bit è il credito accantonato: quando un 1 torna a 0, si paga con quello.</figcaption>
+        <div data-widget="contatore" data-k="5"></div>
+      </figure>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Algoritmi ricorsivi</span>
+        <h2>Equazioni di ricorrenza</h2>
+      </div>
+      <p>Un'equazione di ricorrenza descrive ogni elemento di una sequenza in funzione dei precedenti: è il modo naturale di scrivere il costo di un algoritmo ricorsivo. Per comodità si sostituiscono le notazioni asintotiche con costanti e si ignorano gli arrotondamenti, che non cambiano il comportamento asintotico:</p>
+      <p class="formula">T(n) = Θ(1) se n = 1;  2T(⌊n/3⌋) + O(n) se n &gt; 1   →   T(n) = 1 se n = 1;  2T(n/3) + cn se n &gt; 1</p>
+      <h3>Metodo dell'iterazione</h3>
+      <p>Si sostituisce la parte ricorsiva finché non compare uno schema legato al passo i, poi si trova quando si arriva al caso base.</p>
+      <p class="formula">T(n) = T(n/2) + c = T(n/4) + 2c = T(n/8) + 3c = … = T(n/2ⁱ) + c·i</p>
+      <p>Il caso base arriva quando n/2ⁱ = 1, cioè i = log₂ n: T(n) = 1 + c log₂ n = <strong>Θ(log n)</strong>.</p>
+      <h3>Metodo della sostituzione</h3>
+      <p>Si ipotizza una soluzione e la si dimostra per induzione. Esempio: T(n) = T(n/2) + n, ipotesi T(n) ≤ cn. Base: T(1) = 1 ≤ c per c ≥ 1. Passo: T(n) ≤ cn/2 + n = (c/2 + 1)n ≤ cn se c ≥ 2. Quindi T(n) = O(n).</p>
+      <div class="def">
+        <span class="etichetta">Fibonacci con la sostituzione</span>
+        <p><strong>O(2ⁿ):</strong> T(n) ≤ c2<sup>n−1</sup> + c2<sup>n−2</sup> + 1 = c2<sup>n−2</sup>·3 + 1 ≤ c2<sup>n−2</sup>·4 = c2ⁿ. <strong>Ω(2<sup>n/2</sup>):</strong> T(n) ≥ c2<sup>(n−1)/2</sup> + c2<sup>(n−2)/2</sup> ≥ c2<sup>(n−2)/2</sup>·2 = c2<sup>n/2</sup>, con 0 &lt; c ≤ 1/√2.</p>
+        <p>Il limite stretto viene dal teorema T(n) = 2F<sub>n</sub> − 1 (per induzione): T(n) = Θ(φⁿ) ≈ Θ(1.62ⁿ). Con la sostituzione φⁿ è difficile da indovinare.</p>
+      </div>
+      <h3>Metodo dell'albero di ricorsione</h3>
+      <p>Ogni nodo è il costo di un sottoproblema. Si somma il costo livello per livello, poi si sommano i livelli. Serve soprattutto a formulare un'ipotesi da validare con la sostituzione.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempi dei lucidi</span><h4>Due alberi di ricorsione</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>T(n) = 3T(n/4) + cn².</strong> Al livello i ci sono 3ⁱ nodi da c(n/4ⁱ)²: costo (3/16)ⁱcn². Si somma fino a i = log₄ n:</p><p class="formula">T(n) ≤ cn² Σ<sub>i≥0</sub> (3/16)ⁱ = cn² / (1 − 3/16) = O(n²)</p><p>E la sola radice costa cn², quindi anche Ω(n²): <strong>Θ(n²)</strong>.</p></div></li>
+            <li><div><p><strong>T(n) = T(n/3) + T(2n/3) + cn.</strong> Ogni livello costa al più cn. Il cammino più lungo (n → 2n/3 → 4n/9 …) ha log<sub>3/2</sub> n livelli, il più corto (n → n/3 → …) ne ha log₃ n.</p></div></li>
+            <li><div><p class="risultato">Quindi cn log₃ n ≤ T(n) ≤ cn log<sub>3/2</sub> n, cioè T(n) = Θ(n log n). Il Master Theorem qui non si applica: i sottoproblemi hanno dimensioni diverse.</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Il metodo rapido</span>
+        <h2>Master Theorem</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teorema (versione generale)</span>
+        <p>Sia T(n) = d se n = 1, T(n) = aT(n/b) + f(n) se n &gt; 1, con a ≥ 1, b &gt; 1, d costante e f(n) funzione di costo. Allora:</p>
+        <p><strong>1.</strong> se f(n) = O(n<sup>log<sub>b</sub>a − ε</sup>) per qualche ε &gt; 0, allora T(n) = Θ(n<sup>log<sub>b</sub>a</sup>);<br>
+        <strong>2.</strong> se f(n) = Θ(n<sup>log<sub>b</sub>a</sup>), allora T(n) = Θ(n<sup>log<sub>b</sub>a</sup> log n);<br>
+        <strong>3.</strong> se f(n) = Ω(n<sup>log<sub>b</sub>a + ε</sup>) per qualche ε &gt; 0 e a·f(n/b) ≤ c·f(n) per qualche c &lt; 1 e n grande, allora T(n) = Θ(f(n)).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teorema (versione semplificata, quella da usare)</span>
+        <p>Se T(n) = aT(n/b) + c·n<sup>β</sup> con a ≥ 1, b &gt; 1, e <strong>α = log<sub>b</sub> a = log a / log b</strong>:</p>
+        <p class="formula">α &gt; β ⇒ Θ(n<sup>α</sup>)     α = β ⇒ Θ(n<sup>α</sup> log n)     α &lt; β ⇒ Θ(n<sup>β</sup>)</p>
+      </div>
+      <aside class="nota">Il perché in una riga: il livello i dell'albero costa (a/b<sup>β</sup>)ⁱ · cn<sup>β</sup>. Se a/b<sup>β</sup> &gt; 1 vincono le foglie, se = 1 tutti i livelli pesano uguale, se &lt; 1 vince la radice.</aside>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 3.</b> Il Master Theorem semplificato. Scegli a, b e β o prova gli esempi: le barre sono il costo dei primi livelli dell'albero, in proporzione.</figcaption>
+        <div data-widget="master"></div>
+      </figure>
+      <div class="avviso">
+        <span class="etichetta">Quando non si applica</span>
+        <p>Non vale per sottoproblemi di dimensioni diverse (T(n/3) + T(2n/3)), né per le ricorrenze «per sottrazione» come quella di Fibonacci T(n − 1) + T(n − 2) + 1. Per queste si usa l'iterazione.</p>
+      </div>
+      <h3>La ricerca binaria</h3>
+      <ol class="pseudo">
+        <li class="titolo">search(Array A[1..n], int x, int i, int j) → int</li>
+        <li><b>if</b> <i>i</i> &gt; <i>j</i> <b>then</b></li>
+        <li class="rientro1"><b>return</b> −1</li>
+        <li><b>else</b></li>
+        <li class="rientro1"><i>m</i> = ⌊(<i>i</i> + <i>j</i>)/2⌋</li>
+        <li class="rientro1"><b>if</b> <i>A</i>[<i>m</i>] == <i>x</i> <b>then return</b> <i>m</i></li>
+        <li class="rientro1"><b>else if</b> <i>A</i>[<i>m</i>] &gt; <i>x</i> <b>then return</b> search(<i>A</i>, <i>x</i>, <i>i</i>, <i>m</i> − 1)</li>
+        <li class="rientro1"><b>else return</b> search(<i>A</i>, <i>x</i>, <i>m</i> + 1, <i>j</i>)</li>
+      </ol>
+      <p>Prima chiamata search(A, x, 1, n). Caso ottimo O(1) (x al centro). Caso pessimo: T(n) = T(n/2) + 1, con a = 1, b = 2: α = 0 = β ⇒ <strong>Θ(log n)</strong>.</p>
+      <h3>Ricorrenze per sottrazione</h3>
+      <p>Agli scritti compaiono spesso ricorrenze in cui n cala di una costante. Si risolvono per iterazione, sommando i costi dei livelli:</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Ricorrenza</th><th>Iterazione</th><th>Soluzione</th></tr></thead>
+          <tbody>
+            <tr><td>T(n) = T(n − 1) + c</td><td>c + c + … (n volte)</td><td>Θ(n)</td></tr>
+            <tr><td>T(n) = T(n − 1) + n</td><td>n + (n−1) + … + 1 = n(n+1)/2</td><td>Θ(n²)</td></tr>
+            <tr><td>T(n) = T(n − 1) + log n</td><td>log n + log(n−1) + … = log n!</td><td>Θ(n log n)</td></tr>
+            <tr><td>T(n) = 2T(n − 1) + c</td><td>c(1 + 2 + 4 + … + 2<sup>n−1</sup>)</td><td>Θ(2ⁿ)</td></tr>
+            <tr><td>T(n) = T(n − 2) + c</td><td>n/2 livelli</td><td>Θ(n)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sez" id="s9">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§9 · Allenamento</span>
+        <h2>Esercizi risolti</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Vero o falso? · dagli esercizi del corso</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="na-2">
+          <p class="testo">6n² = Ω(n³)?</p>
+          <div class="opz"><button>Vero</button><button data-giusta>Falso</button></div>
+          <div class="perche" hidden><p>lim 6n²/n³ = lim 6/n = 0, quindi 6n² = o(n³): non può essere Ω(n³). Con la definizione: servirebbe c ≤ 6/n per ogni n grande, impossibile.</p></div>
+        </div>
+        <div class="domanda" data-id="na-3">
+          <p class="testo">n² log n = O(n²)?</p>
+          <div class="opz"><button>Vero</button><button data-giusta>Falso</button></div>
+          <div class="perche" hidden><p>lim n² log n / n² = lim log n = ∞: n² log n = ω(n²).</p></div>
+        </div>
+        <div class="domanda" data-id="na-4">
+          <p class="testo">3ⁿ = O(2ⁿ)?</p>
+          <div class="opz"><button>Vero</button><button data-giusta>Falso</button></div>
+          <div class="perche" hidden><p>lim 3ⁿ/2ⁿ = lim 1.5ⁿ = ∞. La base dell'esponenziale conta, a differenza della base del logaritmo.</p></div>
+        </div>
+        <div class="domanda" data-id="na-5">
+          <p class="testo">2<sup>n+100</sup> = O(2ⁿ)?</p>
+          <div class="opz"><button data-giusta>Vero</button><button>Falso</button></div>
+          <div class="perche" hidden><p>2<sup>n+100</sup> = 2¹⁰⁰ · 2ⁿ: è una costante moltiplicativa, quindi Θ(2ⁿ).</p></div>
+        </div>
+        <div class="domanda" data-id="na-6">
+          <p class="testo">log n² = Θ(log n)?</p>
+          <div class="opz"><button data-giusta>Vero</button><button>Falso</button></div>
+          <div class="perche" hidden><p>log n² = 2 log n. Attenzione: log² n = (log n)² invece non è Θ(log n).</p></div>
+        </div>
+        <div class="domanda" data-id="na-7">
+          <p class="testo">(n + 1)n / 2 = Θ(n²)?</p>
+          <div class="opz"><button data-giusta>Vero</button><button>Falso</button></div>
+          <div class="perche" hidden><p>Il limite del rapporto con n² vale 1/2 &gt; 0.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 9.1 · dimostrazione</span><h4>log n! = Θ(n log n)</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>O:</strong> n! = n(n−1)…1 ≤ n·n·…·n = nⁿ, quindi log n! ≤ n log n.</p></div></li>
+            <li><div><p><strong>Ω:</strong> n! ≥ n(n−1)…(n/2) ≥ (n/2)<sup>n/2</sup>, quindi log n! ≥ (n/2) log(n/2) = Ω(n log n).</p></div></li>
+            <li><div><p class="risultato">Entrambi i limiti valgono: log n! = Θ(n log n). Serve ogni volta che un ciclo su i fa un lavoro log i.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 9.2 · tipo esame</span><h4>Il costo di mystery1</h4></div>
+        <div class="sim-due">
+          <div>
+            <ol class="pseudo">
+              <li class="titolo">mystery1(int n) → int</li>
+              <li><i>tot</i> = 0;  <i>x</i> = 0</li>
+              <li><b>while</b> <i>n</i> ≥ 1 <b>do</b></li>
+              <li class="rientro1"><i>n</i> = ⌊<i>n</i>/2⌋</li>
+              <li class="rientro1"><i>x</i> = <i>x</i> + 1</li>
+              <li class="rientro1"><i>tot</i> = <i>tot</i> + mystery2(<i>x</i>)</li>
+              <li><b>return</b> <i>tot</i></li>
+            </ol>
+          </div>
+          <div>
+            <ol class="pseudo">
+              <li class="titolo">mystery2(int n) → int</li>
+              <li>sia <i>A</i>[1..<i>n</i>] un array</li>
+              <li><b>for</b> <i>i</i> = 1, …, <i>n</i> <b>do</b></li>
+              <li class="rientro1"><i>A</i>[<i>i</i>] = 0</li>
+              <li><b>return</b> <i>A</i>[<i>n</i>]</li>
+            </ol>
+          </div>
+        </div>
+        <div class="domanda" data-id="na-8">
+          <p class="testo">Quanto costa mystery1(n) in funzione del valore n?</p>
+          <div class="opz"><button>Θ(log n)</button><button data-giusta>Θ(log² n)</button><button>Θ(n log n)</button></div>
+          <div class="perche" hidden><p>Il while gira log n volte, e alla x-esima iterazione mystery2 costa Θ(x): Σ<sub>x=1..log n</sub> x = Θ(log² n).</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>mystery2(n) esegue il for n volte: Θ(n).</p></div></li>
+            <li><div><p>Il while di mystery1 dimezza n a ogni giro: ⌊log n⌋ + 1 iterazioni. Alla x-esima chiama mystery2(x).</p></div></li>
+            <li><div><p class="formula">T(n) = Σ<sub>x=1..log n</sub> Θ(x) = Θ(log n · (log n + 1)/2)</p></div></li>
+            <li><div><p class="risultato">T(n) = Θ(log² n). L'argomento passato a mystery2 è x, non n: è il dettaglio su cui si sbaglia.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 9.3 · quattro metodi</span><h4>T(n) = 2T(n/4) + c</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>Master Theorem:</strong> a = 2, b = 4, α = log₄ 2 = 1/2 &gt; β = 0 ⇒ Θ(√n).</p></div></li>
+            <li><div><p><strong>Iterazione:</strong> T(n) = 2ⁱT(n/4ⁱ) + c Σ<sub>k=0..i−1</sub> 2<sup>k</sup>. Con i = log₄ n: 2<sup>log₄ n</sup> = √n, quindi T(n) = √n·d + c(√n − 1).</p></div></li>
+            <li><div><p><strong>Albero:</strong> il livello i ha 2ⁱ nodi da c; le foglie sono 2<sup>log₄ n</sup> = √n. Stesso risultato.</p></div></li>
+            <li><div><p><strong>Sostituzione</strong> (per Ω): ipotesi T(n) ≥ k√n. T(n) = 2T(n/4) + c ≥ 2k√(n/4) + c = k√n + c ≥ k√n, con 0 &lt; k ≤ d.</p></div></li>
+            <li><div><p class="risultato">T(n) = Θ(√n). Con 4T(n/4) + c si ottiene Θ(n), con 8T(n/4) + c si ottiene Θ(n<sup>3/2</sup>).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · ricorrenze</h3><span class="etichetta">4 domande</span></div>
+        <div class="domanda" data-id="na-9">
+          <p class="testo">T(n) = 2T(n/2) + n (MergeSort)?</p>
+          <div class="opz"><button>Θ(n)</button><button data-giusta>Θ(n log n)</button><button>Θ(n²)</button></div>
+          <div class="perche" hidden><p>α = log₂ 2 = 1 = β: caso uguale, Θ(n log n).</p></div>
+        </div>
+        <div class="domanda" data-id="na-10">
+          <p class="testo">T(n) = 7T(n/2) + n² (Strassen)?</p>
+          <div class="opz"><button>Θ(n²)</button><button>Θ(n² log n)</button><button data-giusta>Θ(n<sup>log₂ 7</sup>) ≈ Θ(n<sup>2.81</sup>)</button></div>
+          <div class="perche" hidden><p>α = log₂ 7 ≈ 2.81 &gt; β = 2: dominano le foglie.</p></div>
+        </div>
+        <div class="domanda" data-id="na-11">
+          <p class="testo">T(n) = T(n − 1) + n?</p>
+          <div class="opz"><button>Θ(n log n)</button><button data-giusta>Θ(n²)</button><button>Il Master Theorem dà Θ(n)</button></div>
+          <div class="perche" hidden><p>È per sottrazione: il Master Theorem non si applica. Iterando: n + (n−1) + … + 1 = Θ(n²).</p></div>
+        </div>
+        <div class="domanda" data-id="na-12">
+          <p class="testo">T(n) = 3T(n/4) + n²?</p>
+          <div class="opz"><button data-giusta>Θ(n²)</button><button>Θ(n<sup>log₄ 3</sup>)</button><button>Θ(n² log n)</button></div>
+          <div class="perche" hidden><p>α = log₄ 3 ≈ 0.79 &lt; β = 2: domina la radice.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-02">
+        <li><label><input type="checkbox" id="r02-1"><span>So scrivere le definizioni di O, Ω, Θ, o, ω e trovare le costanti c, n₀.</span></label></li>
+        <li><label><input type="checkbox" id="r02-2"><span>So usare i limiti per confrontare due funzioni, e so quando il limite non basta.</span></label></li>
+        <li><label><input type="checkbox" id="r02-3"><span>So calcolare il caso medio della ricerca lineare.</span></label></li>
+        <li><label><input type="checkbox" id="r02-4"><span>So spiegare il contatore binario con aggregazione e accantonamenti.</span></label></li>
+        <li><label><input type="checkbox" id="r02-5"><span>So risolvere una ricorrenza con iterazione, albero e Master Theorem.</span></label></li>
+        <li><label><input type="checkbox" id="r02-6"><span>So riconoscere quando il Master Theorem non si applica.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§10 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="notazione,ricorrenze"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Notazione asintotica» ed «Equazioni di ricorrenza» (P. Di Lena) con i relativi esercizi risolti, appunti di Berto e di tr4v4 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. Le ricorrenze per sottrazione sono aggiunte perché ricorrono negli scritti.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

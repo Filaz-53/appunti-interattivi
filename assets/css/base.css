@@ -1022,3 +1022,103 @@ a.libro:hover .copertina { transform: rotateY(-16deg); box-shadow: 0 1px 0 rgba(
 .chip-tag { display: inline-block; font: 600 var(--t-xs)/1 var(--f-mono); padding: 4px 6px; border-radius: 4px; border: 1px solid var(--rule); color: var(--ink-2); margin-right: 4px; }
 .piccolo-meta { font: 500 var(--t-xs)/1.8 var(--f-display); color: var(--ink-3); }
 .scorri { overflow-x: auto; max-width: 100%; }
+
+/* ===================================================================
+   Simulatori dei capitoli di Algoritmi (materie/algoritmi/js/simulatori.js)
+   =================================================================== */
+.pseudo li.rientro3 { padding-left: 6.8em; }
+.pseudo li.rientro4 { padding-left: 8.2em; }
+.sim { display: grid; gap: 12px; min-width: 0; }
+.sim-riga { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sim-riga label { font: 600 var(--t-s)/1.2 var(--f-display); color: var(--ink-2); display: inline-flex; gap: 6px; align-items: center; }
+.sim-riga input[type="text"], .sim-riga input[type="number"], .sim-riga select {
+  font: 500 var(--t-s)/1.2 var(--f-mono); padding: 6px 9px; border: 1px solid var(--rule); border-radius: 7px;
+  background: var(--paper); color: var(--ink); min-width: 0;
+}
+.sim-riga input[type="text"] { flex: 1 1 200px; }
+.sim-riga input[type="number"] { width: 6.5em; }
+.sim-due { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .sim-due { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); } }
+.sim-due > div { display: grid; gap: 10px; align-content: start; min-width: 0; }
+
+/* array come fila di celle, con barre facoltative */
+.arr { display: flex; gap: 4px; align-items: flex-end; overflow-x: auto; padding: 4px 2px 2px; max-width: 100%; }
+.arr .c { flex: 0 0 auto; min-width: 36px; display: grid; gap: 3px; justify-items: stretch; text-align: center; }
+.arr .c .b { background: color-mix(in oklch, var(--pen) 22%, var(--paper-solid)); border: 1px solid color-mix(in oklch, var(--pen) 45%, var(--rule)); border-bottom: 0; border-radius: 4px 4px 0 0; transition: height 0.3s, background 0.2s; }
+.arr .c .v { font: 700 0.85rem/1 var(--f-mono); padding: 7px 4px; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper-solid); color: var(--ink); transition: background 0.2s, border-color 0.2s; }
+.arr .c .i { font: 500 10px/1 var(--f-mono); color: var(--ink-3); }
+.arr .c .t { font: 400 14px/1 var(--f-hand); color: var(--pen); min-height: 14px; white-space: nowrap; }
+.arr .c.cmp .v { background: var(--evid); }
+.arr .c.cmp .b { background: var(--evid); }
+.arr .c.swp .v { border-color: var(--c1); box-shadow: 0 0 0 2px color-mix(in oklch, var(--c1) 35%, transparent); }
+.arr .c.swp .b { background: color-mix(in oklch, var(--c1) 40%, var(--paper-solid)); }
+.arr .c.ok .v { background: var(--pen-tint); border-color: var(--pen); }
+.arr .c.ok .b { background: color-mix(in oklch, var(--pen) 55%, var(--paper-solid)); }
+.arr .c.piv .v { border-color: var(--c3); box-shadow: 0 0 0 2px color-mix(in oklch, var(--c3) 35%, transparent); }
+.arr .c.piv .b { background: color-mix(in oklch, var(--c3) 45%, var(--paper-solid)); }
+.arr .c.fuori { opacity: 0.35; }
+.arr .c.vuota .v { color: var(--ink-3); font-weight: 400; }
+.arr .c.canc .v { color: var(--ink-3); background: var(--paper-2); }
+.arr .c.c0 .v { border-color: var(--c0); background: color-mix(in oklch, var(--c0) 14%, var(--paper-solid)); }
+.arr .c.c2 .v { border-color: var(--c2); background: color-mix(in oklch, var(--c2) 14%, var(--paper-solid)); }
+.arr.piccolo .c { min-width: 28px; }
+.arr.piccolo .c .v { padding: 5px 3px; font-size: 0.78rem; }
+
+/* alberi in SVG */
+.va { width: 100%; height: auto; display: block; max-width: 720px; margin-inline: auto; overflow: visible; }
+.va .ramo { stroke: var(--ink-3); stroke-width: 1.5; fill: none; transition: stroke 0.2s; }
+.va .ramo.cammino { stroke: var(--pen); stroke-width: 2.8; }
+.va .n circle { fill: var(--node-white); stroke: var(--ink); stroke-width: 1.5; transition: fill 0.25s, stroke 0.25s; }
+.va .n text.k { font: 700 13px var(--f-mono); fill: var(--node-text); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.va .n text.a { font: 400 13px var(--f-hand); fill: var(--pen); text-anchor: middle; pointer-events: none; }
+.va .n text.a.sx { text-anchor: end; }
+.va .n.cur circle { fill: var(--evid); stroke: var(--pen); stroke-width: 2.6; }
+.va .n.ok circle { fill: color-mix(in oklch, var(--pen) 20%, var(--node-white)); stroke: var(--pen); }
+.va .n.dup circle { fill: color-mix(in oklch, var(--c1) 28%, var(--node-white)); stroke: var(--c1); stroke-width: 2.2; }
+.va .n.nuovo circle { stroke: var(--c2); stroke-width: 2.6; }
+.va .n.sbil circle { stroke: var(--ko); stroke-width: 2.6; }
+.va .n.spento { opacity: 0.4; }
+.va .n.cliccabile { cursor: pointer; }
+.va .n.cliccabile:hover circle { stroke-width: 2.6; }
+.va .vuoto { font: italic 400 14px var(--f-body); fill: var(--ink-3); text-anchor: middle; }
+
+/* grafi pesati e non orientati (stesse classi di .vg) */
+.vg .peso { font: 600 12px var(--f-mono); fill: var(--ink); text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: var(--paper-solid); stroke-width: 4px; }
+.vg .a-scartato .arco { stroke: var(--ko); stroke-dasharray: 3 4; opacity: 0.55; }
+
+/* tabelle dei simulatori */
+.tab-sim { border-collapse: collapse; font: 500 0.82rem/1.2 var(--f-mono); background: var(--paper-solid); }
+.tab-sim th, .tab-sim td { border: 1px solid var(--rule); padding: 5px 7px; text-align: center; min-width: 2.2em; }
+.tab-sim th { font: 650 var(--t-xs)/1.2 var(--f-display); color: var(--ink-2); background: var(--paper-2); }
+.tab-sim td.cmp { background: var(--evid); }
+.tab-sim td.ok { background: var(--pen-tint); font-weight: 700; }
+.tab-sim td.cam { background: color-mix(in oklch, var(--c2) 22%, var(--paper-solid)); font-weight: 700; }
+.tab-sim td.dip { outline: 2px solid var(--c1); outline-offset: -2px; }
+.tab-sim td.vuota { color: var(--ink-3); }
+
+/* contatore binario e altre righe di bit */
+.bit { display: inline-flex; gap: 4px; }
+.bit span { font: 700 1.1rem/1 var(--f-mono); width: 34px; height: 40px; display: grid; place-items: center; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper-solid); position: relative; transition: background 0.2s; }
+.bit span.uno { background: var(--pen-tint); border-color: var(--pen); }
+.bit span.cambiato { box-shadow: 0 0 0 2px var(--evid); }
+.bit span i { position: absolute; top: -9px; right: -6px; font: 400 12px/1 var(--f-hand); color: var(--pen); font-style: normal; }
+
+/* grafico di crescita */
+.crescita svg { width: 100%; height: auto; display: block; }
+.crescita svg text { font-family: var(--f-display); }
+.crescita .asse { stroke: var(--rule); }
+.crescita .griglia { stroke: var(--rule); stroke-dasharray: 2 4; }
+.crescita .tick { fill: var(--ink-3); font-size: 11px; }
+.crescita .nome { fill: var(--ink-2); font-size: 12px; font-weight: 600; }
+.crescita .valore { fill: var(--ink); font-size: 12px; font-weight: 600; }
+.crescita .barra-c { fill: var(--pen); }
+.crescita .barra-c.troppo { fill: var(--ko); opacity: 0.75; }
+
+/* liste collegate e pile/code a chip */
+.lista-coll { display: flex; flex-wrap: wrap; gap: 4px 0; align-items: center; }
+.lista-coll .nd { display: inline-flex; border: 1px solid var(--ink-3); border-radius: 6px; overflow: hidden; font: 700 0.85rem/1 var(--f-mono); background: var(--paper-solid); }
+.lista-coll .nd span { padding: 7px 9px; }
+.lista-coll .nd span + span { border-left: 1px solid var(--ink-3); color: var(--ink-3); font-weight: 400; padding: 7px 6px; }
+.lista-coll .fr { color: var(--ink-3); padding: 0 4px; font: 600 1rem/1 var(--f-mono); }
+.lista-coll .nd.cur { box-shadow: 0 0 0 2px var(--evid); border-color: var(--pen); }
+.arr .c.rossa .v { border-color: var(--c1); background: color-mix(in oklch, var(--c1) 22%, var(--paper-solid)); }

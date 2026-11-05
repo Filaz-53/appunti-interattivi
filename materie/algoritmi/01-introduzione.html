@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Introduzione agli algoritmi · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Algoritmo e programma, l'algoritmo di Euclide, sei modi di calcolare i numeri di Fibonacci con il loro costo, valore e dimensione dell'input.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="01-introduzione">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Algoritmo e programma</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>L'algoritmo di Euclide</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Fibonacci: il problema</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Fib1 e Fib2</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Fib3 e Fib4</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Fib5 e Fib6: le matrici</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Valore e dimensione dell'input</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Verifica ed esercizi</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 1</span>
+      <h1>Introduzione agli algoritmi</h1>
+      <p class="lede">Che cos'è un algoritmo, come si scrive in pseudocodice e perché lo stesso problema si può risolvere in modi che differiscono di miliardi di volte in tempo. L'esempio guida è il calcolo dei numeri di Fibonacci: sei algoritmi, da esponenziale a logaritmico.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Definizioni</span>
+        <h2>Algoritmo e programma</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Un <strong>algoritmo</strong> è una procedura per risolvere un problema in un <strong>numero finito di passi</strong>: prende in input alcuni valori, esegue una sequenza finita di istruzioni e produce (eventualmente) un output.</p>
+      </div>
+      <aside class="nota">La parola viene da al-Khwarizmi (c. 780–850), latinizzato in <i>Algoritmi</i>: il suo <i>Algoritmi de numero Indorum</i> diffuse in Europa i numeri indo-arabici.</aside>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Algoritmo</th><th>Programma</th></tr></thead>
+          <tbody>
+            <tr><td>descrizione <strong>di alto livello</strong> di una procedura</td><td><strong>implementazione</strong> di un algoritmo</td></tr>
+            <tr><td>esiste da prima dei computer (Euclide, Eratostene, Newton…)</td><td>scritto in un linguaggio di programmazione</td></tr>
+            <tr><td>non può essere eseguito da un computer</td><td>può essere eseguito da un computer</td></tr>
+            <tr><td>può assumere memoria illimitata</td><td>deve tenere conto dei limiti di memoria</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>La definizione del problema vincola input e output, ma <strong>ci sono infiniti algoritmi</strong> che risolvono lo stesso problema, cioè che danno esattamente lo stesso output per lo stesso input. Per scegliere tra loro bisogna:</p>
+      <ul>
+        <li><strong>capire il problema</strong>: quali sono input e output, come gli input sono mappati sugli output, quali proprietà matematiche si possono sfruttare;</li>
+        <li><strong>stimare l'efficienza</strong>: quanto tempo e quanta memoria servono, e quale di due algoritmi è il migliore;</li>
+        <li><strong>conoscere tecniche e strutture dati note</strong>: problemi diversi condividono spesso la stessa struttura, e molti si risolvono modificando algoritmi noti.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Primo esempio</span>
+        <h2>L'algoritmo di Euclide</h2>
+      </div>
+      <p>Calcolo del massimo comune divisore tra x e y, con x ≥ y. A parole: dividi x per y e chiama r il resto; se r = 0 allora y è il MCD; altrimenti assegna y ad x, r ad y e ricomincia. In pseudocodice:</p>
+      <ol class="pseudo">
+        <li class="titolo">MCD(int x, int y) → int</li>
+        <li><b>if</b> <i>y</i> == 0 <b>then</b></li>
+        <li class="rientro1"><b>return</b> <i>x</i></li>
+        <li><b>else</b></li>
+        <li class="rientro1"><i>r</i> = <i>x</i> mod <i>y</i></li>
+        <li class="rientro1"><b>return</b> MCD(<i>y</i>, <i>r</i>)</li>
+      </ol>
+      <aside class="nota">L'ipotesi x ≥ y non serve davvero: se x &lt; y, la prima chiamata fa x mod y = x e scambia i due numeri.</aside>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 2.1 · simulazione</span><h4>MCD(252, 105)</h4></div>
+        <div class="domanda" data-id="in-1">
+          <p class="testo">Quante chiamate fa MCD(252, 105), contando anche quella iniziale?</p>
+          <div class="opz"><button>2</button><button data-giusta>4</button><button>21</button></div>
+          <div class="perche" hidden><p>(252, 105) → (105, 42) → (42, 21) → (21, 0): quattro chiamate, e l'ultima restituisce 21.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>252 mod 105 = 42 → MCD(105, 42)</p></div></li>
+            <li><div><p>105 mod 42 = 21 → MCD(42, 21)</p></div></li>
+            <li><div><p>42 mod 21 = 0 → MCD(21, 0)</p></div></li>
+            <li><div><p class="risultato">y = 0, quindi il risultato è 21.</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Il problema guida</span>
+        <h2>I numeri di Fibonacci</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p class="formula">F<sub>n</sub> = 1 se n = 1 o n = 2;  F<sub>n</sub> = F<sub>n−1</sub> + F<sub>n−2</sub> altrimenti   (di solito si pone F<sub>0</sub> = 0)</p>
+        <p>1, 1, 2, 3, 5, 8, 13, 21, 34, 55, … Ogni numero è la somma dei due precedenti.</p>
+      </div>
+      <aside class="nota">Leonardo Fibonacci (c. 1170–1250) li usò per la crescita idealizzata di una popolazione di conigli: ogni coppia diventa fertile dopo un mese, poi genera una coppia al mese, e i conigli sono immortali.</aside>
+      <p>Per stimare il tempo di un algoritmo non si misurano i secondi (dipendono dalla macchina) né le istruzioni macchina (dipendono dal linguaggio): si contano le <strong>operazioni elementari</strong> nello pseudocodice. La memoria si stima sommando la dimensione delle variabili, senza dimenticare la <strong>pila delle chiamate</strong> nelle funzioni ricorsive.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Algoritmi 1 e 2</span>
+        <h2>Formula chiusa e ricorsione ingenua</h2>
+      </div>
+      <h3>Fib1: la formula chiusa</h3>
+      <div class="def">
+        <span class="etichetta">Formula di Binet</span>
+        <p class="formula">F<sub>n</sub> = (φ<sup>n</sup> − φ̂<sup>n</sup>) / √5,   φ = (1 + √5)/2 ≈ 1.618,   φ̂ = (1 − √5)/2 ≈ −0.618</p>
+      </div>
+      <p>Sembra perfetta, ma φ e φ̂ sono <strong>irrazionali</strong>: un computer li approssima, e l'errore cresce con la potenza. Con φ ≈ 1.618 si ottiene Fib1(3) = 1.999863 ≈ 2 (giusto) ma Fib1(18) = 2583.023 ≈ 2583, mentre F<sub>18</sub> = <strong>2584</strong>. Aumentare la precisione sposta il problema più in là, non lo elimina.</p>
+
+      <h3>Fib2: la ricorsione ingenua</h3>
+      <ol class="pseudo">
+        <li class="titolo">Fib2(int n) → int</li>
+        <li><b>if</b> <i>n</i> ≤ 2 <b>then</b></li>
+        <li class="rientro1"><b>return</b> 1</li>
+        <li><b>else</b></li>
+        <li class="rientro1"><b>return</b> Fib2(<i>n</i> − 1) + Fib2(<i>n</i> − 2)</li>
+      </ol>
+      <p>Ogni chiamata fa un numero costante di operazioni (un confronto, una somma, due chiamate, un return), quindi il tempo è proporzionale al numero di chiamate T(n), cioè al numero di nodi dell'albero di ricorsione:</p>
+      <p class="formula">T(n) = 1 se n ≤ 2;   T(n) = T(n − 1) + T(n − 2) + 1 se n &gt; 2</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> L'albero delle chiamate di Fib2. Clicca un nodo: si colorano tutti i nodi che ricalcolano lo stesso valore.</figcaption>
+        <div data-widget="fib-albero"></div>
+      </figure>
+      <div class="def">
+        <span class="etichetta">Limite inferiore (dai lucidi)</span>
+        <p>Poiché T(n − 1) ≥ T(n − 2):</p>
+        <p class="formula">T(n) ≥ 2T(n−2) + 1 ≥ 4T(n−4) + 2 + 1 ≥ … ≥ 2<sup>k</sup>T(n−2k) + Σ<sub>i=0..k−1</sub> 2<sup>i</sup></p>
+        <p>Ci si ferma quando n − 2k = 0, cioè k = n/2: <strong>T(n) ≥ 2<sup>n/2</sup></strong>. Il numero di chiamate è esponenziale. Più precisamente T(n) = 2F<sub>n</sub> − 1 = Θ(φ<sup>n</sup>) ≈ Θ(1.618<sup>n</sup>), come si dimostra nel capitolo sulle ricorrenze.</p>
+      </div>
+      <aside class="nota">La memoria di Fib2 non è costante: le chiamate attive stanno sulla pila, e al massimo sono quante il cammino radice-foglia più lungo, cioè circa n. Memoria O(n).</aside>
+      <p>Il problema è che <strong>gli stessi numeri vengono ricalcolati moltissime volte</strong>: la ricorsione non ricorda i valori già calcolati. È la stessa osservazione da cui nasce la programmazione dinamica (capitolo 9).</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Algoritmi 3 e 4</span>
+        <h2>Soluzioni iterative</h2>
+      </div>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">Fib3(int n) → int</li>
+            <li>sia <i>F</i>[1..<i>n</i>] un nuovo array di int</li>
+            <li><i>F</i>[1] = 1</li>
+            <li><i>F</i>[2] = 1</li>
+            <li><b>for</b> <i>i</i> = 3, …, <i>n</i> <b>do</b></li>
+            <li class="rientro1"><i>F</i>[<i>i</i>] = <i>F</i>[<i>i</i> − 1] + <i>F</i>[<i>i</i> − 2]</li>
+            <li><b>return</b> <i>F</i>[<i>n</i>]</li>
+          </ol>
+          <p>Righe 2–4 e 7: una volta ciascuna. Riga 5: n − 2 assegnamenti di <i>i</i>; riga 6: n − 2 volte somma + assegnamento. Totale <strong>4 + 3(n − 2) = 3n − 2</strong> operazioni: tempo O(n), memoria O(n) per l'array.</p>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">Fib4(int n) → int</li>
+            <li><i>a</i> = 1</li>
+            <li><i>b</i> = 1</li>
+            <li><b>for</b> <i>i</i> = 3, …, <i>n</i> <b>do</b></li>
+            <li class="rientro1"><i>c</i> = <i>a</i> + <i>b</i></li>
+            <li class="rientro1"><i>a</i> = <i>b</i></li>
+            <li class="rientro1"><i>b</i> = <i>c</i></li>
+            <li><b>return</b> <i>b</i></li>
+          </ol>
+          <p>Per calcolare F<sub>n</sub> bastano F<sub>n−1</sub> e F<sub>n−2</sub>. Totale <strong>3 + 5(n − 2) = 5n − 7</strong> operazioni: più di Fib3, ma la <strong>memoria è costante</strong> (cinque variabili n, i, a, b, c, qualunque sia n).</p>
+        </div>
+      </div>
+      <aside class="nota">5n − 7 contro 3n − 2: Fib4 non è "più lento" in senso utile. Entrambi sono lineari, e le costanti dipendono da cosa si decide di contare. È il motivo per cui si passa alla notazione asintotica.</aside>
+<pre class="codice largo" data-copia><code data-lang="java">
+// Fib4 in Java: tempo lineare, memoria costante.
+// Con long si arriva a F(92); oltre servono i BigInteger.
+static long fib4(int n) {
+    long a = 1, b = 1;
+    for (int i = 3; i &lt;= n; i++) {
+        long c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
+</code></pre>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Algoritmi 5 e 6</span>
+        <h2>Le matrici e la potenza veloce</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teorema</span>
+        <p>Sia A = [[1, 1], [1, 0]]. Per ogni n ≥ 2:</p>
+        <p class="formula">A<sup>n−1</sup> = [[F<sub>n</sub>, F<sub>n−1</sub>], [F<sub>n−1</sub>, F<sub>n−2</sub>]]</p>
+        <p><strong>Dimostrazione per induzione su n.</strong> Base n = 2: A<sup>1</sup> = [[F<sub>2</sub>, F<sub>1</sub>], [F<sub>1</sub>, F<sub>0</sub>]] = [[1, 1], [1, 0]]. Passo: se vale per k, allora A<sup>k</sup> = A<sup>k−1</sup> × A = [[F<sub>k</sub> + F<sub>k−1</sub>, F<sub>k</sub>], [F<sub>k−1</sub> + F<sub>k−2</sub>, F<sub>k−1</sub>]] = [[F<sub>k+1</sub>, F<sub>k</sub>], [F<sub>k</sub>, F<sub>k−1</sub>]].</p>
+      </div>
+      <aside class="nota">Induzione: si dimostra P per il caso base, poi che P(n) ⇒ P(n+1). Si può partire da un valore diverso da 0 (qui da 2) e usare più ipotesi (P(n) e P(n+1) ⇒ P(n+2)), ma allora servono altrettanti casi base.</aside>
+      <h3>Fib5: n − 2 prodotti di matrici</h3>
+      <p>Si parte da A e lo si moltiplica per [[1, 1], [1, 0]] finché non si arriva ad A<sup>n−1</sup>, poi si legge l'elemento in alto a sinistra. Tempo O(n), memoria O(1): nessun guadagno rispetto a Fib4, ma apre la strada al trucco successivo.</p>
+      <div class="avviso">
+        <span class="etichetta">Occhio all'indice del ciclo</span>
+        <p>Nei lucidi il ciclo di Fib5 va da i = 2 a n, cioè fa n − 1 prodotti e calcola A<sup>n</sup>, il cui elemento [1][1] è F<sub>n+1</sub>. Per restituire F<sub>n</sub> il ciclo deve partire da i = 3 (n − 2 prodotti, si arriva ad A<sup>n−1</sup>). Non cambia il costo, che resta Θ(n).</p>
+      </div>
+      <h3>Fib6: potenza veloce</h3>
+      <p>Se n è pari A<sup>n</sup> = (A<sup>n/2</sup>)², se è dispari A<sup>n</sup> = (A<sup>⌊n/2⌋</sup>)² · A. Ogni chiamata dimezza l'esponente:</p>
+      <ol class="pseudo">
+        <li class="titolo">FibMatPow(FibMat M, int n) → FibMat</li>
+        <li><b>if</b> <i>n</i> &gt; 1 <b>then</b></li>
+        <li class="rientro1"><i>A</i> = FibMatPow(<i>M</i>, ⌊<i>n</i>/2⌋)</li>
+        <li class="rientro1"><b>if</b> <i>n</i> mod 2 == 0 <b>then</b> <i>M</i> = <i>A</i> × <i>A</i>   <span class="sc">(n pari)</span></li>
+        <li class="rientro1"><b>else</b> <i>M</i> = <i>A</i> × <i>A</i> × [[1, 1], [1, 0]]   <span class="sc">(n dispari)</span></li>
+        <li><b>return</b> <i>M</i></li>
+      </ol>
+      <ol class="pseudo">
+        <li class="titolo">Fib6(int n) → int</li>
+        <li><i>M</i> = FibMatPow([[1, 1], [1, 0]], <i>n</i> − 1)</li>
+        <li><b>return</b> <i>M</i>[1][1]</li>
+      </ol>
+      <p>Le chiamate ricorsive sono circa log₂ n (ci si ferma quando 2<sup>i</sup> = n), ognuna con un numero costante di prodotti 2×2: <strong>tempo O(log n)</strong>. Ogni chiamata attiva tiene sulla pila un numero costante di variabili: <strong>memoria O(log n)</strong>.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 2.</b> I sei algoritmi a confronto sullo stesso n. Prova n = 40, 50, 60: Fib2 passa da un secondo a un'ora e poi a settimane.</figcaption>
+        <div data-widget="fib-gara"></div>
+      </figure>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Algoritmo</th><th>Tempo</th><th>Memoria</th></tr></thead>
+          <tbody>
+            <tr><td>Fib1 · formula chiusa</td><td>costante, ma risultato errato</td><td>costante</td></tr>
+            <tr><td>Fib2 · ricorsivo</td><td>Ω(2<sup>n/2</sup>)</td><td>O(n)</td></tr>
+            <tr><td>Fib3 · array</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>Fib4 · tre variabili</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>Fib5 · prodotti di matrici</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>Fib6 · potenza veloce</td><td>O(log n)</td><td>O(log n)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Tutti gli algoritmi (tranne Fib1) danno lo stesso risultato, ma solo alcuni sono utilizzabili: siamo partiti da un tempo esponenziale e siamo arrivati a un tempo logaritmico.</p>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Attenzione alla misura</span>
+        <h2>Valore in input e dimensione dell'input</h2>
+      </div>
+      <p>Finora l'efficienza è stata espressa rispetto al <strong>valore</strong> n. Di norma invece la si esprime rispetto alla <strong>dimensione dell'input</strong>, cioè il numero di bit che servono a rappresentarlo:</p>
+      <p class="formula">|n| = ⌈log₂ n⌉ ≈ log₂ n   ⇒   n ≈ 2<sup>|n|</sup></p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th></th><th>Fib2</th><th>Fib3</th><th>Fib4</th><th>Fib5</th><th>Fib6</th></tr></thead>
+          <tbody>
+            <tr><td>Tempo</td><td>Ω(2<sup>2<sup>|n|</sup>/2</sup>)</td><td>O(2<sup>|n|</sup>)</td><td>O(2<sup>|n|</sup>)</td><td>O(2<sup>|n|</sup>)</td><td>O(|n|)</td></tr>
+            <tr><td>Memoria</td><td>O(2<sup>|n|</sup>)</td><td>O(2<sup>|n|</sup>)</td><td>O(1)</td><td>O(1)</td><td>O(|n|)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Trappola</span>
+        <p>Il tempo in secondi non cambia: cambia solo la misura. Fib4 è <strong>lineare nel valore</strong> n ma <strong>esponenziale nella dimensione</strong> |n|. È la stessa distinzione che torna con gli algoritmi pseudopolinomiali (lo zaino in programmazione dinamica) e con la NP-completezza.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Ripasso</span>
+        <h2>Verifica ed esercizi</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 1</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="in-2">
+          <p class="testo">Quante chiamate ricorsive fa Fib2(5) in tutto, compresa la prima?</p>
+          <div class="opz"><button>5</button><button data-giusta>9</button><button>15</button></div>
+          <div class="perche" hidden><p>T(n) = 2F<sub>n</sub> − 1 = 2·5 − 1 = 9. A mano: T(1) = T(2) = 1, T(3) = 3, T(4) = 5, T(5) = 5 + 3 + 1 = 9. 15 è T(6).</p></div>
+        </div>
+        <div class="domanda" data-id="in-3">
+          <p class="testo">Perché Fib1 non va bene, pur essendo una formula esatta?</p>
+          <div class="opz"><button>Perché è esponenziale</button><button data-giusta>Perché φ è irrazionale e l'approssimazione dà risultati sbagliati</button><button>Perché funziona solo per n pari</button></div>
+          <div class="perche" hidden><p>La formula è corretta in matematica, ma sul computer φ e φ̂ vengono troncati e l'errore si amplifica con la potenza: con φ ≈ 1.618, Fib1(18) dà 2583 invece di 2584.</p></div>
+        </div>
+        <div class="domanda" data-id="in-4">
+          <p class="testo">Qual è l'occupazione di memoria di Fib2?</p>
+          <div class="opz"><button>O(1), usa solo n</button><button data-giusta>O(n), per la pila delle chiamate</button><button>O(2ⁿ), come i nodi dell'albero</button></div>
+          <div class="perche" hidden><p>In ogni istante sono attive solo le chiamate su un cammino radice-foglia, che è lungo al più n − 1. I nodi dell'albero sono esponenziali, ma non sono tutti attivi insieme.</p></div>
+        </div>
+        <div class="domanda" data-id="in-5">
+          <p class="testo">Fib4 contro Fib6: quale affermazione è corretta?</p>
+          <div class="opz"><button>Fib4 è migliore in tutto</button><button data-giusta>Fib6 è più veloce (O(log n)) ma usa memoria O(log n), Fib4 memoria O(1)</button><button>Hanno lo stesso costo asintotico</button></div>
+          <div class="perche" hidden><p>Fib6 fa circa log₂ n chiamate ricorsive, ognuna con memoria costante sulla pila. Fib4 è lineare ma con cinque variabili in tutto.</p></div>
+        </div>
+        <div class="domanda" data-id="in-6">
+          <p class="testo">Un algoritmo fa n operazioni sul valore n. In funzione della dimensione dell'input |n| è…</p>
+          <div class="opz"><button>lineare</button><button>logaritmico</button><button data-giusta>esponenziale</button></div>
+          <div class="perche" hidden><p>n ≈ 2<sup>|n|</sup>: un costo lineare nel valore è esponenziale nel numero di bit.</p></div>
+        </div>
+        <div class="domanda" data-id="in-7">
+          <p class="testo">Che cosa distingue un algoritmo da un programma?</p>
+          <div class="opz"><button data-giusta>L'algoritmo è una descrizione astratta e può assumere memoria illimitata; il programma la implementa in un linguaggio, con memoria finita</button><button>Un algoritmo non può essere ricorsivo</button><button>Un programma può non terminare, un algoritmo lavora sempre su input infiniti</button></div>
+          <div class="perche" hidden><p>È la tabella del §1: astrazione contro implementazione.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.1 · conteggio</span><h4>Quante operazioni fa Fib4(10)?</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Fuori dal ciclo: a = 1, b = 1 e return, cioè 3 operazioni.</p></div></li>
+            <li><div><p>Il ciclo fa n − 2 = 8 giri, con 5 operazioni ciascuno (assegnamento di i, somma + assegnamento di c, due assegnamenti).</p></div></li>
+            <li><div><p class="risultato">3 + 5 · 8 = 43 = 5n − 7 con n = 10.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.2 · matrici</span><h4>Calcolare F<sub>8</sub> con la potenza veloce</h4></div>
+        <p>Fib6(8) chiama FibMatPow(A, 7). Ricostruisci le chiamate e i prodotti.</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>FibMatPow(A, 7) chiama FibMatPow(A, 3), che chiama FibMatPow(A, 1) = A.</p></div></li>
+            <li><div><p>Esponente 3, dispari: A × A × A = A³ = [[3, 2], [2, 1]] (2 prodotti).</p></div></li>
+            <li><div><p>Esponente 7, dispari: A³ × A³ × A = A⁷ = [[21, 13], [13, 8]] (2 prodotti).</p></div></li>
+            <li><div><p class="risultato">M[1][1] = 21 = F<sub>8</sub>, con 3 chiamate e 4 prodotti invece dei 6 di Fib5.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <ul class="checklist" data-id="ripasso-01">
+        <li><label><input type="checkbox" id="r01-1"><span>So distinguere algoritmo e programma e scrivere Euclide in pseudocodice.</span></label></li>
+        <li><label><input type="checkbox" id="r01-2"><span>So ricavare la ricorrenza di Fib2 e dimostrare T(n) ≥ 2<sup>n/2</sup>.</span></label></li>
+        <li><label><input type="checkbox" id="r01-3"><span>So contare le operazioni di Fib3 (3n − 2) e Fib4 (5n − 7).</span></label></li>
+        <li><label><input type="checkbox" id="r01-4"><span>So spiegare perché Fib6 è logaritmico in tempo e in memoria.</span></label></li>
+        <li><label><input type="checkbox" id="r01-5"><span>So convertire un costo dal valore n alla dimensione |n| = log n.</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Introduzione agli algoritmi» (P. Di Lena, dal materiale di M. Marzolla), appunti di Berto e di tr4v4 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. I valori di Fib1 sono ricalcolati con φ ≈ 1.618; l'indice del ciclo di Fib5 è corretto rispetto ai lucidi.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>
