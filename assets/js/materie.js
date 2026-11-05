@@ -93,7 +93,7 @@ window.MATERIE = [
     tinta: 25,
     descrizione: "Il corso 88566 (9 CFU) del prof. Vitali, dalle slide del corso: dai caratteri e gli URI fino a framework e Semantic Web, preparato sul quiz d'esame del 2026.",
     argomenti: [
-      { id: "00-com-e-l-esame", titolo: "Com'è l'esame e quiz", sottotitolo: "Il formato 2026 (quiz di 20 domande su EOL), cosa esce più spesso, 24 domande d'allenamento e 3 domande aperte con risposta modello.", fonte: "Scritti 2022–2026 (risorse.vercel.app), scheda dell'insegnamento 2026/27" },
+      { id: "00-com-e-l-esame", titolo: "Com'è l'esame e quiz", sottotitolo: "Lo scritto 2026/27 al computer (base 6, HTML+CSS 10, JS 12, framework 6), il quiz 2026, cosa esce più spesso, 24 domande d'allenamento e 3 domande aperte con risposta modello.", fonte: "Scritti 2022–2026 (risorse.vercel.app), scheda dell'insegnamento 2026/27, sito del laboratorio (ex23)" },
       { id: "01-architettura", titolo: "Architettura del Web", sottotitolo: "Client e server, modelli a tre e quattro livelli, Ajax e Web 2.0, CDN, strumenti dello sviluppatore.", fonte: "Slide Vitali «Introduzione al WWW»" },
       { id: "02-codifica-caratteri", titolo: "Codifica dei caratteri", sottotitolo: "ASCII, ISO Latin-1, Unicode e i suoi piani (BMP), UCS e UTF-8/16: come si leggono i byte.", fonte: "Slide Vitali «I set di caratteri»" },
       { id: "03-uri", titolo: "URI", sottotitolo: "Risorse, URL e URN, sintassi, risoluzione degli URI relativi, design degli URI.", fonte: "Slide Vitali «URI»" },
