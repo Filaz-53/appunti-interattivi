@@ -6,7 +6,7 @@ La home è una **libreria**: ogni materia è un quaderno sullo scaffale. Aprendo
 
 | Materia | Argomenti |
 |---|---|
-| **Algoritmi e Strutture di Dati** | Progetto SCC: componenti fortemente connesse (specifica A.A. 2025–2026, Kosaraju, Tarjan, StackOverflow, consegna, 10 esercizi risolti sulla complessità) · Mappa degli esami: analisi degli scritti 2024–2026 |
+| **Algoritmi e Strutture di Dati** | Capitoli 1–12 dai lucidi e dagli appunti del corso, con simulatori passo per passo (introduzione e Fibonacci, notazione asintotica e ricorrenze, ordinamento e selezione, strutture elementari, alberi BST e AVL con MiniMax/AlphaBeta, tabelle hash, heap, union-find, divide et impera/greedy/programmazione dinamica, grafi e visite, MST e cammini minimi, NP-completezza) · Java per il corso · Formulario dei costi filtrabile · Progetto SCC: componenti fortemente connesse (specifica A.A. 2025–2026, Kosaraju, Tarjan, StackOverflow, consegna, 10 esercizi risolti sulla complessità) · Mappa degli esami: analisi degli scritti 2024–2026 |
 | **Metodi Numerici per l'Analisi dei Dati** | Formulario e quiz per lo scritto (numeri finiti, fattorizzazioni, sistemi, minimi quadrati, zeri, ottimizzazione) |
 | **Tecnologie Web** | Com'è l'esame e 24 domande d'allenamento; capitoli 1–13 dalle slide del corso (architettura, codifica dei caratteri, URI, HTTP, REST, HTML, CSS) e, in attesa delle slide, dagli appunti e dagli esami (JavaScript, Ajax, Node e MongoDB, framework, Semantic Web, UX, accessibilità e sicurezza) |
 
@@ -30,8 +30,10 @@ appunti-interattivi/
 ├── materie/
 │   ├── algoritmi/
 │   │   ├── index.html         indice del quaderno (si riempie da materie.js)
+│   │   ├── 01-…12-*.html      i dodici capitoli del corso, più java.html e formulario.html
 │   │   ├── progetto-scc.html  appunti del progetto SCC
-│   │   └── widgets.js         simulatori e animazioni di questa materia
+│   │   ├── widgets.js         simulatori del progetto SCC
+│   │   └── js/simulatori.js   simulatori dei capitoli (ordinamenti, alberi, hash, heap, grafi…)
 │   └── metodi/
 │       └── index.html         indice della materia, per ora vuoto
 └── modelli/
@@ -72,6 +74,8 @@ I widget di una materia vivono nel suo `widgets.js`. Ognuno si aggancia a un ele
 
 `materie/algoritmi/widgets.js` è l'esempio completo: vista dei grafi in SVG, simulatori di Kosaraju e Tarjan, costruzione del trasposto, DFS iterativa e widget sulla complessità.
 
+`materie/algoritmi/js/simulatori.js` contiene i simulatori dei capitoli 1–12 e mette a disposizione strumenti riusabili: `vistaArray` (array con barre e annotazioni), `vistaAlbero` (alberi binari o generici e foreste in SVG), `VistaGrafo` (grafi orientati o no, con pesi) e `conPlayer` (sequenza di passi pre-calcolati con il Player). Un blocco `<ol class="pseudo">` può avere le righe evidenziate con `righe(pseudo, n)` mentre il simulatore avanza.
+
 ## Pubblicare su GitHub
 
 ### Prima volta
@@ -108,4 +112,5 @@ git push
 
 ## Fonti
 
+- Algoritmi, capitoli 1–12, Java e formulario: lucidi del corso (P. Di Lena, G. Zavattaro, dal materiale di M. Marzolla e A. Montresor), esercizi risolti e appunti di Berto, tr4v4 e lucat1 della raccolta [cartabinaria/algoritmi-e-strutture-di-dati](https://github.com/cartabinaria/algoritmi-e-strutture-di-dati). Gli esempi numerici e le soluzioni degli esercizi sono stati ricalcolati; dove il materiale ha errori la pagina lo segnala e lo corregge.
 - Algoritmi, Progetto SCC: «Algoritmi e Strutture di Dati — Specifiche Progetto A.A. 2025–2026» e la libreria del corso su [github.com/disiasd/asd26](https://github.com/disiasd/asd26). Gli appunti riformulano la specifica; il PDF originale non è incluso nel repository. I numeri sul grafo `roadNet-TX` e i messaggi di `javac` sono stati verificati sul repository del corso.

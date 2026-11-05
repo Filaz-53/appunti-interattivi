@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tabelle hash · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Indirizzamento diretto, funzioni hash (divisione, moltiplicazione, codifica algebrica), concatenamento e indirizzamento aperto con ispezione lineare, quadratica e doppio hashing, fattore di carico e costi medi.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="06-tabelle-hash">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Indirizzamento diretto</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Funzioni hash</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Concatenamento</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Indirizzamento aperto</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Strategie di ispezione</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Costi medi e fattore di carico</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Esercizi risolti</span></a></li>
+        <li><a href="#esami"><span class="n">§8</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 6</span>
+      <h1>Tabelle hash</h1>
+      <p class="lede">Un dizionario con search, insert e delete in O(1) in media: si generalizza l'indicizzazione di un array con una funzione hash. Il prezzo sono le collisioni, che si gestiscono con le liste di trabocco o con l'indirizzamento aperto.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Il punto di partenza</span>
+        <h2>Tabelle a indirizzamento diretto</h2>
+      </div>
+      <p>Sia U l'universo delle chiavi possibili e K l'insieme delle chiavi usate davvero. Se U = {0, …, m − 1} con m piccolo e |K| ≈ |U|, basta un array T di |U| celle: la chiave k sta in T[k], e search, insert e delete costano <strong>O(1)</strong>. La memoria però è Θ(|U|).</p>
+      <aside class="nota">Esempio dei lucidi: identificatori lunghi al più 20 caratteri. |U| &gt; 26 · 36<sup>19</sup> ≈ 10<sup>31</sup>: a 4 byte per cella servirebbero più di 10<sup>19</sup> terabyte.</aside>
+      <div class="def">
+        <span class="etichetta">Tabella hash</span>
+        <p>Quando |K| ≪ |U| si usa un array T[0..m−1] con <strong>m = Θ(|K|)</strong> e una <strong>funzione hash</strong> h : U → {0, …, m − 1}. La chiave k va nello slot T[h(k)]. Se due chiavi hanno lo stesso valore hash si ha una <strong>collisione</strong>: si possono ridurre, non evitare.</p>
+      </div>
+      <p>Servono quindi tre ingredienti: una funzione hash veloce da calcolare e che distribuisca bene le chiavi, un metodo per gestire le collisioni e una dimensione m adeguata (che di solito si può solo stimare, e che può richiedere di ridimensionare la tabella).</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Distribuire le chiavi</span>
+        <h2>Funzioni hash</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Uniformità semplice</span>
+        <p>Una buona funzione hash distribuisce le chiavi uniformemente: ogni indice i è generato con probabilità 1/m. Per garantirlo bisognerebbe conoscere la distribuzione delle chiavi, cosa di solito irrealistica (con chiavi uniformi in [0, 1), h(k) = ⌊mk⌋ la soddisfa).</p>
+      </div>
+      <p>Ipotesi di lavoro: tutte le chiavi sono equiprobabili, h si calcola in O(1), e le chiavi sono interi non negativi. Qualsiasi chiave si può trasformare in un intero: con a = 1, …, z = 26 su 6 bit, «beer» diventa 000010 000101 000101 010010, cioè 545.106.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Metodo</th><th>Formula</th><th>Pro e contro</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Divisione</strong></td><td>h(k) = k mod m</td><td>Una sola divisione. Ma dipende da m: con m = 10 conta solo l'ultima cifra, con m = 2<sup>p</sup> solo i p bit bassi. Si sceglie m <strong>primo, lontano da potenze di 2 e di 10</strong>.</td></tr>
+            <tr><td><strong>Moltiplicazione</strong></td><td>h(k) = ⌊m · (kC − ⌊kC⌋)⌋, 0 &lt; C &lt; 1</td><td>m non è critico; conta la scelta di C. Knuth suggerisce C = (√5 − 1)/2 ≈ 0,618.</td></tr>
+            <tr><td><strong>Codifica algebrica</strong></td><td>h(k) = (k<sub>n</sub>xⁿ + … + k₁x + k₀) mod m</td><td>Dipende da tutti i bit, cifre o caratteri della chiave. Costosa se calcolata ingenuamente, lineare con la regola di Horner.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempi dei lucidi, ricontrollati</span><h4>Calcolare qualche valore hash</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Divisione: m = 12, k = 100 → 100 mod 12 = <strong>4</strong>; m = 10, k = 101 → <strong>1</strong>.</p></div></li>
+            <li><div><p>Moltiplicazione: m = 12, k = 101, C = 0,8 → kC = 80,8, parte frazionaria 0,8, × 12 = 9,6 → <strong>9</strong>.</p></div></li>
+            <li><div><p>Moltiplicazione con C = (√5 − 1)/2 e m = 1000: per k = 123, kC = 76,018 → 0,018 × 1000 → <strong>18</strong>. Per k = 124, come scritto nei lucidi, kC = 76,636 e il risultato è <strong>636</strong>: l'esempio dei lucidi ha la chiave sbagliata di un'unità.</p></div></li>
+            <li><div><p class="risultato">Codifica algebrica in base 10: m = 12, k = 234, x = 3 → (2·3² + 3·3 + 4) mod 12 = 31 mod 12 = 7.</p></div></li>
+          </ol>
+        </div>
+      </article>
+      <div class="def">
+        <span class="etichetta">Regola di Horner</span>
+        <p>p(x) = aₙxⁿ + … + a₁x + a₀ = a₀ + x(a₁ + x(a₂ + … + x(aₙ₋₁ + aₙx))): n somme e n prodotti invece di n(n+1)/2 prodotti. Le cifre di una chiave sono poche, quindi il costo si considera costante.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="java">
+// java.lang.String.hashCode(): codifica algebrica con x = 31, calcolata con Horner
+// s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1], in aritmetica int
+public int hashCode() {
+    int h = hash;
+    if (h == 0 &amp;&amp; value.length &gt; 0) {
+        for (int i = 0; i &lt; value.length; i++) h = 31 * h + value[i];
+        hash = h;
+    }
+    return h;
+}
+</code></pre>
+      <aside class="nota">Paradosso del compleanno: con 23 persone la probabilità che due compiano gli anni lo stesso giorno supera il 50%. Anche con hashing uniforme le collisioni arrivano prestissimo.</aside>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Scansione esterna</span>
+        <h2>Concatenamento</h2>
+      </div>
+      <p>Le chiavi con lo stesso valore hash i stanno in una <strong>lista di trabocco</strong>, e T[i] punta alla sua testa. search cerca nella lista T[h(k)], insert inserisce in testa, delete toglie dalla lista.</p>
+      <div class="def">
+        <span class="etichetta">Costi</span>
+        <p>Sia L la lista più lunga: search e delete costano O(L) nel caso pessimo, O(1) nell'ottimo; insert O(1) sempre. Ma L = O(n): il caso pessimo dipende dal numero di elementi, non da m.</p>
+        <p><strong>Fattore di carico</strong> α = n/m. Con hashing uniforme semplice ogni lista ha in media α elementi, e una ricerca (con o senza successo) costa in media <strong>Θ(1 + α)</strong>: 1 per calcolare h, α (o circa α/2 se la chiave c'è) per scorrere la lista. Se n = O(m), α = O(1) e tutte le operazioni costano O(1) in media.</p>
+      </div>
+      <p>Il concatenamento non vincola m (né α &lt; 1): m troppo grande spreca spazio, m troppo piccolo allunga le liste.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Scansione interna</span>
+        <h2>Indirizzamento aperto</h2>
+      </div>
+      <p>Tutte le chiavi stanno nella tabella: ogni slot contiene una chiave o NIL, quindi n ≤ m e α ≤ 1. Se lo slot è occupato se ne <strong>ispeziona</strong> un altro: la funzione hash prende anche il numero di ispezione, h(k, i), e la sequenza h(k, 0), h(k, 1), …, h(k, m − 1) deve essere una <strong>permutazione</strong> degli indici, così ogni slot si visita una volta sola.</p>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">search(HashTab A, Key k) → Data</li>
+            <li><i>i</i> = 0</li>
+            <li><b>repeat</b></li>
+            <li class="rientro1"><i>j</i> = h(<i>k</i>, <i>i</i>)</li>
+            <li class="rientro1"><b>if</b> <i>A</i>[<i>j</i>].key == <i>k</i> <b>then return</b> <i>A</i>[<i>j</i>].data</li>
+            <li class="rientro1"><i>i</i> = <i>i</i> + 1</li>
+            <li><b>until</b> <i>A</i>[<i>j</i>] == NIL <b>or</b> <i>i</i> == <i>m</i></li>
+            <li><b>return</b> NIL</li>
+          </ol>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">insert(HashTab A, Key k, Data d)</li>
+            <li><i>i</i> = 0</li>
+            <li><b>repeat</b></li>
+            <li class="rientro1"><i>j</i> = h(<i>k</i>, <i>i</i>)</li>
+            <li class="rientro1"><b>if</b> <i>A</i>[<i>j</i>] == NIL <b>or</b> <i>A</i>[<i>j</i>] == DELETED <b>then</b></li>
+            <li class="rientro2"><i>A</i>[<i>j</i>] = (<i>k</i>, <i>d</i>);  <b>return</b></li>
+            <li class="rientro1"><i>i</i> = <i>i</i> + 1</li>
+            <li><b>until</b> <i>i</i> == <i>m</i></li>
+            <li>error "overflow"</li>
+          </ol>
+        </div>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Perché DELETED</span>
+        <p>Cancellando una chiave non si può rimettere NIL: search si fermerebbe lì e non troverebbe le chiavi inserite dopo, la cui sequenza passava per quello slot. Si scrive <strong>DELETED</strong>: search e delete lo trattano come pieno (vanno avanti), insert come vuoto (lo riusa).</p>
+      </div>
+      <p>Nel caso pessimo search, insert e delete costano <strong>O(m)</strong>: si ispeziona tutta la tabella. Il caso medio dipende dalla strategia di ispezione.</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Dove guardare dopo una collisione</span>
+        <h2>Strategie di ispezione</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Ispezione lineare</span>
+        <p class="formula">h(k, i) = (h′(k) + i) mod m</p>
+        <p>Si prova lo slot successivo. Il primo indice determina tutta la sequenza: solo <strong>m sequenze</strong> distinte. Problema: <strong>clustering primario</strong>, si formano lunghe sequenze di slot occupati che crescono sempre più (uno slot vuoto preceduto da i slot pieni viene riempito con probabilità (i + 1)/m).</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Ispezione quadratica</span>
+        <p class="formula">h(k, i) = (h′(k) + c₁i + c₂i²) mod m</p>
+        <p>Il passo cresce in modo quadratico. Sempre m sequenze distinte, e c₁, c₂ devono garantire una permutazione. Problema: <strong>clustering secondario</strong>, due chiavi con la stessa ispezione iniziale hanno la stessa sequenza.</p>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">c₁ = 0, c₂ = 1 con m = 10 non è una permutazione</span>
+        <p>Nell'esempio dei lucidi i² mod 10 vale 0, 1, 4, 9, 6, 5, 6, 9, 4, 1: si raggiungono solo 6 slot diversi su 10, e l'inserimento può fallire anche con la tabella mezza vuota. Con m primo e c₁ = 0, c₂ = 1 si raggiunge almeno metà della tabella; per avere sempre una permutazione si usano per esempio m potenza di 2 con c₁ = c₂ = ½.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Doppio hashing</span>
+        <p class="formula">h(k, i) = (h₁(k) + i · h₂(k)) mod m</p>
+        <p>Il passo dipende da una seconda funzione hash: è improbabile che due chiavi diverse abbiano sia h₁ sia h₂ uguali, quindi si evitano <strong>entrambi i clustering</strong> e le sequenze possibili sono più di m. Vincoli: h₂(k) non deve mai valere 0 e deve permettere di visitare tutta la tabella, cioè essere <strong>primo con m</strong> (per esempio m primo).</p>
+      </div>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Tabella hash. Scegli la strategia, la dimensione m e la funzione h′; gli indici a penna sopra le celle sono i passi i della sequenza di ispezione dell'ultima operazione (giallo = slot ispezionato, arancio = slot finale). Gli esempi dei lucidi: m = 10 e la sequenza 53 75 16 73 10 33 13 76.</figcaption>
+        <div data-widget="tabella-hash" data-metodo="lineare" data-m="11" data-seq="50 20 10 60 40 45"></div>
+      </figure>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Analisi</span>
+        <h2>Costi medi e fattore di carico</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Teoremi (indirizzamento aperto)</span>
+        <p>Con hashing uniforme semplice, <strong>sequenze di ispezione equiprobabili</strong> e α = n/m &lt; 1, il numero medio di ispezioni è al più:</p>
+        <p class="formula">ricerca senza successo ≤ 1/(1 − α)     ricerca con successo ≤ (1/α) · ln(1/(1 − α))</p>
+        <p>Se α è costante, O(1). Con la tabella piena al 50%: al più 2 ispezioni senza successo, meno di 2 con successo. Al 90%: al più 10 e meno di 3.</p>
+      </div>
+      <p>L'ispezione lineare non dà sequenze equiprobabili (per il clustering primario), e i suoi costi medi sono più alti: al più ½(1 + 1/(1 − α)²) senza successo e ½(1 + 1/(1 − α)) con successo.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>α</th><th class="num">Senza successo, equiprobabili</th><th class="num">Con successo, equiprobabili</th><th class="num">Senza successo, lineare</th><th class="num">Con successo, lineare</th></tr></thead>
+          <tbody>
+            <tr><td>0,50</td><td class="num">2,0</td><td class="num">1,4</td><td class="num">2,5</td><td class="num">1,5</td></tr>
+            <tr><td>0,75</td><td class="num">4,0</td><td class="num">1,8</td><td class="num">8,5</td><td class="num">2,5</td></tr>
+            <tr><td>0,90</td><td class="num">10,0</td><td class="num">2,6</td><td class="num">50,5</td><td class="num">5,5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Le collisioni sono inevitabili anche con poche chiavi, quindi si tiene <strong>α basso</strong> (α &lt; 0,75 è considerato ottimale) e si <strong>ridimensiona</strong> la tabella quando supera una soglia. Ridimensionare significa ricostruirla da capo: gli indici hash cambiano con m.</p>
+      <aside class="nota">java.util.HashMap: concatenamento (da Java 8 le liste lunghe diventano alberi rosso-neri, quindi il caso pessimo è logaritmico), fattore di carico 0,75 e capacità iniziale 16. Superata la soglia, la capacità circa raddoppia.</aside>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th></th><th>Array ordinato</th><th>Lista</th><th>BST</th><th>AVL</th><th>Hash (medio)</th><th>Hash (pessimo)</th></tr></thead>
+          <tbody>
+            <tr><td>search</td><td>O(log n)</td><td>O(n)</td><td>O(h)</td><td>O(log n)</td><td>O(1)</td><td>O(n)</td></tr>
+            <tr><td>insert</td><td>O(n)</td><td>O(1)</td><td>O(h)</td><td>O(log n)</td><td>O(1)</td><td>O(n)</td></tr>
+            <tr><td>delete</td><td>O(n)</td><td>O(n)</td><td>O(h)</td><td>O(log n)</td><td>O(1)</td><td>O(n)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Una tabella hash non tiene le chiavi in ordine: min, max, successore e visite ordinate restano un punto di forza degli alberi di ricerca.</p>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Allenamento</span>
+        <h2>Esercizi risolti</h2>
+      </div>
+      <p>Gli esercizi del corso si possono rifare nel simulatore. Nella notazione delle soluzioni, <code>·</code> è uno slot NIL e <code>D</code> uno slot DELETED.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.1 · ispezione lineare</span><h4>m = 11, h′(k) = k mod 11: inserire 50, 20, 10, 60, 40, 45</h4></div>
+        <div class="domanda" data-id="ha-1">
+          <p class="testo">In quale slot finisce 45?</p>
+          <div class="opz"><button data-giusta>nello slot 1, alla prima ispezione</button><button>nello slot 2, dopo una collisione</button><button>nello slot 8</button></div>
+          <div class="perche" hidden><p>45 = 4 · 11 + 1, quindi h′(45) = 1, e lo slot 1 è ancora libero.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>50 mod 11 = 6 → slot 6. 20 mod 11 = 9 → slot 9. 10 mod 11 = 10 → slot 10.</p></div></li>
+            <li><div><p>60 mod 11 = 5 → slot 5. 40 mod 11 = 7 → slot 7.</p></div></li>
+            <li><div><p>45 mod 11 = 1 → slot 1, libero: una sola ispezione.</p></div></li>
+            <li><div><p class="risultato">Tabella (slot 0..10): <code>· 45 · · · 60 50 40 · 20 10</code>. Nessuna collisione in questa sequenza.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.2 · ispezione lineare</span><h4>Continuare: insert 85, insert 55, delete 40, delete 45, insert 15</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>85 mod 11 = 8 → slot 8 libero. 55 mod 11 = 0 → slot 0 libero: <code>55 45 · · · 60 50 40 85 20 10</code>.</p></div></li>
+            <li><div><p>delete 40 e delete 45: gli slot 7 e 1 diventano DELETED: <code>55 D · · · 60 50 D 85 20 10</code>.</p></div></li>
+            <li><div><p>insert 15: 15 mod 11 = 4 → slot 4 libero.</p></div></li>
+            <li><div><p class="risultato"><code>55 D · · 15 60 50 D 85 20 10</code></p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.3 · ispezione lineare</span><h4>Continuare: insert 83, delete 55, insert 90, delete 60</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>insert 83: 83 mod 11 = 6, occupato da 50; i = 1 → slot 7, che è DELETED: insert lo riusa. <code>55 D · · 15 60 50 83 85 20 10</code></p></div></li>
+            <li><div><p>delete 55: slot 0 → DELETED.</p></div></li>
+            <li><div><p>insert 90: 90 mod 11 = 2 → slot 2 libero.</p></div></li>
+            <li><div><p class="risultato">delete 60 (slot 5): <code>D D 90 · 15 D 50 83 85 20 10</code></p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.4 · concatenamento</span><h4>m = 10, metodo della moltiplicazione con C = 0,25: inserire 50, 20, 10, 60, 40, 45</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>h(50) = ⌊10 · frac(12,5)⌋ = 5, h(20) = ⌊10 · frac(5)⌋ = 0, h(10) = ⌊10 · 0,5⌋ = 5, h(60) = 0, h(40) = 0, h(45) = ⌊10 · frac(11,25)⌋ = 2.</p></div></li>
+            <li><div><p>Con l'inserimento in testa: T[0] = 40 → 60 → 20, T[2] = 45, T[5] = 10 → 50.</p></div></li>
+            <li><div><p class="risultato">Con C = 0,25 la parte frazionaria vale solo 0; 0,25; 0,5; 0,75: si usano al più 4 slot su 10. È un esempio di cattiva scelta della costante.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 6</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="ha-2">
+          <p class="testo">Con il concatenamento e hashing uniforme semplice, una ricerca costa in media…</p>
+          <div class="opz"><button>Θ(1/(1 − α))</button><button data-giusta>Θ(1 + α)</button><button>Θ(log n)</button></div>
+          <div class="perche" hidden><p>1 per calcolare h(k), α per la lista media. 1/(1 − α) è la ricerca senza successo con l'indirizzamento aperto.</p></div>
+        </div>
+        <div class="domanda" data-id="ha-3">
+          <p class="testo">Perché nella delete con indirizzamento aperto si scrive DELETED e non NIL?</p>
+          <div class="opz"><button>Per risparmiare memoria</button><button data-giusta>Perché altrimenti una search successiva si fermerebbe lì e non troverebbe chiavi presenti</button><button>Perché insert non può riusare gli slot NIL</button></div>
+          <div class="perche" hidden><p>search si ferma al primo NIL. Una chiave inserita dopo, che era passata per quello slot occupato, risulterebbe assente.</p></div>
+        </div>
+        <div class="domanda" data-id="ha-4">
+          <p class="testo">Il clustering secondario riguarda…</p>
+          <div class="opz"><button>l'ispezione lineare</button><button data-giusta>l'ispezione quadratica</button><button>il doppio hashing</button></div>
+          <div class="perche" hidden><p>Chiavi con lo stesso h′(k) hanno la stessa sequenza quadratica. Il doppio hashing evita entrambi i clustering; la lineare soffre di quello primario.</p></div>
+        </div>
+        <div class="domanda" data-id="ha-5">
+          <p class="testo">Perché con il metodo della divisione si evita m = 2<sup>p</sup>?</p>
+          <div class="opz"><button data-giusta>Perché h(k) dipenderebbe solo dai p bit meno significativi di k</button><button>Perché la divisione per una potenza di 2 è lenta</button><button>Perché la tabella non si può ridimensionare</button></div>
+          <div class="perche" hidden><p>k mod 2<sup>p</sup> sono gli ultimi p bit: chiavi che differiscono solo nei bit alti collidono tutte.</p></div>
+        </div>
+        <div class="domanda" data-id="ha-6">
+          <p class="testo">Indirizzamento aperto con sequenze equiprobabili e α = 0,9: quante ispezioni al più, in media, per una ricerca senza successo?</p>
+          <div class="opz"><button>2</button><button data-giusta>10</button><button>90</button></div>
+          <div class="perche" hidden><p>1/(1 − 0,9) = 10.</p></div>
+        </div>
+        <div class="domanda" data-id="ha-7">
+          <p class="testo">Doppio hashing con m = 10 e h₂(k) = (k mod 9) + 1: per quale chiave la sequenza non visita tutta la tabella?</p>
+          <div class="opz"><button>k = 9 (h₂ = 1)</button><button data-giusta>k = 1 (h₂ = 2)</button><button>k = 2 (h₂ = 3)</button></div>
+          <div class="perche" hidden><p>h₂ = 2 non è primo con 10: partendo da h₁(1) = 1 si visitano solo gli slot dispari 1, 3, 5, 7, 9. Con 3 (primo con 10) si visitano tutti.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-06">
+        <li><label><input type="checkbox" id="r06-1"><span>So calcolare h(k) con divisione, moltiplicazione e codifica algebrica.</span></label></li>
+        <li><label><input type="checkbox" id="r06-2"><span>So riempire a mano una tabella con concatenamento e con le tre ispezioni.</span></label></li>
+        <li><label><input type="checkbox" id="r06-3"><span>So spiegare DELETED e come lo trattano search, insert e delete.</span></label></li>
+        <li><label><input type="checkbox" id="r06-4"><span>So i costi medi in funzione di α e perché si ridimensiona la tabella.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="hash"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Tabelle hash» (P. Di Lena) ed esercizi risolti sulle tabelle hash, appunti di Berto e tr4v4 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. Gli esempi numerici sono ricalcolati: corretti l'esempio del metodo della moltiplicazione e segnalato il limite dell'ispezione quadratica con m = 10.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alberi, BST e AVL · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Alberi e visite, alberi di gioco con MiniMax e AlphaBeta, alberi binari di ricerca e alberi AVL con rotazioni, con simulatori ed esercizi risolti.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="05-alberi">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Alberi: definizioni</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Visite</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Rappresentazioni</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Alberi di gioco</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Alberi binari di ricerca</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Alberi AVL</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Esercizi risolti</span></a></li>
+        <li><a href="#esami"><span class="n">§8</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 5</span>
+      <h1>Alberi, BST e AVL</h1>
+      <p class="lede">La prima struttura non lineare: definizioni, le quattro visite e come si rappresentano gli alberi. Poi gli alberi di gioco (MiniMax e AlphaBeta), gli alberi binari di ricerca e gli AVL, che restano bilanciati con le rotazioni e garantiscono O(log n) nel caso pessimo.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Definizioni</span>
+        <h2>Alberi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Un <strong>albero</strong> è un insieme di nodi e di archi che li connettono in cui <strong>esiste un solo percorso</strong> tra due nodi qualsiasi. È <strong>radicato</strong> se un nodo è la radice, <strong>ordinato</strong> se i figli di ogni nodo hanno un ordine (primo, secondo…). Ricorsivamente: un albero radicato è vuoto, oppure è una radice R con zero o più sottoalberi disgiunti le cui radici sono collegate a R.</p>
+        <p>Un <strong>albero binario</strong> è un albero ordinato in cui ogni nodo ha al più due figli, <strong>sinistro</strong> e <strong>destro</strong>: un nodo può avere il destro senza il sinistro.</p>
+      </div>
+      <ul>
+        <li><strong>Profondità</strong> di u: numero di archi del percorso dalla radice a u. <strong>Livello</strong>: i nodi alla stessa profondità.</li>
+        <li><strong>Altezza</strong> dell'albero: la profondità massima (una sola radice ha altezza 0, l'albero vuoto −1).</li>
+        <li><strong>Grado</strong> di un nodo: il numero dei suoi figli. Una <strong>foglia</strong> ha grado 0.</li>
+      </ul>
+      <div class="def">
+        <span class="etichetta">Teorema</span>
+        <p>Ogni albero non vuoto con n nodi ha esattamente <strong>n − 1 archi</strong> (per induzione: ogni nodo tranne la radice ha un solo arco verso il padre). Serve per dimostrare che una struttura <em>non</em> è un albero; il contrario non vale: un grafo con n − 1 archi può non essere un albero.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Visitare tutti i nodi</span>
+        <h2>Visite in profondità e in ampiezza</h2>
+      </div>
+      <p>La <strong>visita in profondità</strong> (DFS) scende il più possibile prima di passare al nodo successivo dello stesso livello, in tre varianti che differiscono solo nel momento in cui si visita il nodo. La <strong>visita in ampiezza</strong> (BFS) procede livello per livello con una coda. Tutte costano <strong>Θ(n)</strong> in ogni caso.</p>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">preorder(Tree T)</li>
+            <li><b>if</b> <i>T</i> ≠ NIL <b>then</b></li>
+            <li class="rientro1">visit(<i>T</i>)</li>
+            <li class="rientro1">preorder(<i>T</i>.left)</li>
+            <li class="rientro1">preorder(<i>T</i>.right)</li>
+          </ol>
+          <p>In-ordine: visit tra le due chiamate. Post-ordine: visit dopo le due chiamate.</p>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">BFS(Tree T)</li>
+            <li>sia <i>Q</i> una nuova coda</li>
+            <li><b>if</b> <i>T</i> ≠ NIL <b>then</b> enqueue(<i>Q</i>, <i>T</i>)</li>
+            <li><b>while</b> <i>Q</i>.size ≠ 0 <b>do</b></li>
+            <li class="rientro1"><i>x</i> = dequeue(<i>Q</i>);  visit(<i>x</i>)</li>
+            <li class="rientro1"><b>if</b> <i>x</i>.left ≠ NIL <b>then</b> enqueue(<i>Q</i>, <i>x</i>.left)</li>
+            <li class="rientro1"><b>if</b> <i>x</i>.right ≠ NIL <b>then</b> enqueue(<i>Q</i>, <i>x</i>.right)</li>
+          </ol>
+        </div>
+      </div>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Le quattro visite sullo stesso albero. Nella BFS compare anche il contenuto della coda.</figcaption>
+        <div data-widget="visite"></div>
+      </figure>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esempio dei lucidi</span><h4>Contare i nodi di un albero binario</h4></div>
+        <ol class="pseudo">
+          <li class="titolo">countnodes(Tree T) → int</li>
+          <li><b>if</b> <i>T</i> == NIL <b>then return</b> 0</li>
+          <li><b>else return</b> 1 + countnodes(<i>T</i>.left) + countnodes(<i>T</i>.right)</li>
+        </ol>
+        <div class="soluzione"><span class="etichetta">Domande e risposte</span>
+          <ol class="passi">
+            <li><div><p><strong>Che visita è?</strong> Post-ordine: per valutare T servono prima i valori dei figli.</p></div></li>
+            <li><div><p><strong>Quanto costa?</strong> Θ(n) in ogni caso.</p></div></li>
+            <li><div><p><strong>Come renderla O(1)?</strong> Si aggiunge a ogni nodo un campo <code>totnodes</code>. Il prezzo: ogni inserimento o cancellazione deve aggiornare il campo di tutti gli antenati, quindi costa O(h) in più.</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · In memoria</span>
+        <h2>Rappresentare un albero</h2>
+      </div>
+      <ul>
+        <li><strong>Binario con puntatori</strong>: ogni nodo ha <code>left</code>, <code>right</code> (e spesso <code>parent</code>). Nella libreria è <code>NodoBinPF</code> con <code>padre</code>, <code>sin</code>, <code>des</code>.</li>
+        <li><strong>Non binario con array di k figli</strong>: il numero massimo di figli è fisso, e si spreca spazio se molti nodi hanno meno di k figli.</li>
+        <li><strong>Primo figlio – fratello successivo</strong>: ogni nodo punta al primo figlio (<code>first</code>) e al fratello successivo (<code>next</code>); i figli sono una lista concatenata semplice. Nella libreria è <code>NodoPFFS</code>.</li>
+      </ul>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">preorder(Tree T)   <span class="sc">(primo figlio – fratello)</span></li>
+            <li><b>if</b> <i>T</i> ≠ NIL <b>then</b></li>
+            <li class="rientro1">visit(<i>T</i>)</li>
+            <li class="rientro1">preorder(<i>T</i>.first)</li>
+            <li class="rientro1">preorder(<i>T</i>.next)</li>
+          </ol>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">postorder(Tree T)   <span class="sc">(mista)</span></li>
+            <li><b>if</b> <i>T</i> ≠ NIL <b>then</b></li>
+            <li class="rientro1"><i>tmp</i> = <i>T</i>.first</li>
+            <li class="rientro1"><b>while</b> <i>tmp</i> ≠ NIL <b>do</b> postorder(<i>tmp</i>);  <i>tmp</i> = <i>tmp</i>.next</li>
+            <li class="rientro1">visit(<i>T</i>)</li>
+          </ol>
+        </div>
+      </div>
+      <aside class="nota">Con la rappresentazione primo figlio – fratello, la versione solo ricorsiva del post-ordine (postorder(first), postorder(next), visit) visita i fratelli <em>prima</em> del padre comune solo dopo tutto il resto: per questo i lucidi danno anche la versione mista, più leggibile.</aside>
+      <p>La visita <strong>in-ordine</strong> su un albero non binario va specificata (per esempio: i primi k figli, poi il nodo, poi gli altri); pre-ordine, post-ordine e BFS si generalizzano senza problemi.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Algoritmi di decisione</span>
+        <h2>Alberi di gioco: MiniMax e AlphaBeta</h2>
+      </div>
+      <p>Un <strong>game tree</strong> rappresenta tutte le partite di un gioco a turni: i nodi sono situazioni di gioco, gli archi le mosse, le foglie gli stati finali (vittoria, sconfitta, patta). L'albero completo dice la mossa migliore in ogni situazione, ma di solito è troppo grande per essere visitato tutto.</p>
+      <div class="def">
+        <span class="etichetta">MiniMax</span>
+        <p>Si etichettano le foglie (1 vittoria, 0 patta, −1 sconfitta, dal punto di vista di A) e si propagano verso la radice: nei turni di A (MAX) il nodo prende il <strong>massimo</strong> dei figli, nei turni di B (MIN) il <strong>minimo</strong>. È una visita in post-ordine: tempo Θ(n), memoria O(h).</p>
+      </div>
+      <ol class="pseudo largo">
+        <li class="titolo">MiniMax(Tree T, bool playerA) → int</li>
+        <li><b>if</b> isLeaf(<i>T</i>) <b>then</b> <i>eval</i> = evaluate(<i>T</i>)</li>
+        <li><b>else if</b> <i>playerA</i> <b>then</b>   <span class="sc">(MAX)</span></li>
+        <li class="rientro1"><i>eval</i> = −∞;  <b>for</b> <i>c</i> ∈ children(<i>T</i>) <b>do</b> <i>eval</i> = max(<i>eval</i>, MiniMax(<i>c</i>, false))</li>
+        <li><b>else</b>   <span class="sc">(MIN)</span></li>
+        <li class="rientro1"><i>eval</i> = +∞;  <b>for</b> <i>c</i> ∈ children(<i>T</i>) <b>do</b> <i>eval</i> = min(<i>eval</i>, MiniMax(<i>c</i>, true))</li>
+        <li><b>return</b> <i>eval</i></li>
+      </ol>
+      <p><strong>Quanto è grande l'albero?</strong> Con al più m mosse per turno e al più n turni (Forza 4: m = 7, n = 42) i nodi sono al più 1 + m + … + mⁿ = O(mⁿ). In un gioco in cui ogni turno occupa uno di n oggetti (il tris: n = 9) le partite sono al più n! e i nodi Σ<sub>k</sub> n!/(n−k)! ≤ e · n! = O(n!).</p>
+      <div class="def">
+        <span class="etichetta">AlphaBeta pruning</span>
+        <p>Stessa soluzione di MiniMax visitando meno nodi. Si mantengono <strong>α</strong> (il punteggio minimo che MAX si è già assicurato) e <strong>β</strong> (il massimo che MIN si è già assicurato): [α, β] è l'intervallo dei risultati possibili. Se a un certo punto <strong>β ≤ α</strong>, il resto del sottoalbero non può cambiare la scelta e si taglia.</p>
+      </div>
+      <ol class="pseudo largo">
+        <li class="titolo">AlphaBeta(Tree T, bool playerA, int α, int β) → int</li>
+        <li><b>if</b> isLeaf(<i>T</i>) <b>then</b> <i>eval</i> = evaluate(<i>T</i>)</li>
+        <li><b>else if</b> <i>playerA</i> <b>then</b></li>
+        <li class="rientro1"><i>eval</i> = −∞</li>
+        <li class="rientro1"><b>for</b> <i>c</i> ∈ children(<i>T</i>) <b>do</b></li>
+        <li class="rientro2"><i>eval</i> = max(<i>eval</i>, AlphaBeta(<i>c</i>, false, α, β));  α = max(<i>eval</i>, α)</li>
+        <li class="rientro2"><b>if</b> β ≤ α <b>then break</b>   <span class="sc">(taglio β)</span></li>
+        <li><b>else</b></li>
+        <li class="rientro1"><i>eval</i> = +∞</li>
+        <li class="rientro1"><b>for</b> <i>c</i> ∈ children(<i>T</i>) <b>do</b></li>
+        <li class="rientro2"><i>eval</i> = min(<i>eval</i>, AlphaBeta(<i>c</i>, true, α, β));  β = min(<i>eval</i>, β)</li>
+        <li class="rientro2"><b>if</b> β ≤ α <b>then break</b>   <span class="sc">(taglio α)</span></li>
+        <li><b>return</b> <i>eval</i></li>
+      </ol>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 2.</b> MiniMax e AlphaBeta sullo stesso albero (radice MAX). I nodi grigi sono quelli potati: con AlphaBeta il valore della radice non cambia, ma si valutano meno foglie.</figcaption>
+        <div data-widget="alfabeta"></div>
+      </figure>
+      <div class="def">
+        <span class="etichetta">Quanto si guadagna</span>
+        <p>Caso pessimo: si visita tutto, O(mⁿ). <strong>Caso ottimo</strong> (si valuta sempre per prima la mossa migliore): metà dei livelli si riduce a un solo figlio, O(m<sup>n/2</sup>) = O(√(mⁿ)); nel gioco a n oggetti O(√(n!)). È uno <strong>speed-up quadratico</strong>: a parità di calcoli si guarda il doppio più in profondità. Nel caso medio un buon ordinamento euristico delle mosse avvicina il caso ottimo.</p>
+      </div>
+      <p><strong>Alberi troppo grandi.</strong> Si limita la ricerca a una profondità massima e si valutano le configurazioni non finali con una <strong>funzione euristica</strong> (valori in [−X, X]). La profondità aiuta anche a scegliere: tra due vittorie la più rapida, tra due sconfitte la più lenta.</p>
+      <div class="def">
+        <span class="etichetta">IterativeDeepening</span>
+        <p>Con un limite di tempo si esegue AlphaBeta a profondità 0, 1, 2, …: allo scadere del tempo si usa la mossa migliore trovata all'ultima profondità completata. Memoria <strong>O(d)</strong>, lineare nella profondità (una BFS userebbe O(m<sup>d</sup>)). Tempo: la radice è visitata d + 1 volte, i figli d volte…, ma T(m, d) ≤ m<sup>d</sup> Σ i/m<sup>i</sup> = <strong>O(m<sup>d</sup>)</strong>, lo stesso ordine di una sola visita a profondità d: domina l'ultimo livello.</p>
+      </div>
+      <aside class="nota">Molti stati di gioco si raggiungono con sequenze di mosse diverse: riconoscere le configurazioni già valutate (per esempio con una tabella hash) evita di ricalcolarle.</aside>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · La ricerca binaria su un albero</span>
+        <h2>Alberi binari di ricerca</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione (BST)</span>
+        <p>Albero binario in cui ogni nodo v ha una chiave v.key (e dei dati), con la <strong>proprietà di ordinamento</strong>: le chiavi nel sottoalbero sinistro di v sono ≤ v.key, quelle nel destro sono ≥ v.key. La visita <strong>in-ordine</strong> restituisce le chiavi ordinate.</p>
+      </div>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">search(BST T, Key k) → BST</li>
+            <li><b>while</b> <i>T</i> ≠ NIL <b>do</b></li>
+            <li class="rientro1"><b>if</b> <i>k</i> == <i>T</i>.key <b>then return</b> <i>T</i></li>
+            <li class="rientro1"><b>else if</b> <i>k</i> &lt; <i>T</i>.key <b>then</b> <i>T</i> = <i>T</i>.left</li>
+            <li class="rientro1"><b>else</b> <i>T</i> = <i>T</i>.right</li>
+            <li><b>return</b> NIL</li>
+          </ol>
+          <p><strong>min</strong> e <strong>max</strong>: il nodo più a sinistra e quello più a destra, senza confrontare chiavi.</p>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">predecessor(BST T) → BST</li>
+            <li><b>if</b> <i>T</i> == NIL <b>then return</b> NIL</li>
+            <li><b>if</b> <i>T</i>.left ≠ NIL <b>then return</b> max(<i>T</i>.left)   <span class="sc">(caso 1)</span></li>
+            <li><i>P</i> = <i>T</i>.parent   <span class="sc">(caso 2)</span></li>
+            <li><b>while</b> <i>P</i> ≠ NIL <b>and</b> <i>T</i> == <i>P</i>.left <b>do</b> <i>T</i> = <i>P</i>;  <i>P</i> = <i>P</i>.parent</li>
+            <li><b>return</b> <i>P</i></li>
+          </ol>
+          <p>Caso 2: il primo antenato di cui T sta nel sottoalbero destro. <strong>successor</strong> è simmetrico.</p>
+        </div>
+      </div>
+      <p><strong>insert</strong>: si scende come nella ricerca fino a un figlio NIL e si aggancia lì il nuovo nodo come foglia. <strong>delete</strong> ha tre casi:</p>
+      <ol>
+        <li>il nodo è una <strong>foglia</strong>: si toglie;</li>
+        <li>ha <strong>un solo figlio</strong>: il figlio prende il suo posto sotto il padre;</li>
+        <li>ha <strong>due figli</strong>: si copia al suo posto la chiave del <strong>predecessore</strong> (il massimo del sottoalbero sinistro, che non ha figlio destro) e si cancella il predecessore, che ricade nel caso 1 o 2.</li>
+      </ol>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 3.</b> BST e AVL. Scrivi una chiave e usa insert, delete o search; con ◀ ▶ rivedi i passi dell'ultima operazione. Passando ad AVL la stessa sequenza viene ricostruita con il ribilanciamento, e accanto ai nodi compare β.</figcaption>
+        <div data-widget="albero-ricerca" data-modo="bst" data-seq="60 80 20 25 92 21 99 90"></div>
+      </figure>
+      <div class="def">
+        <span class="etichetta">Costo</span>
+        <p>Tutte le operazioni seguono un percorso radice-foglia: <strong>O(h)</strong> nel caso pessimo, O(1) nell'ottimo. Ma h può essere qualunque cosa tra log n e n:</p>
+        <p class="formula">h + 1 ≤ n ≤ 2<sup>h+1</sup> − 1   ⇒   ⌈log₂(n + 1)⌉ − 1 ≤ h ≤ n − 1</p>
+        <p>Inserendo chiavi già ordinate l'albero diventa una lista (h = n − 1). Con n inserimenti in ordine casuale si dimostra che l'altezza media è O(log n); con inserimenti e cancellazioni mescolati l'analisi è difficile.</p>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Precisazione sui lucidi</span>
+        <p>I lucidi dicono che «un BST con altezza h ha almeno 2<sup>h</sup> nodi»: vale per un albero quasi perfettamente bilanciato (completo fino al livello h − 1), non per un BST qualsiasi, che con altezza h può avere anche solo h + 1 nodi (una catena). Il limite inferiore corretto è quello sopra.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Bilanciamento garantito</span>
+        <h2>Alberi AVL</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizioni</span>
+        <p><strong>Fattore di bilanciamento</strong>: β(v) = altezza(v.left) − altezza(v.right). Un albero è <strong>bilanciato in altezza</strong> se |β(v)| ≤ 1 per ogni nodo. Un <strong>albero AVL</strong> (Adelson-Velsky e Landis, 1962) è un BST bilanciato in altezza, che si ribilancia da solo dopo ogni inserimento e cancellazione: search, insert e delete costano <strong>O(log n) nel caso pessimo</strong>.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Altezza di un AVL: alberi di Fibonacci</span>
+        <p>L'AVL più sbilanciato possibile è l'<strong>albero di Fibonacci</strong>, in cui ogni nodo interno ha |β| = 1. Il numero di nodi con altezza h è n<sub>h</sub> = n<sub>h−1</sub> + n<sub>h−2</sub> + 1, e per induzione <strong>n<sub>h</sub> = F<sub>h+3</sub> − 1</strong> (n₀ = 1, n₁ = 2, n₂ = 4, n₃ = 7). Poiché F<sub>h</sub> = Θ(φ<sup>h</sup>), n<sub>h</sub> = Θ(φ<sup>h</sup>) e quindi <strong>h = Θ(log n)</strong> per ogni AVL con n nodi.</p>
+      </div>
+      <p>Ogni nodo memorizza l'altezza del suo sottoalbero, per calcolare β in O(1). Dopo un inserimento o una cancellazione si aggiornano le altezze risalendo verso la radice (O(log n)), fermandosi quando un'altezza non cambia.</p>
+      <div class="avviso">
+        <span class="etichetta">Altezza del sottoalbero vuoto</span>
+        <p>Nello pseudocodice <code>update-height</code> dei lucidi un figlio NIL e un figlio foglia valgono entrambi 0, e così un nodo che ha come unico figlio una foglia risulta di altezza 0 invece di 1. La convenzione che funziona sempre è <strong>altezza(NIL) = −1</strong>, altezza(v) = 1 + max(altezza(v.left), altezza(v.right)), e β(v) calcolato con la stessa convenzione.</p>
+      </div>
+      <h3>Rotazioni</h3>
+      <p>La <strong>rotazione semplice</strong> ribilancia in O(1) e preserva l'ordine del BST. Rotazione a destra su u con figlio sinistro v: v sale al posto di u, u diventa figlio destro di v, e il vecchio sottoalbero destro di v diventa sinistro di u.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">rotateDX(AVL T, AVL u) → AVL</li>
+        <li><i>v</i> = <i>u</i>.left;  <i>v</i>.parent = <i>u</i>.parent;  <i>u</i>.parent = <i>v</i></li>
+        <li><i>u</i>.left = <i>v</i>.right   <span class="sc">(e se v.right ≠ NIL, v.right.parent = u)</span></li>
+        <li><i>v</i>.right = <i>u</i></li>
+        <li><b>if</b> <i>v</i>.parent == NIL <b>then</b> <i>T</i> = <i>v</i>   <span class="sc">(nuova radice)</span></li>
+        <li><b>else if</b> <i>v</i>.parent.left == <i>u</i> <b>then</b> <i>v</i>.parent.left = <i>v</i> <b>else</b> <i>v</i>.parent.right = <i>v</i></li>
+        <li><b>return</b> <i>T</i></li>
+      </ol>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Sbilanciamento in u</th><th>Condizione</th><th>Rimedio</th></tr></thead>
+          <tbody>
+            <tr><td><strong>SS</strong></td><td>β(u) = +2, β(u.left) ≥ 0</td><td>rotazione DX su u</td></tr>
+            <tr><td><strong>DD</strong></td><td>β(u) = −2, β(u.right) ≤ 0</td><td>rotazione SX su u</td></tr>
+            <tr><td><strong>SD</strong></td><td>β(u) = +2, β(u.left) = −1</td><td>rotazione SX su u.left, poi DX su u</td></tr>
+            <tr><td><strong>DS</strong></td><td>β(u) = −2, β(u.right) = +1</td><td>rotazione DX su u.right, poi SX su u</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="nota">Su uno sbilanciamento SD una sola rotazione DX non basta: produce uno sbilanciamento DS speculare. Serve la rotazione doppia.</aside>
+      <div class="def">
+        <span class="etichetta">Inserimento e cancellazione</span>
+        <p><strong>insert</strong>: inserimento come nel BST (O(log n)), aggiornamento delle altezze risalendo (O(log n)), e al più <strong>un nodo critico</strong> (|β| = 2): una rotazione semplice o doppia lo sistema e riporta il sottoalbero all'altezza di prima, O(1).</p>
+        <p><strong>delete</strong>: cancellazione come nel BST, poi si risale verso la radice. Possono esserci <strong>più nodi critici</strong>, tutti sullo stesso cammino: le rotazioni si possono propagare fino alla radice, O(log n) in tutto.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="java">
+// asdlab.libreria.AlberiRicerca.AlberoAVL
+private void ruota(Nodo v) {
+    switch (bil(v)) {
+        case +2:
+            if (bil(alb.sin(v)) &gt; -1) ruotaDes(v);          // SS (0, +1)
+            else { ruotaSin(alb.sin(v)); ruotaDes(v); }      // SD (-1)
+            break;
+        case -2:
+            if (bil(alb.des(v)) &lt; +1) ruotaSin(v);          // DD (-1, 0)
+            else { ruotaDes(alb.des(v)); ruotaSin(v); }      // DS (+1)
+            break;
+    }
+}
+</code></pre>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Caso pessimo</th><th>Array ordinato</th><th>Lista</th><th>BST</th><th>AVL</th></tr></thead>
+          <tbody>
+            <tr><td>search</td><td>O(log n)</td><td>O(n)</td><td>O(h)</td><td>O(log n)</td></tr>
+            <tr><td>insert</td><td>O(n)</td><td>O(1)</td><td>O(h)</td><td>O(log n)</td></tr>
+            <tr><td>delete</td><td>O(n)</td><td>O(n)</td><td>O(h)</td><td>O(log n)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Allenamento</span>
+        <h2>Esercizi risolti</h2>
+      </div>
+      <p>Le soluzioni sono scritte in forma parentetica: <code>60(20, 80)</code> è la radice 60 con figli 20 e 80, e <code>·</code> è un figlio vuoto. Puoi rifare ogni esercizio nel simulatore della figura 3.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.1 · BST</span><h4>Inserire 60, 80, 20, 25, 92, 21, 99, 90, poi cancellare 92, 25, 99</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Dopo gli inserimenti: <code>60(20(·, 25(21, ·)), 80(·, 92(90, 99)))</code>, altezza 3.</p></div></li>
+            <li><div><p>delete 92: ha due figli, il predecessore è 90 → <code>80(·, 90(·, 99))</code>.</p></div></li>
+            <li><div><p>delete 25: un solo figlio (21), che sale sotto 20 → <code>20(·, 21)</code>.</p></div></li>
+            <li><div><p class="risultato">delete 99 (foglia): <code>60(20(·, 21), 80(·, 90))</code>.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.2 · AVL</span><h4>Inserire 50, 20, 10, 60, 40, 45</h4></div>
+        <div class="domanda" data-id="al-1">
+          <p class="testo">Quale sbilanciamento provoca l'inserimento di 45?</p>
+          <div class="opz"><button>SS su 50</button><button data-giusta>DS su 20</button><button>Nessuno</button></div>
+          <div class="perche" hidden><p>45 finisce a destra di 40, che è il sinistro di 50, che è il destro di 20: β(20) = −2 e β(50) = +1, caso DS.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>50, 20, poi 10: β(50) = +2 e β(20) = +1, caso <strong>SS</strong> → rotazione DX su 50: <code>20(10, 50)</code>.</p></div></li>
+            <li><div><p>60 e 40 non sbilanciano: <code>20(10, 50(40, 60))</code>.</p></div></li>
+            <li><div><p>45 va a destra di 40: β(20) = −2, β(50) = +1, caso <strong>DS</strong> → rotazione DX su 50, poi SX su 20.</p></div></li>
+            <li><div><p class="risultato"><code>40(20(10, ·), 50(45, 60))</code></p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.3 · AVL</span><h4>Continuare con insert 85, insert 55, delete 40, delete 45, insert 15</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>insert 85, 55: nessuna rotazione → <code>40(20(10, ·), 50(45, 60(55, 85)))</code>.</p></div></li>
+            <li><div><p>delete 40 (radice, due figli): il predecessore 20 sale in radice e il suo posto passa a 10. Ora β(20) = −2 con β(50) = −1: caso <strong>DD</strong> → rotazione SX: <code>50(20(10, 45), 60(55, 85))</code>.</p></div></li>
+            <li><div><p>delete 45 (foglia): <code>50(20(10, ·), 60(55, 85))</code>, ancora bilanciato.</p></div></li>
+            <li><div><p class="risultato">insert 15: va a destra di 10, β(20) = +2 e β(10) = −1, caso <strong>SD</strong> → <code>50(15(10, 20), 60(55, 85))</code>.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.4 · teoria</span><h4>delete su un BST è commutativa?</h4></div>
+        <div class="domanda" data-id="al-2">
+          <p class="testo">Cancellare u e poi v dà sempre lo stesso albero che cancellare v e poi u?</p>
+          <div class="opz"><button>Sì</button><button data-giusta>No</button></div>
+          <div class="perche" hidden><p>Basta un controesempio, qui sotto.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Albero <code>3(1(·, 2), 4)</code>.</p></div></li>
+            <li><div><p>Prima 3 poi 4: 3 ha due figli, sale il predecessore 2 → <code>2(1, 4)</code>; poi via 4 → <code>2(1, ·)</code>.</p></div></li>
+            <li><div><p>Prima 4 poi 3: via 4 → <code>3(1(·, 2), ·)</code>; ora 3 ha un solo figlio, che prende il suo posto → <code>1(·, 2)</code>.</p></div></li>
+            <li><div><p class="risultato">Due alberi diversi: non è commutativa.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.5 · progettazione</span><h4>Contare le chiavi in [a, b]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div>
+              <ol class="pseudo">
+                <li class="titolo">count(BST T, int a, int b) → int</li>
+                <li><b>if</b> <i>T</i> == NIL <b>then return</b> 0</li>
+                <li><b>if</b> <i>T</i>.key &lt; <i>a</i> <b>then return</b> count(<i>T</i>.right, <i>a</i>, <i>b</i>)</li>
+                <li><b>if</b> <i>T</i>.key &gt; <i>b</i> <b>then return</b> count(<i>T</i>.left, <i>a</i>, <i>b</i>)</li>
+                <li><b>return</b> 1 + count(<i>T</i>.left, <i>a</i>, <i>T</i>.key) + count(<i>T</i>.right, <i>T</i>.key, <i>b</i>)</li>
+              </ol>
+            </div></li>
+            <li><div><p class="risultato">Si scartano i sottoalberi che stanno tutti fuori dall'intervallo: O(h) se nessuna chiave è in [a, b], Θ(n) se ci sono tutte.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.6 · alberi binari</span><h4>Altezza di un albero binario</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>In profondità</strong>: height(NIL) = −1, height(T) = 1 + max(height(T.left), height(T.right)). Θ(n).</p></div></li>
+            <li><div><p><strong>In ampiezza</strong>: si accodano coppie [nodo, profondità] partendo da [T, 0]; l'ultimo nodo estratto è il più profondo, e la sua profondità è l'altezza. Θ(n).</p></div></li>
+            <li><div><p class="risultato">Stessa idea per gli altri esercizi su alberi del corso (cancellare le foglie, sommare i valori delle foglie, contare i nodi pari): una visita, Θ(n).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 5</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="al-3">
+          <p class="testo">Quale visita di un BST restituisce le chiavi in ordine crescente?</p>
+          <div class="opz"><button>pre-ordine</button><button data-giusta>in-ordine</button><button>BFS</button></div>
+          <div class="perche" hidden><p>Prima il sottoalbero sinistro (chiavi minori), poi il nodo, poi il destro. Invertendo destro e sinistro si ottiene l'ordine decrescente.</p></div>
+        </div>
+        <div class="domanda" data-id="al-4">
+          <p class="testo">Se un nodo di un BST ha due figli, il suo predecessore…</p>
+          <div class="opz"><button data-giusta>non ha figlio destro</button><button>è sempre una foglia</button><button>è suo padre</button></div>
+          <div class="perche" hidden><p>È il massimo del sottoalbero sinistro: se avesse un figlio destro, quello sarebbe più grande. Può però avere un figlio sinistro.</p></div>
+        </div>
+        <div class="domanda" data-id="al-5">
+          <p class="testo">Quanti nodi ha, al minimo, un AVL di altezza 4?</p>
+          <div class="opz"><button>5</button><button data-giusta>12</button><button>16</button></div>
+          <div class="perche" hidden><p>n₄ = F₇ − 1 = 13 − 1 = 12 (oppure n₄ = n₃ + n₂ + 1 = 7 + 4 + 1).</p></div>
+        </div>
+        <div class="domanda" data-id="al-6">
+          <p class="testo">Dopo un inserimento in un AVL, quante rotazioni (semplici o doppie) servono al più?</p>
+          <div class="opz"><button data-giusta>una</button><button>O(log n)</button><button>nessuna, si aggiornano solo le altezze</button></div>
+          <div class="perche" hidden><p>C'è al più un nodo critico, e la rotazione riporta il sottoalbero all'altezza di prima dell'inserimento. Nella cancellazione invece possono servirne O(log n).</p></div>
+        </div>
+        <div class="domanda" data-id="al-7">
+          <p class="testo">AlphaBeta rispetto a MiniMax…</p>
+          <div class="opz"><button>può dare un valore diverso alla radice</button><button data-giusta>dà lo stesso valore visitando al più gli stessi nodi</button><button>è sempre O(√n)</button></div>
+          <div class="perche" hidden><p>La potatura elimina solo rami che non possono cambiare la scelta. Il guadagno quadratico c'è solo con l'ordine ottimo delle mosse.</p></div>
+        </div>
+        <div class="domanda" data-id="al-8">
+          <p class="testo">Costo pessimo di search in un BST con n nodi costruito inserendo 1, 2, …, n?</p>
+          <div class="opz"><button>O(log n)</button><button data-giusta>Θ(n)</button><button>O(1)</button></div>
+          <div class="perche" hidden><p>Ogni chiave va a destra della precedente: l'albero è una catena di altezza n − 1. Gli AVL esistono per evitarlo.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-05">
+        <li><label><input type="checkbox" id="r05-1"><span>So scrivere le quattro visite e dire che visita fa un algoritmo ricorsivo su alberi.</span></label></li>
+        <li><label><input type="checkbox" id="r05-2"><span>So applicare MiniMax e AlphaBeta a mano su un albero di gioco.</span></label></li>
+        <li><label><input type="checkbox" id="r05-3"><span>So inserire e cancellare in un BST, compreso il caso con due figli.</span></label></li>
+        <li><label><input type="checkbox" id="r05-4"><span>So dimostrare che un AVL ha altezza Θ(log n) con gli alberi di Fibonacci.</span></label></li>
+        <li><label><input type="checkbox" id="r05-5"><span>So riconoscere SS, DD, SD, DS e applicare le rotazioni giuste.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="alberi,bst,avl"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Strutture dati elementari» (parte sugli alberi), «Algoritmi di decisione su alberi», «Alberi binari di ricerca» e «Alberi AVL» (P. Di Lena) con i relativi esercizi, appunti di Berto, tr4v4 e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. Le soluzioni degli esercizi su BST e AVL sono ricalcolate con le regole dei lucidi (cancellazione con il predecessore).</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

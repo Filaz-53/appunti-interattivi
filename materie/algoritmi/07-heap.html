@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Heap e code con priorità · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Heap binari su array, fixHeap, heapify in tempo lineare, HeapSort, code con priorità e d-heap, con simulatore passo per passo.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="07-heap">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Heap binari</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>fixHeap, heapify, deleteMax</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>HeapSort</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Code con priorità</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>d-heap</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Verifica ed esercizi</span></a></li>
+        <li><a href="#esami"><span class="n">§7</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 7</span>
+      <h1>Heap e code con priorità</h1>
+      <p class="lede">Un albero quasi completo salvato in un array, che tiene sempre il massimo (o il minimo) in cima. Serve a ordinare in loco in O(n log n) con HeapSort e a implementare le code con priorità usate da Dijkstra, Prim e Huffman.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · La struttura</span>
+        <h2>Heap binari</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Alberi completi e quasi completi</span>
+        <p>Un albero binario <strong>completo</strong> ha tutte le foglie alla stessa profondità h e ogni nodo interno con due figli: N = 2<sup>h+1</sup> − 1 nodi, h ≈ log N. Un albero <strong>quasi completo</strong> è completo fino al livello h − 1, e i nodi del livello h sono compattati a sinistra.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Max-heap e min-heap</span>
+        <p>Un albero binario quasi completo è un <strong>max-heap</strong> se ogni nodo ha un valore ≥ di quello dei figli: A[Parent(i)] ≥ A[i]. È un <strong>min-heap</strong> se vale ≤. In un max-heap la radice è il massimo.</p>
+      </div>
+      <p>La forma quasi completa permette di salvare lo heap in un <strong>array</strong> senza puntatori: A[1] è la radice (A[0] non si usa), e</p>
+      <p class="formula">Parent(i) = ⌊i/2⌋     Left(i) = 2i     Right(i) = 2i + 1</p>
+      <p>L'array ha una lunghezza A.length e lo heap ne occupa i primi A.heapsize elementi. Gli elementi compaiono nell'array nell'ordine della <strong>visita in ampiezza</strong> (livello per livello, da sinistra).</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Le operazioni</span>
+        <h2>fixHeap, heapify e deleteMax</h2>
+      </div>
+      <ul>
+        <li><strong>findMax</strong>: il massimo è la radice A[1], Θ(1).</li>
+        <li><strong>fixHeap(i)</strong>: se i sottoalberi dei figli di i sono max-heap ma A[i] è troppo piccolo, lo si scambia con il figlio maggiore e si ripete più in basso. Al più tanti scambi quanta è la profondità: <strong>O(log n)</strong>.</li>
+        <li><strong>heapify</strong>: costruisce uno heap da un array qualsiasi. Si rendono heap i due sottoalberi, ricorsivamente, poi si applica fixHeap alla radice.</li>
+        <li><strong>deleteMax</strong>: si mette nella radice l'ultimo elemento dello heap e si applica fixHeap: O(log n).</li>
+      </ul>
+<pre class="codice largo" data-copia><code data-lang="java">
+// Lo heap sta in S[1..c]; S[0] non è usato
+private static void fixHeap(Comparable S[], int c, int i) {
+    int max = 2 * i;                                  // figlio sinistro
+    if (2 * i &gt; c) return;                            // i è una foglia
+    if (2 * i + 1 &lt;= c &amp;&amp; S[2 * i].compareTo(S[2 * i + 1]) &lt; 0)
+        max = 2 * i + 1;                              // figlio destro
+    if (S[i].compareTo(S[max]) &lt; 0) {
+        Comparable temp = S[max]; S[max] = S[i]; S[i] = temp;
+        fixHeap(S, c, max);
+    }
+}
+
+private static void heapify(Comparable S[], int n, int i) {
+    if (i &gt; n) return;
+    heapify(S, n, 2 * i);          // heap radicato in S[2i]
+    heapify(S, n, 2 * i + 1);      // heap radicato in S[2i+1]
+    fixHeap(S, n, i);
+}
+// per trasformare S in uno heap: heapify(S, S.length - 1, 1)
+</code></pre>
+      <div class="def">
+        <span class="etichetta">heapify costa O(n), non O(n log n)</span>
+        <p class="formula">T(n) = 2T(n/2) + O(log n) ≤ 2T(n/2) + √n  (per n &gt; 16)</p>
+        <p>Con il Master Theorem: α = log₂ 2 = 1 &gt; β = ½, quindi <strong>T(n) = O(n)</strong>. L'intuizione: la maggior parte dei nodi sta in basso, dove fixHeap fa pochi passi.</p>
+      </div>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Heap come albero e come array. Il numero a penna accanto a ogni nodo è il suo indice nell'array. Prova heapify, poi insert ed «estrai la radice», poi HeapSort; puoi passare a min-heap e a d = 3.</figcaption>
+        <div data-widget="heap"></div>
+      </figure>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Ordinare con uno heap</span>
+        <h2>HeapSort</h2>
+      </div>
+      <ol>
+        <li>Si costruisce un max-heap sull'array con heapify: O(n).</li>
+        <li>Si prende il massimo (findMax) e lo si toglie con deleteMax: lo heap si accorcia di uno.</li>
+        <li>Il massimo va nell'ultima posizione liberata dell'array.</li>
+        <li>Si ripete finché lo heap è vuoto.</li>
+      </ol>
+<pre class="codice largo" data-copia><code data-lang="java">
+public static void heapSort(Comparable S[]) {          // elementi in S[1..n]
+    heapify(S, S.length - 1, 1);                        // O(n)
+    for (int c = S.length - 1; c &gt; 0; c--) {
+        Comparable k = findMax(S);                      // O(1)
+        deleteMax(S, c);                                // O(log c)
+        S[c] = k;
+    }
+}
+</code></pre>
+      <p>Costo: O(n) + Σ<sub>c</sub> O(log c) = <strong>O(n log n)</strong> in ogni caso. È <strong>in loco</strong> (la parte ordinata cresce in fondo allo stesso array) e <strong>iterativo</strong>, ma <strong>non è stabile</strong>: gli scambi con la radice spostano elementi lontano dai loro uguali.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Il tipo di dato</span>
+        <h2>Code con priorità</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Una <strong>coda con priorità</strong> mantiene il minimo (o il massimo) di un insieme dinamico di elementi con chiavi totalmente ordinate. Operazioni: <code>findMin()</code>, <code>insert(e, k)</code>, <code>delete(e)</code>, <code>deleteMin()</code>, <code>increaseKey(e, d)</code>, <code>decreaseKey(e, d)</code>; delete e le modifiche di chiave assumono l'accesso diretto all'elemento.</p>
+      </div>
+      <p>Esempio dei lucidi: nel routing si processano prima i pacchetti con priorità più alta (VoIP, videoconferenza). Nel corso le code con priorità tornano in heapselect (capitolo 3), nei codici di Huffman (capitolo 9), in Dijkstra e in Prim (capitolo 11). Si implementano con i d-heap; heap binomiali e di Fibonacci sono approfondimenti non trattati.</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Generalizzazione</span>
+        <h2>d-heap</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Un <strong>d-heap</strong> è un albero d-ario perfetto almeno fino alla profondità h − 1, con le foglie del livello h accatastate a sinistra, in cui ogni nodo diverso dalla radice ha chiave ≥ di quella del padre (min-heap). <strong>Proprietà fondamentale</strong>: la radice contiene una chiave minima (per induzione: i sottoalberi dei figli sono d-heap e la radice è ≤ di tutti i figli).</p>
+      </div>
+      <p><strong>Altezza</strong>: l'albero è completo fino al livello h − 1, quindi n &gt; (d<sup>h</sup> − 1)/(d − 1) e h &lt; log<sub>d</sub>(n(d − 1) + 1) = <strong>O(log<sub>d</sub> n)</strong>.</p>
+      <p><strong>Array</strong> (da A[1]): i figli di i sono in posizione (i − 1)d + 2, …, id + 1, il padre è in ⌈(i − 1)/d⌉. Con d = 2 si ritrovano 2i, 2i + 1 e ⌊i/2⌋.</p>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">muoviAlto(v)</li>
+            <li><b>while</b> <i>v</i> ≠ root(<i>T</i>) <b>and</b> chiave(<i>v</i>) &lt; chiave(padre(<i>v</i>)) <b>do</b></li>
+            <li class="rientro1">scambia di posto <i>v</i> e padre(<i>v</i>)</li>
+            <li class="rientro1"><i>v</i> = padre(<i>v</i>)</li>
+          </ol>
+          <p>Un confronto per livello: O(log<sub>d</sub> n).</p>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">muoviBasso(v)</li>
+            <li><b>repeat</b></li>
+            <li class="rientro1"><b>if</b> <i>v</i> non ha figli <b>then return</b></li>
+            <li class="rientro1">sia <i>u</i> il figlio di <i>v</i> con chiave minima   <span class="sc">(d confronti)</span></li>
+            <li class="rientro1"><b>if</b> chiave(<i>u</i>) &lt; chiave(<i>v</i>) <b>then</b> scambia <i>u</i> e <i>v</i> <b>else return</b></li>
+          </ol>
+          <p>d confronti per livello: O(d log<sub>d</sub> n).</p>
+        </div>
+      </div>
+      <ul>
+        <li><strong>insert</strong>: nuova foglia nell'ultima posizione, poi muoviAlto.</li>
+        <li><strong>delete(e)</strong> e <strong>deleteMin</strong>: al posto di e si copia l'ultima foglia w, si stacca w, poi muoviAlto e muoviBasso: solo uno dei due fa davvero qualcosa.</li>
+        <li><strong>decreaseKey</strong>: si diminuisce la chiave e si fa muoviAlto. <strong>increaseKey</strong>: si aumenta e si fa muoviBasso.</li>
+      </ul>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Operazione</th><th>d-heap</th><th>heap binario (d = 2)</th></tr></thead>
+          <tbody>
+            <tr><td>findMin</td><td>O(1)</td><td>O(1)</td></tr>
+            <tr><td>insert</td><td>O(log<sub>d</sub> n)</td><td>O(log n)</td></tr>
+            <tr><td>delete, deleteMin</td><td>O(d log<sub>d</sub> n)</td><td>O(log n)</td></tr>
+            <tr><td>increaseKey</td><td>O(d log<sub>d</sub> n)</td><td>O(log n)</td></tr>
+            <tr><td>decreaseKey</td><td>O(log<sub>d</sub> n)</td><td>O(log n)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="nota">Perché d &gt; 2? insert e decreaseKey diventano più veloci (l'albero è più basso) e le estrazioni più lente. Conviene quando le decreaseKey sono molte più delle deleteMin, come in Dijkstra su grafi densi.</aside>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Ripasso</span>
+        <h2>Verifica ed esercizi</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.1 · simulazione</span><h4>heapify su [4, 1, 3, 2, 16, 9, 10, 14, 8, 7]</h4></div>
+        <div class="domanda" data-id="hp-1">
+          <p class="testo">Qual è il max-heap risultante?</p>
+          <div class="opz"><button data-giusta>[16, 14, 10, 8, 7, 9, 3, 2, 4, 1]</button><button>[16, 14, 10, 4, 7, 9, 3, 2, 8, 1]</button><button>[16, 10, 14, 8, 7, 9, 3, 2, 4, 1]</button></div>
+          <div class="perche" hidden><p>Verificalo nel simulatore con heapify: è lo stesso array che si ottiene con la versione dal basso (i da ⌊n/2⌋ a 1).</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>I nodi con figli sono le posizioni 1..5. fixHeap su 5 (16, figlio 7): niente. Su 4 (2, figli 14 e 8): scambio con 14.</p></div></li>
+            <li><div><p>Su 3 (3, figli 9 e 10): scambio con 10. Su 2 (1, figli 14 e 16): scambio con 16, poi 1 scende ancora sotto 7.</p></div></li>
+            <li><div><p>Su 1 (4, figli 16 e 10): scambio con 16, poi 4 scende sotto 14, poi sotto 8.</p></div></li>
+            <li><div><p class="risultato">[16, 14, 10, 8, 7, 9, 3, 2, 4, 1].</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.2 · progettazione</span><h4>I k elementi più grandi di un flusso di n numeri</h4></div>
+        <p>Si leggono n numeri uno alla volta e si vogliono i k più grandi alla fine, con memoria O(k).</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Si tiene un <strong>min-heap</strong> di al più k elementi: la radice è il più piccolo dei k migliori visti finora.</p></div></li>
+            <li><div><p>Per ogni numero x: se lo heap ha meno di k elementi, insert(x); altrimenti, se x &gt; findMin(), si fa deleteMin e insert(x).</p></div></li>
+            <li><div><p class="risultato">Ogni passo costa O(log k): in tutto O(n log k) tempo e O(k) memoria. Con un max-heap di tutti gli n elementi servirebbero O(n) memoria e O(n + k log n) tempo.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 7</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="hp-2">
+          <p class="testo">In un heap binario su array (radice in A[1]), dove sono i figli di A[6]?</p>
+          <div class="opz"><button>A[7] e A[8]</button><button data-giusta>A[12] e A[13]</button><button>A[3]</button></div>
+          <div class="perche" hidden><p>Left(6) = 12, Right(6) = 13. A[3] è il padre.</p></div>
+        </div>
+        <div class="domanda" data-id="hp-3">
+          <p class="testo">Quanto costa costruire uno heap da un array di n elementi con heapify?</p>
+          <div class="opz"><button data-giusta>O(n)</button><button>O(n log n)</button><button>O(log n)</button></div>
+          <div class="perche" hidden><p>T(n) = 2T(n/2) + O(log n) = O(n). Con n insert successivi invece servirebbe O(n log n).</p></div>
+        </div>
+        <div class="domanda" data-id="hp-4">
+          <p class="testo">L'array [9, 7, 8, 3, 7, 8, 1] è un max-heap?</p>
+          <div class="opz"><button data-giusta>Sì</button><button>No, perché 8 compare due volte</button><button>No, perché 7 è figlio di 9 e padre di 7</button></div>
+          <div class="perche" hidden><p>9 ≥ 7, 8; 7 ≥ 3, 7; 8 ≥ 8, 1. I valori uguali sono ammessi (≥).</p></div>
+        </div>
+        <div class="domanda" data-id="hp-5">
+          <p class="testo">HeapSort è stabile?</p>
+          <div class="opz"><button>Sì</button><button data-giusta>No</button></div>
+          <div class="perche" hidden><p>Lo scambio tra radice e ultimo elemento sposta elementi lontano, oltre i loro uguali. È però in loco, a differenza di MergeSort.</p></div>
+        </div>
+        <div class="domanda" data-id="hp-6">
+          <p class="testo">In un d-heap, quanto costa deleteMin?</p>
+          <div class="opz"><button>O(log<sub>d</sub> n)</button><button data-giusta>O(d log<sub>d</sub> n)</button><button>O(d)</button></div>
+          <div class="perche" hidden><p>muoviBasso a ogni livello cerca il figlio minimo tra d: d confronti per O(log<sub>d</sub> n) livelli.</p></div>
+        </div>
+        <div class="domanda" data-id="hp-7">
+          <p class="testo">In un 3-heap su array (da A[1]), qual è il padre di A[9]?</p>
+          <div class="opz"><button>A[2]</button><button data-giusta>A[3]</button><button>A[4]</button></div>
+          <div class="perche" hidden><p>⌈(9 − 1)/3⌉ = ⌈2,67⌉ = 3. I figli di A[3] sono A[8], A[9], A[10]: (3 − 1)·3 + 2 = 8 … 3·3 + 1 = 10.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-07">
+        <li><label><input type="checkbox" id="r07-1"><span>So passare da indice a padre e figli in un heap binario e in un d-heap.</span></label></li>
+        <li><label><input type="checkbox" id="r07-2"><span>So simulare fixHeap, heapify, insert e deleteMax a mano.</span></label></li>
+        <li><label><input type="checkbox" id="r07-3"><span>So dimostrare che heapify costa O(n).</span></label></li>
+        <li><label><input type="checkbox" id="r07-4"><span>So i costi delle operazioni di una coda con priorità su d-heap.</span></label></li>
+        <li><label><input type="checkbox" id="r07-5"><span>So usare uno heap per i k elementi più grandi o più piccoli.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="heap"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Ordinamento» (parte su HeapSort) e «Code con priorità» (G. Zavattaro, dal materiale di M. Marzolla e A. Montresor), appunti di Berto, tr4v4 e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

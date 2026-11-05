@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tecniche algoritmiche · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Divide et impera (Hanoi, Karatsuba, sottovettore massimo), algoritmi greedy (resto, scheduling, Huffman) e programmazione dinamica (zaino, seam carving, distanza di Levenshtein), con tabelle che si riempiono passo per passo.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="09-tecniche-algoritmiche">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Tre tecniche a confronto</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Divide et impera</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Sottovettore massimo</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Algoritmi greedy</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Codici di Huffman</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Programmazione dinamica</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Lo zaino</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Seam carving e Levenshtein</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Esercizi risolti</span></a></li>
+        <li><a href="#esami"><span class="n">§9</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 9</span>
+      <h1>Tecniche algoritmiche</h1>
+      <p class="lede">Tre modi generali di progettare algoritmi: dividere il problema in pezzi indipendenti, fare sempre la scelta che sembra migliore, oppure costruire la soluzione dal basso riusando i sottoproblemi già risolti. È la materia dell'esercizio 3 dello scritto (progettazione su array).</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Tre tecniche a confronto</h2>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Tecnica</th><th>Idea</th><th>Quando funziona</th><th>Esempi</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Divide et impera</strong></td><td>ricorsiva, top-down: dividi, risolvi i pezzi, combina</td><td>sottoproblemi indipendenti, divide e combina «semplici»</td><td>MergeSort, QuickSort, ricerca binaria, Hanoi, Karatsuba</td></tr>
+            <tr><td><strong>Greedy</strong></td><td>a ogni passo la scelta che sembra ottima, mai disfatta</td><td>esiste una scelta ingorda e c'è sottostruttura ottima</td><td>resto (sistemi canonici), SJF, Huffman, Kruskal, Prim, Dijkstra</td></tr>
+            <tr><td><strong>Programmazione dinamica</strong></td><td>iterativa, bottom-up: tabella dei sottoproblemi</td><td>sottostruttura ottima e sottoproblemi ripetuti</td><td>Fibonacci, zaino, Levenshtein, seam carving, Bellman-Ford, Floyd-Warshall</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Allo scritto la soluzione si scrive sempre in tre parti: <strong>idea a parole</strong>, <strong>pseudocodice commentato</strong>, <strong>costo</strong> con i passaggi (vedi la <a href="mappa-esami.html">mappa degli esami</a>). Per la programmazione dinamica l'idea è la definizione del sottoproblema e della sua equazione.</p>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Tecnica 1</span>
+        <h2>Divide et impera</h2>
+      </div>
+      <p>Tre fasi: <strong>divide</strong> (sottoproblemi indipendenti e più piccoli), <strong>impera</strong> (risolvili ricorsivamente), <strong>combina</strong> (unisci le soluzioni). Non c'è una ricetta unica: la ricerca binaria ha un divide banale e niente combina, QuickSort un divide complesso e niente combina, MergeSort un divide banale e un combina complesso.</p>
+      <h3>Le torri di Hanoi</h3>
+      <p>n dischi sul piolo 1 da portare sul 3, un disco alla volta, mai un disco grande su uno piccolo. Per spostare n dischi da p1 a p3: si spostano n − 1 dischi da p1 a p2 (usando p3), il disco più grande da p1 a p3, e gli n − 1 da p2 a p3 (usando p1).</p>
+      <ol class="pseudo largo">
+        <li class="titolo">Hanoi(Stack p1, Stack p2, Stack p3, int n)   <span class="sc">(n dischi da p1 a p3, p2 di appoggio)</span></li>
+        <li><b>if</b> <i>n</i> = 1 <b>then</b> <i>p3</i>.push(<i>p1</i>.pop())</li>
+        <li><b>else</b></li>
+        <li class="rientro1">Hanoi(<i>p1</i>, <i>p3</i>, <i>p2</i>, <i>n</i> − 1)</li>
+        <li class="rientro1"><i>p3</i>.push(<i>p1</i>.pop())</li>
+        <li class="rientro1">Hanoi(<i>p2</i>, <i>p1</i>, <i>p3</i>, <i>n</i> − 1)</li>
+      </ol>
+      <p>T(1) = 1, T(n) = 2T(n − 1) + 1: iterando, T(n) = 1 + 2 + 4 + … + 2<sup>n−1</sup> = <strong>2ⁿ − 1</strong>. Con 64 dischi e una mossa al secondo servono circa 1,8 · 10¹⁹ secondi, 585 miliardi di anni: circa 127 volte l'età del Sole.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Le torri di Hanoi con la soluzione ricorsiva. Il disco arancione è l'ultimo spostato.</figcaption>
+        <div data-widget="hanoi"></div>
+      </figure>
+      <h3>Moltiplicazione di interi di n cifre</h3>
+      <p>In colonna costa O(n²). Spezzando X = X₁·10<sup>n/2</sup> + X₀ e Y = Y₁·10<sup>n/2</sup> + Y₀:</p>
+      <p class="formula">X·Y = X₁Y₁·10ⁿ + (X₁Y₀ + X₀Y₁)·10<sup>n/2</sup> + X₀Y₀</p>
+      <p>Quattro prodotti di numeri di n/2 cifre e shift O(n): T(n) = 4T(n/2) + cn = Θ(n²), nessun guadagno. Il trucco (di Karatsuba) è calcolarne solo <strong>tre</strong>:</p>
+      <p class="formula">P₁ = (X₁ + X₀)(Y₁ + Y₀),  P₂ = X₁Y₁,  P₃ = X₀Y₀   ⇒   X·Y = P₂·10ⁿ + (P₁ − P₂ − P₃)·10<sup>n/2</sup> + P₃</p>
+      <p>T(n) = 3T(n/2) + cn: α = log₂ 3 ≈ 1,58 &gt; 1 ⇒ <strong>Θ(n<sup>log₂ 3</sup>) ≈ Θ(n<sup>1,59</sup>)</strong>.</p>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 1.1 · Karatsuba a mano</span><h4>1234 × 5678</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>X₁ = 12, X₀ = 34, Y₁ = 56, Y₀ = 78, n = 4.</p></div></li>
+            <li><div><p>P₂ = 12 · 56 = 672; P₃ = 34 · 78 = 2652; P₁ = 46 · 134 = 6164.</p></div></li>
+            <li><div><p>P₁ − P₂ − P₃ = 6164 − 672 − 2652 = 2840.</p></div></li>
+            <li><div><p class="risultato">672 · 10⁴ + 2840 · 10² + 2652 = 6.720.000 + 284.000 + 2.652 = 7.006.652, con 3 moltiplicazioni a 2 cifre invece di 4.</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Un problema, quattro soluzioni</span>
+        <h2>Il sottovettore di somma massima</h2>
+      </div>
+      <p>Dato V[1..n] di valori reali, trovare un sottovettore <strong>non vuoto</strong> di elementi contigui con somma massima. Esempio dei lucidi: in [3, −5, 10, 2, −3, 1, 4, −8, 7, −6, −1] la risposta è 10 + 2 − 3 + 1 + 4 = 14. I sottovettori sono n(n + 1)/2.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Versione</th><th>Idea</th><th>Costo</th></tr></thead>
+          <tbody>
+            <tr><td>forza bruta</td><td>per ogni (i, j) somma da capo V[i..j]</td><td>Θ(n³)</td></tr>
+            <tr><td>migliorata</td><td>per ogni i, estende la somma con V[j] invece di ricalcolarla</td><td>Θ(n²)</td></tr>
+            <tr><td>divide et impera</td><td>massimo nella metà sinistra, nella destra, o a cavallo di V[m]</td><td>Θ(n log n)</td></tr>
+            <tr><td>programmazione dinamica</td><td>S[i] = miglior somma che finisce in i (§5)</td><td>Θ(n)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Nella versione divide et impera il sottovettore a cavallo contiene V[m] e si estende a sinistra (somma massima S<sub>a</sub> dei sottovettori, anche vuoti, che finiscono in m − 1) e a destra (S<sub>b</sub>, che iniziano in m + 1): vale V[m] + S<sub>a</sub> + S<sub>b</sub>. T(n) = 2T(n/2) + Θ(n) = Θ(n log n).</p>
+      <ol class="pseudo largo">
+        <li class="titolo">SommaMaxDI(real V[1..n], int i, int j) → real</li>
+        <li><b>if</b> <i>i</i> &gt; <i>j</i> <b>then return</b> −∞   <span class="sc">(nei lucidi: 0, vedi sotto)</span></li>
+        <li><b>if</b> <i>i</i> == <i>j</i> <b>then return</b> <i>V</i>[<i>i</i>]</li>
+        <li><i>m</i> = ⌊(<i>i</i> + <i>j</i>)/2⌋;  <i>l</i> = SommaMaxDI(<i>V</i>, <i>i</i>, <i>m</i> − 1);  <i>r</i> = SommaMaxDI(<i>V</i>, <i>m</i> + 1, <i>j</i>)</li>
+        <li><i>sa</i> = 0;  <i>s</i> = 0;  <b>for</b> <i>k</i> = <i>m</i> − 1 <b>downto</b> <i>i</i> <b>do</b> <i>s</i> = <i>s</i> + <i>V</i>[<i>k</i>];  <i>sa</i> = max(<i>sa</i>, <i>s</i>)</li>
+        <li><i>sb</i> = 0;  <i>s</i> = 0;  <b>for</b> <i>k</i> = <i>m</i> + 1 <b>to</b> <i>j</i> <b>do</b> <i>s</i> = <i>s</i> + <i>V</i>[<i>k</i>];  <i>sb</i> = max(<i>sb</i>, <i>s</i>)</li>
+        <li><b>return</b> max(<i>l</i>, <i>r</i>, <i>V</i>[<i>m</i>] + <i>sa</i> + <i>sb</i>)</li>
+      </ol>
+      <div class="avviso">
+        <span class="etichetta">Il caso base del sottovettore vuoto</span>
+        <p>Nei lucidi SommaMaxDI restituisce 0 quando i &gt; j. Ma il sottovettore cercato è non vuoto: con V = [−5, −3] la chiamata su V[1..0] vale 0, e il risultato finale è max(0, −3, −5) = 0, mentre la risposta giusta è −3. Restituendo −∞ (un sottovettore vuoto non è una soluzione ammessa) l'algoritmo è corretto anche con tutti valori negativi. S<sub>a</sub> e S<sub>b</sub> invece partono giustamente da 0, perché lì l'estensione vuota è ammessa.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Tecnica 2</span>
+        <h2>Algoritmi greedy</h2>
+      </div>
+      <p>Si applicano quando si può dimostrare che esiste una <strong>scelta ingorda</strong> (tra le tante, una porta sicuramente all'ottimo) e il problema ha <strong>sottostruttura ottima</strong> (fatta la scelta, resta un sottoproblema dello stesso tipo). Sono semplici ed efficienti; quando la scelta ingorda non esiste danno comunque soluzioni sub-ottime, a volte utili.</p>
+      <h3>Il problema del resto</h3>
+      <p>Erogare R centesimi con il minimo numero di monete da 50, 20, 10, 5, 2, 1 (infinite di ogni taglio). Greedy: si prende sempre la moneta più grande che non supera il resto. R = 78: 50 + 20 + 5 + 2 + 1 (5 monete). R = 19: 10 + 5 + 2 + 2.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">RestoGreedy(int R, int T[1..n]) → int</li>
+        <li>ordina <i>T</i> in senso decrescente;  <i>nm</i> = 0;  <i>i</i> = 1</li>
+        <li><b>while</b> <i>R</i> &gt; 0 <b>and</b> <i>i</i> ≤ <i>n</i> <b>do</b></li>
+        <li class="rientro1"><b>if</b> <i>R</i> ≥ <i>T</i>[<i>i</i>] <b>then</b> <i>R</i> = <i>R</i> − <i>T</i>[<i>i</i>];  <i>nm</i> = <i>nm</i> + 1 <b>else</b> <i>i</i> = <i>i</i> + 1</li>
+        <li><b>if</b> <i>R</i> &gt; 0 <b>then</b> errore: resto non erogabile <b>else return</b> <i>nm</i></li>
+      </ol>
+      <div class="avviso">
+        <span class="etichetta">Funziona solo con i sistemi canonici</span>
+        <p>Con i tagli 4, 3, 1 e R = 6 il greedy usa 4 + 1 + 1 (3 monete) invece di 3 + 3 (2). Con i tagli 5, 2 e R = 6 prende il 5 e poi non riesce a erogare 1, mentre 2 + 2 + 2 esiste. Nel caso generale serve la programmazione dinamica.</p>
+      </div>
+      <h3>Scheduling: Shortest Job First</h3>
+      <p>Un processore, n job con tempi t[i]: minimizzare il tempo medio di completamento. Greedy: si esegue sempre il job più corto tra quelli rimasti (cioè si ordina per durata: O(n log n)). Con durate 4, 1, 6, 3 nell'ordine dato i tempi di completamento sono 4, 5, 11, 14 (media 34/4); in ordine crescente 1, 4, 8, 14 (media 27/4).</p>
+      <aside class="nota">Nei lucidi la seconda disposizione dell'esempio dà (1 + 5 + 8 + 14)/4 = 28/4. Ordinando davvero per durata crescente (1, 3, 4, 6) si scende a 27/4: è il minimo.</aside>
+      <div class="def">
+        <span class="etichetta">Ottimalità (argomento di scambio)</span>
+        <p>Se in una soluzione un job lungo A precede uno corto B (… x A y B z …), scambiandoli (… x B y A z …) i job in x e z non cambiano, A finisce quando prima finiva B, B finisce prima di quando finiva A, e i job in y finiscono prima. Il tempo medio non peggiora: quindi esiste una soluzione ottima ordinata per durata.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Greedy: compressione</span>
+        <h2>Codici di Huffman</h2>
+      </div>
+      <p>Si vuole una funzione di codifica f che associ a ogni carattere una stringa di bit, minimizzando la lunghezza del file codificato. Con caratteri a, b, c, d, e, f di frequenze 45%, 13%, 12%, 16%, 9%, 5%: ASCII usa 8n bit, un codice fisso a 3 bit 3n, il codice variabile 0, 101, 100, 111, 1101, 1100 solo <strong>2,24n</strong>.</p>
+      <div class="def">
+        <span class="etichetta">Codici a prefisso</span>
+        <p>Un codice è <strong>a prefisso</strong> se nessuna codifica è prefisso di un'altra: così si decodifica leggendo un bit alla volta senza ambiguità. Con f(a) = 1, f(b) = 10, f(c) = 101 la stringa 101 potrebbe essere «c» o «ba». Un codice a prefisso è un albero binario (sinistra 0, destra 1) con i caratteri nelle foglie, e in un codice ottimo nessun nodo interno ha un solo figlio.</p>
+      </div>
+      <p><strong>Algoritmo di Huffman</strong> (1952): si mettono tutti i caratteri in una coda con priorità per frequenza; per n − 1 volte si estraggono i due nodi di frequenza minima, si uniscono sotto un nuovo nodo con frequenza somma, e il nuovo nodo torna nella coda. I caratteri rari finiscono in fondo all'albero, con codici lunghi.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">Huffman(real f[1..n], char c[1..n]) → Tree</li>
+        <li><i>Q</i> = new MinPriorityQueue()</li>
+        <li><b>for</b> <i>i</i> = 1 <b>to</b> <i>n</i> <b>do</b> <i>Q</i>.insert(<i>f</i>[<i>i</i>], new TreeNode(<i>f</i>[<i>i</i>], <i>c</i>[<i>i</i>]))</li>
+        <li><b>for</b> <i>i</i> = 1 <b>to</b> <i>n</i> − 1 <b>do</b></li>
+        <li class="rientro1"><i>z1</i> = <i>Q</i>.findMin();  <i>Q</i>.deleteMin();  <i>z2</i> = <i>Q</i>.findMin();  <i>Q</i>.deleteMin()</li>
+        <li class="rientro1"><i>z</i> = new TreeNode(<i>z1</i>.f + <i>z2</i>.f, '');  <i>z</i>.left = <i>z1</i>;  <i>z</i>.right = <i>z2</i></li>
+        <li class="rientro1"><i>Q</i>.insert(<i>z</i>.f, <i>z</i>)</li>
+        <li><b>return</b> <i>Q</i>.findMin()</li>
+      </ol>
+      <p>Con uno heap ogni operazione sulla coda costa O(log n): <strong>O(n log n)</strong>.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 2.</b> Costruzione dell'albero di Huffman sull'esempio dei lucidi. Puoi cambiare le frequenze (formato <code>carattere:frequenza</code>).</figcaption>
+        <div data-widget="huffman"></div>
+      </figure>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Tecnica 3</span>
+        <h2>Programmazione dinamica</h2>
+      </div>
+      <p>Strategia introdotta da Richard Bellman negli anni '50 per i problemi di <strong>ottimizzazione</strong>. Come il divide et impera combina le soluzioni di sottoproblemi, ma è <strong>iterativa e bottom-up</strong>, e conviene quando i sottoproblemi si <strong>ripetono</strong>. Servono:</p>
+      <ul>
+        <li><strong>sottostruttura ottima</strong>: la soluzione ottima si ottiene combinando soluzioni ottime di sottoproblemi;</li>
+        <li><strong>sottoproblemi ripetuti</strong>: lo stesso sottoproblema compare più volte (altrimenti basta il divide et impera).</li>
+      </ul>
+      <p>Fibonacci è l'esempio minimo: la ricorsione ingenua costa O(2ⁿ); con la <strong>memoization</strong> (una cache dei valori già calcolati, sempre top-down) bastano 2n − 3 chiamate, O(n); la versione bottom-up riempie f[1..n] in O(n) tempo e spazio, o in spazio O(1) tenendo solo gli ultimi valori.</p>
+      <div class="def">
+        <span class="etichetta">La disciplina (dai lucidi)</span>
+        <p>1. Identificare i sottoproblemi. 2. Definire le soluzioni dei sottoproblemi (che cosa contiene la cella della tabella). 3. Calcolare le soluzioni dei casi semplici. 4. Calcolare il caso generale da quelli già risolti. Poi, se serve, ricostruire la soluzione (non solo il suo valore) risalendo la tabella.</p>
+      </div>
+      <h3>Sottovettore massimo in Θ(n)</h3>
+      <p>Sottoproblema P(i): la somma massima dei sottovettori non vuoti che <strong>terminano in V[i]</strong>, di valore S[i]. Il risultato è max<sub>i</sub> S[i].</p>
+      <p class="formula">S[1] = V[1]     S[i] = max{ V[i], S[i − 1] + V[i] }</p>
+      <p>O si estende il miglior sottovettore che finiva in i − 1, o si riparte da i. Per trovare il sottovettore, dall'indice imax del massimo si risale finché S[i] ≠ V[i]: il primo i con S[i] = V[i] è l'inizio. Sull'esempio: S = 3, −2, 10, 12, 9, 10, 14, 6, 13, 7, 6, massimo 14 in posizione 7, inizio in 3.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 3.</b> Tabelle di programmazione dinamica. Scegli il problema: la tabella si riempie cella per cella (gialla = in calcolo, bordo arancio = celle da cui dipende), e all'ultimo passo compare in verde la ricostruzione della soluzione.</figcaption>
+        <div data-widget="pd-tabella" data-prob="sotto"></div>
+      </figure>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Programmazione dinamica: il problema classico</span>
+        <h2>Lo zaino 0/1</h2>
+      </div>
+      <p>n oggetti con peso intero p[i] e valore v[i], uno zaino di capacità P: trovare Y ⊆ {1..n} con Σ p[x] ≤ P e Σ v[x] massimo.</p>
+      <div class="avviso">
+        <span class="etichetta">Nessuno dei due greedy è ottimo</span>
+        <p><strong>Greedy 1</strong>, valore massimo: con P = 20 e oggetti 20 kg/28 €, 10 kg/15 €, 8 kg/20 €, prende 28 € e si ferma, mentre 15 + 20 = 35 €. <strong>Greedy 2</strong>, valore specifico massimo (€/kg): qui funziona, ma con oggetti 11 kg/33 € (3,0), 10 kg/20 € (2,0), 10 kg/15 € (1,5) e P = 20 prende 33 € e poi nient'altro, mentre 20 + 15 = 35 €.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Soluzione con la programmazione dinamica</span>
+        <p>Sottoproblema P(i, j): riempire uno zaino di capacità j con un sottoinsieme dei primi i oggetti. V[i, j] è il valore massimo, per i = 1..n e j = 0..P.</p>
+        <p class="formula">V[i, 0] = 0;   V[1, j] = v[1] se j ≥ p[1], 0 altrimenti</p>
+        <p class="formula">V[i, j] = V[i − 1, j] se j &lt; p[i];   altrimenti max{ V[i − 1, j],  V[i − 1, j − p[i]] + v[i] }</p>
+        <p>O l'oggetto i non c'è, o c'è e restano j − p[i] di capacità per i primi i − 1. La soluzione è V[n, P]; una tabella booleana K[i, j] ricorda se l'oggetto i è stato preso, e si risale da (n, P): se K[i, j], si stampa i e j = j − p[i]; poi i = i − 1.</p>
+      </div>
+      <p>Costo <strong>Θ(nP)</strong> in tempo e spazio. Non è polinomiale nella dimensione dell'input: P è un <em>valore</em>, scritto con log P bit (come Fib nel capitolo 1). Si dice <strong>pseudopolinomiale</strong>, e lo zaino è infatti NP-completo (capitolo 12).</p>
+      <aside class="nota">L'esempio dei lucidi: p = [2, 7, 6, 4], v = [12,7; 6,4; 1,7; 0,3], P = 10. V[4, 10] = 19,1 con gli oggetti 1 e 2. Selezionalo nella figura 3 con «zaino 0/1».</aside>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Programmazione dinamica: due applicazioni</span>
+        <h2>Seam carving e distanza di Levenshtein</h2>
+      </div>
+      <h3>Seam carving</h3>
+      <p>Per restringere un'immagine M × N senza deformare il contenuto si toglie una <strong>cucitura verticale</strong>: un pixel per riga, ognuno adiacente (anche in diagonale) a quello della riga sopra, di <strong>importanza</strong> totale minima. E[i, j] ∈ [0, 1] è l'importanza del pixel. W[i, j] è il peso minimo delle cuciture che finiscono nel pixel (i, j):</p>
+      <p class="formula">W[1, j] = E[1, j];   W[i, j] = E[i, j] + min{ W[i − 1, j − 1], W[i − 1, j], W[i − 1, j + 1] }</p>
+      <p>(ai bordi si prendono solo i vicini che esistono). La cucitura minima vale min<sub>j</sub> W[M, j] e si ricostruisce risalendo; si ripete finché l'immagine ha la larghezza voluta. Costo Θ(MN) per cucitura. Nei lucidi il caso base è scritto «per ogni j = 1, …, M»: le colonne sono N.</p>
+      <h3>Distanza di Levenshtein</h3>
+      <p>Il numero minimo di operazioni di editing (cancellare, inserire, sostituire un carattere, con costo 1; lasciarlo uguale costa 0) per trasformare S[1..n] in T[1..m]. Serve ai correttori ortografici. «ALBERO» → «LIBRO» costa 3: cancello A, inserisco I, cancello E.</p>
+      <p class="formula">L[i, j] = max{i, j} se i = 0 o j = 0;   altrimenti min{ L[i−1, j] + 1,  L[i, j−1] + 1,  L[i−1, j−1] + (S[i] ≠ T[j] ? 1 : 0) }</p>
+      <p>Il primo termine cancella S[i], il secondo inserisce T[j], il terzo lascia o sostituisce l'ultimo carattere. Risultato L[n, m], costo Θ(nm).</p>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Allenamento</span>
+        <h2>Esercizi risolti</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.1 · divide et impera</span><h4>Un indice con A[i] = i in un array di interi distinti ordinati</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Poiché gli interi sono distinti e crescenti, A[i] − i è non decrescente. Se A[m] &gt; m, anche tutti gli elementi a destra hanno A[k] &gt; k: si cerca a sinistra. Se A[m] &lt; m, si cerca a destra.</p></div></li>
+            <li><div>
+              <ol class="pseudo">
+                <li class="titolo">PuntoFisso(int A[1..n], int i, int j) → int</li>
+                <li><b>if</b> <i>i</i> &gt; <i>j</i> <b>then return</b> −1</li>
+                <li><i>m</i> = ⌊(<i>i</i> + <i>j</i>)/2⌋</li>
+                <li><b>if</b> <i>A</i>[<i>m</i>] = <i>m</i> <b>then return</b> <i>m</i></li>
+                <li><b>else if</b> <i>A</i>[<i>m</i>] &gt; <i>m</i> <b>then return</b> PuntoFisso(<i>A</i>, <i>i</i>, <i>m</i> − 1)</li>
+                <li><b>else return</b> PuntoFisso(<i>A</i>, <i>m</i> + 1, <i>j</i>)</li>
+              </ol>
+            </div></li>
+            <li><div><p class="risultato">È una ricerca binaria: O(log n).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.2 · divide et impera</span><h4>Quanti valori di un array ordinato cadono in [low, up]</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Si divide a metà. Se A[i] &gt; up o A[j] &lt; low il pezzo è tutto fuori: 0. Se A[i] ≥ low e A[j] ≤ up è tutto dentro: j − i + 1, senza scendere oltre.</p></div></li>
+            <li><div><p>Senza il secondo controllo si ricorre fino agli elementi singoli e, con tutto l'array dentro l'intervallo, il costo è Θ(n).</p></div></li>
+            <li><div><p class="risultato">Con il controllo «tutto dentro», a ogni livello della ricorsione continuano solo i (al più 2) pezzi che contengono low e up: O(log n).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.3 · greedy</span><h4>Il minimo numero di rifornimenti</h4></div>
+        <p>Un'auto fa K km con un litro e ha un serbatoio di C litri; parte piena dall'area 0 e deve arrivare all'area n; d[i] è la distanza tra le aree i e i + 1, e nelle aree 1..n − 1 si può fare il pieno. Quante soste servono al minimo (−1 se è impossibile)?</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Scelta ingorda: fare il pieno il <strong>più tardi possibile</strong>, cioè nell'area i solo se il carburante residuo non basta per arrivare all'area i + 1.</p></div></li>
+            <li><div>
+              <ol class="pseudo">
+                <li class="titolo">MinFermate(real d[0..n−1], real K, real C) → int</li>
+                <li><i>res</i> = <i>K</i> · <i>C</i>;  <i>f</i> = 0</li>
+                <li><b>for</b> <i>i</i> = 0 <b>to</b> <i>n</i> − 1 <b>do</b></li>
+                <li class="rientro1"><b>if</b> <i>res</i> &lt; <i>d</i>[<i>i</i>] <b>then</b> <i>res</i> = <i>K</i> · <i>C</i>;  <i>f</i> = <i>f</i> + 1   <span class="sc">(pieno nell'area i)</span></li>
+                <li class="rientro1"><i>res</i> = <i>res</i> − <i>d</i>[<i>i</i>]</li>
+                <li class="rientro1"><b>if</b> <i>res</i> &lt; 0 <b>then return</b> −1   <span class="sc">(tratto più lungo di un pieno)</span></li>
+                <li><b>return</b> <i>f</i></li>
+              </ol>
+            </div></li>
+            <li><div><p class="risultato">Θ(n). Per i = 0 il serbatoio è pieno, quindi non si conta mai una sosta alla partenza.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.4 · programmazione dinamica</span><h4>Il percorso di punteggio massimo su una scacchiera</h4></div>
+        <p>Una pedina va da (1, 1) a (n, n) muovendosi solo in basso o a destra e somma i valori M[i, j] delle caselle attraversate. Trovare il punteggio massimo.</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>P[i, j] = punteggio massimo per arrivare in (i, j). P[1, 1] = M[1, 1]; prima riga P[1, j] = P[1, j − 1] + M[1, j]; prima colonna P[i, 1] = P[i − 1, 1] + M[i, 1].</p></div></li>
+            <li><div><p class="formula">P[i, j] = max{ P[i − 1, j], P[i, j − 1] } + M[i, j]</p></div></li>
+            <li><div><p>Risposta P[n, n], costo Θ(n²). Per stampare il percorso si parte da (n, n): se P[i, j] = P[i − 1, j] + M[i, j] si è arrivati dall'alto, quindi si va in (i − 1, j); altrimenti da sinistra, in (i, j − 1). Arrivati sulla prima riga o colonna si prosegue lungo il bordo fino a (1, 1).</p></div></li>
+            <li><div><p class="risultato">Attenzione: nella soluzione distribuita le due direzioni della ricostruzione sono invertite (con P[i, j] = P[i − 1, j] + M[i, j] fa j = j − 1), e il ciclo si ferma appena i o j vale 1. Il valore P[n, n] invece è corretto.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.5 · programmazione dinamica</span><h4>Resto con monete singole di valore arbitrario</h4></div>
+        <p>Monete c[1..n] (una per tipo, valori qualsiasi): minimo numero di monete per erogare esattamente R.</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>N[i, j] = minimo numero di monete tra le prime i per erogare j (+∞ se non si può). N[1, 0] = 0, N[1, c[1]] = 1, altrimenti +∞.</p></div></li>
+            <li><div><p class="formula">N[i, j] = N[i − 1, j] se j &lt; c[i];   altrimenti min{ N[i − 1, j], N[i − 1, j − c[i]] + 1 }</p></div></li>
+            <li><div><p class="risultato">Risposta N[n, R], Θ(nR). Con c = [5, 2, 2, 2] e R = 6 vale 3 (2 + 2 + 2): il greedy prenderebbe il 5 e fallirebbe.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 9</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="te-1">
+          <p class="testo">Quante mosse servono per le torri di Hanoi con 10 dischi?</p>
+          <div class="opz"><button>100</button><button data-giusta>1023</button><button>1024</button></div>
+          <div class="perche" hidden><p>T(n) = 2ⁿ − 1 = 1024 − 1.</p></div>
+        </div>
+        <div class="domanda" data-id="te-2">
+          <p class="testo">Perché la moltiplicazione di Karatsuba è più veloce di quella in colonna?</p>
+          <div class="opz"><button>Perché evita gli shift</button><button data-giusta>Perché usa 3 prodotti di n/2 cifre invece di 4: Θ(n<sup>log₂ 3</sup>)</button><button>Perché lavora in base 2</button></div>
+          <div class="perche" hidden><p>T(n) = 3T(n/2) + cn invece di 4T(n/2) + cn, che darebbe Θ(n²).</p></div>
+        </div>
+        <div class="domanda" data-id="te-3">
+          <p class="testo">Nella programmazione dinamica dello zaino, che cosa rappresenta V[i, j]?</p>
+          <div class="opz"><button>Il valore dell'oggetto i con peso j</button><button data-giusta>Il valore massimo ottenibile con i primi i oggetti e capacità j</button><button>Il numero di oggetti scelti tra i primi i</button></div>
+          <div class="perche" hidden><p>È la definizione della soluzione del sottoproblema P(i, j).</p></div>
+        </div>
+        <div class="domanda" data-id="te-4">
+          <p class="testo">Lo zaino con la programmazione dinamica costa Θ(nP). È un algoritmo polinomiale?</p>
+          <div class="opz"><button>Sì</button><button data-giusta>No, è pseudopolinomiale: P è esponenziale nel numero di bit che lo rappresentano</button></div>
+          <div class="perche" hidden><p>L'input ha dimensione circa n log P, e nP non è polinomiale in log P.</p></div>
+        </div>
+        <div class="domanda" data-id="te-5">
+          <p class="testo">Huffman: quali due nodi si uniscono a ogni passo?</p>
+          <div class="opz"><button>I due di frequenza massima</button><button data-giusta>I due di frequenza minima</button><button>I due caratteri adiacenti nell'alfabeto</button></div>
+          <div class="perche" hidden><p>Così i caratteri rari finiscono in fondo all'albero, con i codici più lunghi.</p></div>
+        </div>
+        <div class="domanda" data-id="te-6">
+          <p class="testo">Che cosa distingue la programmazione dinamica dal divide et impera?</p>
+          <div class="opz"><button>La programmazione dinamica non usa sottoproblemi</button><button data-giusta>I sottoproblemi si ripetono, e si risolvono una volta sola dal basso salvandoli in una tabella</button><button>Il divide et impera è sempre più veloce</button></div>
+          <div class="perche" hidden><p>Con sottoproblemi indipendenti il divide et impera basta; con sottoproblemi ripetuti la ricorsione li ricalcolerebbe (come Fib2).</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-09">
+        <li><label><input type="checkbox" id="r09-1"><span>So risolvere la ricorrenza di Hanoi e spiegare Karatsuba.</span></label></li>
+        <li><label><input type="checkbox" id="r09-2"><span>So le quattro soluzioni del sottovettore massimo e i loro costi.</span></label></li>
+        <li><label><input type="checkbox" id="r09-3"><span>So quando un greedy è ottimo e trovare un controesempio quando non lo è.</span></label></li>
+        <li><label><input type="checkbox" id="r09-4"><span>So costruire un albero di Huffman e calcolare la lunghezza media del codice.</span></label></li>
+        <li><label><input type="checkbox" id="r09-5"><span>So scrivere l'equazione e riempire la tabella di zaino, Levenshtein e seam carving.</span></label></li>
+        <li><label><input type="checkbox" id="r09-6"><span>So ricostruire la soluzione, non solo il suo valore, risalendo la tabella.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§9 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="divide-et-impera,greedy,programmazione-dinamica"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Divide et impera», «Algoritmi greedy» e «Programmazione dinamica» (G. Zavattaro, dal materiale di M. Marzolla e A. Montresor) con i relativi esercizi risolti, appunti di Berto, tr4v4 e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. Corretti rispetto al materiale: caso base di SommaMaxDI e ricostruzione del percorso nell'esercizio della scacchiera.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

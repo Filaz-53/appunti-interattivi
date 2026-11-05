@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NP-completezza · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Problemi di decisione, ricerca e ottimizzazione, classi P, PSPACE, EXPTIME e NP, certificati e non determinismo, riducibilità polinomiale, teorema di Cook e riduzione da SAT a clique.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="12-np-completezza">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Problemi computazionali</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>P, PSPACE, EXPTIME</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Certificati e NP</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Riducibilità polinomiale</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>NP-completezza</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Verifica</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 12</span>
+      <h1>NP-completezza</h1>
+      <p class="lede">Il confine tra i problemi che sappiamo risolvere in tempo ragionevole e quelli per cui non conosciamo niente di meglio che provare tutte le possibilità: classi di complessità, certificati, non determinismo e riduzioni.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="avviso largo">
+      <span class="etichetta">Nel programma, ma non svolto a lezione</span>
+      <p>Il file dei lucidi nella raccolta è intitolato «non visto a lezione», e negli scritti 2024–2026 della <a href="mappa-esami.html">mappa degli esami</a> non compaiono domande sull'NP-completezza. È comunque nel programma del corso: vale la pena saper rispondere alle domande di teoria di base.</p>
+    </div>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Che cosa si classifica</span>
+        <h2>Problemi computazionali</h2>
+      </div>
+      <p>Un problema Q è una relazione Q ⊆ I × S tra istanze di input e soluzioni: Q(x, s) = 1 se s è una soluzione per l'istanza x. Tre tipi:</p>
+      <ul>
+        <li><strong>decisione</strong>: la risposta è sì o no (S = {0, 1}). «Il grafo x è connesso?», «x è nel dizionario?»;</li>
+        <li><strong>ricerca</strong>: trovare una soluzione s. «Trova un albero di copertura di x»;</li>
+        <li><strong>ottimizzazione</strong>: trovare la soluzione migliore. «Trova un albero di copertura minimo di x».</li>
+      </ul>
+      <p>La teoria si fa sui problemi di decisione: un problema di ottimizzazione ha di solito una versione decisionale («esiste una soluzione di costo ≤ k?») difficile almeno quanto lui.</p>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Classi deterministiche</span>
+        <h2>P, PSPACE ed EXPTIME</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizioni</span>
+        <p>TIME(f(n)) e SPACE(f(n)) sono i problemi decisionali risolvibili in tempo, o in spazio, O(f(n)), con n la dimensione dell'istanza.</p>
+        <p class="formula">P = ∪<sub>c</sub> TIME(n<sup>c</sup>)     PSPACE = ∪<sub>c</sub> SPACE(n<sup>c</sup>)     EXPTIME = ∪<sub>c</sub> TIME(2<sup>n<sup>c</sup></sup>)</p>
+      </div>
+      <p><strong>P ⊆ PSPACE</strong>: in tempo polinomiale si possono toccare solo polinomiali celle di memoria. <strong>PSPACE ⊆ EXPTIME</strong>: n<sup>c</sup> celle possono trovarsi in al più 2<sup>O(n<sup>c</sup>)</sup> stati diversi. Non si sa se le due inclusioni siano strette, ma almeno una lo è, perché si sa che P ⊊ EXPTIME.</p>
+      <p><strong>SAT</strong>: data un'espressione booleana in <strong>forma normale congiuntiva</strong> (una congiunzione di clausole, ognuna disgiunzione di letterali, cioè variabili o variabili negate), esiste un assegnamento che la rende vera? Con n variabili basta provare i 2ⁿ assegnamenti, uno alla volta, in spazio lineare: SAT ∈ PSPACE.</p>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Verificare è più facile che trovare</span>
+        <h2>Certificati, non determinismo e NP</h2>
+      </div>
+      <p>Spesso, oltre a sapere che x ha una proprietà, si vuole un oggetto che lo <strong>certifichi</strong>: per SAT, un assegnamento che rende vera la formula. Per le <strong>formule booleane quantificate</strong> (come ∃x ∀y ∃z ∀w : (x ∨ ¬y ∨ z) ∧ (¬x ∨ w) ∧ y) invece non si conoscono certificati polinomiali: con k variabili universali servirebbero 2<sup>k</sup> assegnamenti. Quella formula, tra l'altro, è falsa: l'ultima clausola è y, che è quantificata universalmente e quindi deve valere anche per y = 0.</p>
+      <div class="def">
+        <span class="etichetta">NP</span>
+        <p>Informalmente, NP è la classe dei problemi decisionali che ammettono <strong>certificati di dimensione polinomiale verificabili in tempo polinomiale</strong>: esiste un algoritmo polinomiale D tale che, per ogni istanza x, (x, 1) ∈ Q se e solo se esiste un certificato C<sub>x</sub> polinomiale con D(C<sub>x</sub>) = 1.</p>
+        <p>Formalmente, con il <strong>non determinismo</strong>: un algoritmo non deterministico può eseguire «indovina z ∈ S», scegliendo sempre il valore giusto se ne esiste uno. NTIME(f(n)) sono i problemi risolvibili da un algoritmo non deterministico in tempo O(f(n)), e <strong>NP = ∪<sub>c</sub> NTIME(n<sup>c</sup>)</strong>.</p>
+      </div>
+      <p>SAT si risolve in tempo lineare non deterministico: si indovina x<sub>i</sub> ∈ {0, 1} per ogni variabile, poi si verifica. Un algoritmo non deterministico è un albero di decisione che risponde 1 se almeno una foglia vale 1; un algoritmo deterministico «forza bruta» ne visita tutte le foglie.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> L'albero di decisione per (x₁ ∨ x₂ ∨ x₃) ∧ (¬x₁ ∨ ¬x₃), l'esempio dei lucidi. Puoi scrivere un'altra formula: clausole separate da <code>|</code>, negazione con <code>-</code>.</figcaption>
+        <div data-widget="sat-albero"></div>
+      </figure>
+      <p class="formula">P ⊆ NP ⊆ PSPACE ⊆ EXPTIME</p>
+      <p>Almeno un'inclusione è propria e si congettura che lo siano tutte. L'ordinamento sta in P, SAT in NP, le formule booleane quantificate in PSPACE.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Confrontare problemi</span>
+        <h2>Riducibilità polinomiale</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Q₁ è <strong>riducibile polinomialmente</strong> a Q₂ se esiste una funzione f, calcolabile in tempo polinomiale, che trasforma ogni istanza x di Q₁ in un'istanza f(x) di Q₂ con la stessa risposta: (x, s) ∈ Q₁ se e solo se (f(x), s) ∈ Q₂.</p>
+      </div>
+      <p><strong>Conseguenza</strong>: se Q₂ ∈ P e Q₁ si riduce a Q₂, allora Q₁ ∈ P. Per risolvere Q₁ su x si calcola f(x) e si risolve Q₂: polinomio di polinomio. Leggendola al contrario: se Q₁ è difficile, anche Q₂ lo è.</p>
+      <p>Esempio dei lucidi: SAT si riduce alle formule quantificate con f(E) = ∃x₁ … ∃x<sub>n</sub> . E, in tempo lineare: E è soddisfacibile se e solo se f(E) è vera. Non si conosce una riduzione nel verso opposto.</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · I problemi più difficili di NP</span>
+        <h2>NP-completezza</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizioni</span>
+        <p>Q è <strong>NP-arduo</strong> se ogni problema di NP si riduce polinomialmente a Q. Q è <strong>NP-completo</strong> se è in NP ed è NP-arduo.</p>
+        <p>Se un solo problema NP-completo stesse in P, allora <strong>P = NP</strong>. Sarebbe un disastro per esempio per la crittografia: decifrare un documento cifrato con un algoritmo noto ha un certificato polinomiale, la chiave.</p>
+      </div>
+      <p><strong>Un primo problema NP-completo: la fermata limitata.</strong> Dati un programma X e un intero k, esiste un input su cui X termina in al più k passi? È in NP (il certificato è l'input; si eseguono al più k passi). È NP-arduo: per un problema Q ∈ NP con verifica in p(|x|) passi, si costruisce il programma X che tratta l'input come certificato per x, termina se la verifica riesce e va in ciclo infinito altrimenti; (x, 1) ∈ Q se e solo se X ha una fermata limitata in p(|x|) passi.</p>
+      <div class="def">
+        <span class="etichetta">Teorema di Cook</span>
+        <p>SAT è NP-completo (la dimostrazione riduce la fermata limitata a una formula in CNF di dimensione polinomiale). <strong>Corollario</strong>: se SAT si riduce a un problema Q, Q è NP-arduo. È così che si dimostra la difficoltà di un nuovo problema.</p>
+      </div>
+      <h3>Esempio: SAT si riduce a CLIQUE</h3>
+      <p><strong>CLIQUE</strong>: dato un grafo G e un intero k, esiste un sottografo completo di k vertici? È in NP (il certificato sono i k vertici). Per la riduzione da SAT si crea un vertice per ogni letterale di ogni clausola, e si collegano due vertici di clausole diverse se i letterali sono compatibili (non sono x e ¬x). La formula è soddisfacibile se e solo se il grafo ha una clique grande quanto il numero di clausole: la clique sceglie un letterale vero per clausola, senza contraddizioni.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 2.</b> La riduzione sull'esempio dei lucidi (x₁ ∨ x₂ ∨ x₃) ∧ (¬x₁ ∨ ¬x₂ ∨ x₃) ∧ (x₄ ∨ ¬x₃ ∨ x₂). Le clique possibili sono più d'una: il simulatore mostra la prima che trova.</figcaption>
+        <div data-widget="sat-clique"></div>
+      </figure>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Altri problemi NP-completi</th><th>Versione decisionale</th></tr></thead>
+          <tbody>
+            <tr><td>Commesso viaggiatore</td><td>in un grafo pesato completo, esiste un giro che tocca tutti i vertici una volta con peso ≤ k?</td></tr>
+            <tr><td>Bin packing</td><td>n oggetti di peso p[i] stanno in k contenitori di capacità c? (il greedy del capitolo 9 dà solo un'approssimazione)</td></tr>
+            <tr><td>Sudoku generalizzato</td><td>una griglia n² × n² parzialmente riempita si può completare?</td></tr>
+            <tr><td>Zaino</td><td>esiste un sottoinsieme di peso ≤ P e valore ≥ V? (la programmazione dinamica del capitolo 9 è pseudopolinomiale, non polinomiale)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>I problemi NP-completi segnano il confine tra trattabile e intrattabile, e molti problemi pratici lo sono: torneranno in Ottimizzazione combinatoria, Informatica teorica, Sicurezza e Crittografia.</p>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Ripasso</span>
+        <h2>Verifica</h2>
+      </div>
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 12</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="np-1">
+          <p class="testo">Che cosa caratterizza un problema in NP?</p>
+          <div class="opz"><button>Non si può risolvere in tempo polinomiale</button><button data-giusta>Una risposta «sì» ha un certificato polinomiale verificabile in tempo polinomiale</button><button>Richiede spazio esponenziale</button></div>
+          <div class="perche" hidden><p>NP non vuol dire «non polinomiale»: P ⊆ NP. È la classe dei problemi verificabili in tempo polinomiale (o risolvibili in tempo polinomiale non deterministico).</p></div>
+        </div>
+        <div class="domanda" data-id="np-2">
+          <p class="testo">Se Q₁ si riduce polinomialmente a Q₂ e Q₂ ∈ P, allora…</p>
+          <div class="opz"><button data-giusta>Q₁ ∈ P</button><button>Q₂ è NP-completo</button><button>non si può dire nulla su Q₁</button></div>
+          <div class="perche" hidden><p>Si trasforma l'istanza in tempo polinomiale e si usa l'algoritmo polinomiale di Q₂.</p></div>
+        </div>
+        <div class="domanda" data-id="np-3">
+          <p class="testo">Per dimostrare che un nuovo problema Q in NP è NP-completo basta…</p>
+          <div class="opz"><button>ridurre Q a SAT</button><button data-giusta>ridurre SAT (o un altro NP-completo) a Q</button><button>trovare un algoritmo esponenziale per Q</button></div>
+          <div class="perche" hidden><p>La riduzione va dal problema noto come difficile verso Q: così Q è difficile almeno quanto SAT. Ridurre Q a SAT dimostra solo che Q ∈ NP.</p></div>
+        </div>
+        <div class="domanda" data-id="np-4">
+          <p class="testo">Quale catena di inclusioni è nota?</p>
+          <div class="opz"><button>P = NP ⊆ PSPACE</button><button data-giusta>P ⊆ NP ⊆ PSPACE ⊆ EXPTIME, con almeno un'inclusione propria</button><button>P ⊊ NP ⊊ PSPACE ⊊ EXPTIME, tutte dimostrate</button></div>
+          <div class="perche" hidden><p>Si sa che P ⊊ EXPTIME, quindi almeno una è propria; si congettura che lo siano tutte.</p></div>
+        </div>
+        <div class="domanda" data-id="np-5">
+          <p class="testo">Nella riduzione da SAT a CLIQUE, quanto deve essere grande la clique cercata?</p>
+          <div class="opz"><button>quanto il numero di variabili</button><button data-giusta>quanto il numero di clausole</button><button>quanto il numero di letterali</button></div>
+          <div class="perche" hidden><p>Un vertice per clausola, cioè un letterale vero in ognuna; i vertici della stessa clausola non sono collegati.</p></div>
+        </div>
+        <div class="domanda" data-id="np-6">
+          <p class="testo">Lo zaino con la programmazione dinamica costa Θ(nP). Perché non dimostra P = NP?</p>
+          <div class="opz"><button>Perché lo zaino non è in NP</button><button data-giusta>Perché Θ(nP) è esponenziale nel numero di bit di P</button><button>Perché la programmazione dinamica non è un algoritmo</button></div>
+          <div class="perche" hidden><p>P si scrive con log P bit: nP non è polinomiale nella dimensione dell'input. Si dice pseudopolinomiale.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-12">
+        <li><label><input type="checkbox" id="r12-1"><span>So definire P, PSPACE, EXPTIME e NP e le loro inclusioni.</span></label></li>
+        <li><label><input type="checkbox" id="r12-2"><span>So spiegare certificato e non determinismo con SAT.</span></label></li>
+        <li><label><input type="checkbox" id="r12-3"><span>So che cos'è una riduzione polinomiale e in che verso va usata.</span></label></li>
+        <li><label><input type="checkbox" id="r12-4"><span>So enunciare il teorema di Cook e la riduzione SAT → CLIQUE.</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Teoria della NP-completezza» (G. Zavattaro, dal materiale di M. Marzolla e A. Montresor; nel repository «non visto a lezione»), appunti di Berto e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Formulario dei costi · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Tutti i costi computazionali del corso di Algoritmi e Strutture di Dati in una tabella filtrabile per argomento, con Master Theorem, sommatorie notevoli e le correzioni ai formulari in circolazione.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+<style>
+  .fo-filtri { display: grid; gap: 10px; border: 1px solid var(--rule); background: var(--paper-solid); border-radius: 12px; padding: 14px 16px; }
+  .fo-filtri .riga-f { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .fo-chip { font: 600 var(--t-xs)/1 var(--f-display); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-2); cursor: pointer; }
+  .fo-chip[aria-pressed="true"] { background: var(--pen-tint); border-color: var(--pen); color: var(--ink); }
+  .fo-filtri input[type="search"] { font: 500 var(--t-s)/1.2 var(--f-display); padding: 7px 10px; border: 1px solid var(--rule); border-radius: 7px; background: var(--paper); color: var(--ink); flex: 1 1 220px; min-width: 0; }
+  .fo-conta { font: 600 var(--t-s)/1.3 var(--f-display); color: var(--ink-2); }
+  .fo-tab td:nth-child(n+4):nth-child(-n+6) { font-family: var(--f-mono); font-size: 0.8rem; white-space: nowrap; }
+  .fo-tab td.area { font: 650 var(--t-xs)/1.3 var(--f-display); color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+  .fo-tab td small { color: var(--ink-3); }
+</style>
+</head>
+<body data-root="../../" data-argomento="formulario">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice della pagina">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#tabella"><span class="n">1</span><span>Tutti i costi</span></a></li>
+        <li><a href="#formule"><span class="n">2</span><span>Formule da sapere</span></a></li>
+        <li><a href="#correzioni"><span class="n">3</span><span>Errori nei formulari</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · formulario</span>
+      <h1>Formulario dei costi</h1>
+      <p class="lede">Tutti i costi computazionali del corso in una sola tabella, da filtrare per argomento o cercare per nome. n è il numero di elementi (o di vertici), m il numero di archi, h l'altezza di un albero; ogni riga rimanda al capitolo dove il costo è spiegato.</p>
+    </header>
+
+    <section class="sez" id="tabella">
+      <div class="titolo-sez largo">
+        <span class="num-sez">1 · Consultazione</span>
+        <h2>Tutti i costi</h2>
+      </div>
+      <div class="fo-filtri largo">
+        <div class="riga-f" id="fo-aree" role="group" aria-label="Filtra per argomento"></div>
+        <div class="riga-f"><input type="search" id="fo-cerca" placeholder="Cerca: heap, Dijkstra, pessimo…" aria-label="Cerca nella tabella"><span class="fo-conta" id="fo-conta"></span></div>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab fo-tab">
+          <thead><tr><th>Area</th><th>Struttura o algoritmo</th><th>Operazione</th><th>Ottimo</th><th>Medio</th><th>Pessimo</th><th>Note</th></tr></thead>
+          <tbody id="fo-righe"></tbody>
+        </table>
+      </div>
+      <aside class="nota">«Medio» per gli algoritmi randomizzati o con ipotesi probabilistiche (QuickSort, hash); «ammortizzato» indica il costo medio su una sequenza di operazioni.</aside>
+    </section>
+
+    <section class="sez" id="formule">
+      <div class="titolo-sez largo">
+        <span class="num-sez">2 · Per l'esercizio 1</span>
+        <h2>Formule da sapere</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Master Theorem (versione semplificata)</span>
+        <p class="formula">T(n) = aT(n/b) + c·n<sup>β</sup>,  a ≥ 1, b &gt; 1,  α = log<sub>b</sub> a</p>
+        <p class="formula">α &gt; β ⇒ Θ(n<sup>α</sup>)     α = β ⇒ Θ(n<sup>α</sup> log n)     α &lt; β ⇒ Θ(n<sup>β</sup>)</p>
+        <p>Non si applica a sottoproblemi di dimensioni diverse né alle ricorrenze per sottrazione: vedi il <a href="02-notazione-asintotica.html#s8">capitolo 2</a>.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Ricorrenze per sottrazione</span>
+        <p>T(n − 1) + c = Θ(n) · T(n − 1) + n = Θ(n²) · T(n − 1) + log n = Θ(n log n) · 2T(n − 1) + c = Θ(2ⁿ) · T(n − 1) + T(n − 2) + c = Θ(φⁿ)</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Sommatorie notevoli</span>
+        <p class="formula">Σ<sub>i=1..n</sub> i = n(n+1)/2 · Σ i² = n(n+1)(2n+1)/6 · Σ<sub>i=0..n</sub> xⁱ = (x<sup>n+1</sup> − 1)/(x − 1)</p>
+        <p class="formula">Σ<sub>i≥0</sub> xⁱ = 1/(1 − x) per |x| &lt; 1 · Σ<sub>i=1..n</sub> 1/i ≈ ln n · Σ<sub>i=1..n</sub> log i = log n! = Θ(n log n)</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Fatti sugli alberi</span>
+        <p>Un albero con n nodi ha n − 1 archi. Un albero binario di altezza h ha tra h + 1 e 2<sup>h+1</sup> − 1 nodi. Un AVL di altezza h ha almeno F<sub>h+3</sub> − 1 nodi. Un heap su array (da 1): padre ⌊i/2⌋, figli 2i e 2i + 1; d-heap: padre ⌈(i − 1)/d⌉, figli da (i − 1)d + 2 a id + 1.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="correzioni">
+      <div class="titolo-sez largo">
+        <span class="num-sez">3 · Attenzione</span>
+        <h2>Errori nei formulari in circolazione</h2>
+      </div>
+      <p>Nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati/tree/main/appunti">cartabinaria</a> ci sono due formulari dei costi molto usati. Confrontati con i lucidi, contengono alcuni errori: la tabella di questa pagina li corregge.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Formulario</th><th>Riga</th><th>Scritto</th><th>Corretto</th></tr></thead>
+          <tbody>
+            <tr><td>cheatsheet-costi-computazionali-ean</td><td>Floyd-Warshall</td><td>O(n³) spazio, O(n²) tempo</td><td>Θ(n³) <strong>tempo</strong>, Θ(n²) <strong>spazio</strong> (con una sola matrice)</td></tr>
+            <tr><td>cheatsheet-costi-computazionali-ean</td><td>Hash con concatenamento, pessimo</td><td>Θ(m), con m dimensione della tabella</td><td>search e delete O(n): tutte le n chiavi possono finire nella stessa lista; insert O(1) (in testa)</td></tr>
+            <tr><td>cheatsheet-costi-computazionali-ean</td><td>Hash con indirizzamento aperto, pessimo</td><td>Θ(n), con n numero di elementi</td><td>O(m), con m dimensione della tabella (si può ispezionarla tutta)</td></tr>
+            <tr><td>cheatsheet-costi-computazionali-ean</td><td>Dizionari</td><td>«costi caso pessimo e medio coincidono»; lista: insert Θ(n)</td><td>il BST costruito con inserimenti casuali ha altezza media O(log n); nella lista non ordinata insert è O(1)</td></tr>
+            <tr><td>tabella-costi-computazionali</td><td>Union-Find con euristiche</td><td>«QuickUnion (euristica peso)», «QuickFind (euristica rango)»</td><td>il peso si usa con <strong>QuickFind</strong> (union O(log n) ammortizzato), il rango con <strong>QuickUnion</strong> (find O(log n))</td></tr>
+            <tr><td>tabella-costi-computazionali</td><td>QuickSort, «tutti i costi nel caso pessimo»</td><td>O(n log n)</td><td>pessimo Θ(n²); Θ(n log n) è il caso medio e ottimo</td></tr>
+            <tr><td>tabella-costi-computazionali</td><td>CountingSort</td><td>stabile: sì</td><td>non si applica (riscrive i valori senza spostare record); BucketSort invece è stabile</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="piede"><p>Costi ricavati dai lucidi del corso (P. Di Lena, G. Zavattaro) e dai capitoli di questo quaderno; confrontati con i formulari della raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  // [area, cosa, operazione, ottimo, medio, pessimo, note, capitolo]
+  const R = [
+    ["Introduzione", "Fib2 ricorsivo", "tempo", "", "", "Θ(φⁿ), almeno 2^(n/2)", "memoria O(n) per la pila", "01-introduzione"],
+    ["Introduzione", "Fib3 con array", "tempo", "Θ(n)", "Θ(n)", "Θ(n)", "memoria Θ(n)", "01-introduzione"],
+    ["Introduzione", "Fib4, Fib5", "tempo", "Θ(n)", "Θ(n)", "Θ(n)", "memoria O(1)", "01-introduzione"],
+    ["Introduzione", "Fib6 potenza veloce di matrici", "tempo", "Θ(log n)", "Θ(log n)", "Θ(log n)", "memoria O(log n)", "01-introduzione"],
+    ["Ricerca", "ricerca lineare", "search", "O(1)", "Θ(n)", "Θ(n)", "", "02-notazione-asintotica"],
+    ["Ricerca", "ricerca binaria su array ordinato", "search", "O(1)", "Θ(log n)", "Θ(log n)", "T(n) = T(n/2) + 1", "02-notazione-asintotica"],
+    ["Ricerca", "minimo di un array", "min", "Θ(n)", "Θ(n)", "Θ(n)", "n − 1 confronti", "03-ordinamento"],
+    ["Analisi", "contatore binario a k bit", "increment", "O(1)", "O(1) ammortizzato", "O(k)", "n incrementi: O(n)", "02-notazione-asintotica"],
+    ["Ordinamento", "SelectionSort", "ordina", "Θ(n²)", "Θ(n²)", "Θ(n²)", "in loco, non stabile", "03-ordinamento"],
+    ["Ordinamento", "InsertionSort", "ordina", "Θ(n²) (Θ(n) scorrendo da destra)", "Θ(n²)", "Θ(n²)", "in loco, stabile", "03-ordinamento"],
+    ["Ordinamento", "BubbleSort", "ordina", "Θ(n)", "Θ(n²)", "Θ(n²)", "in loco, stabile", "03-ordinamento"],
+    ["Ordinamento", "QuickSort", "ordina", "Θ(n log n)", "Θ(n log n)", "Θ(n²)", "in loco, non stabile; pila O(log n) in media", "03-ordinamento"],
+    ["Ordinamento", "MergeSort", "ordina", "Θ(n log n)", "Θ(n log n)", "Θ(n log n)", "stabile (merge con ≤), memoria Θ(n)", "03-ordinamento"],
+    ["Ordinamento", "HeapSort", "ordina", "O(n log n)", "O(n log n)", "O(n log n)", "in loco, non stabile", "07-heap"],
+    ["Ordinamento", "CountingSort", "ordina", "O(n + k)", "O(n + k)", "O(n + k)", "valori in [0, k − 1]; memoria O(k)", "03-ordinamento"],
+    ["Ordinamento", "BucketSort", "ordina", "O(n + k)", "O(n + k)", "O(n + k)", "stabile; memoria O(n + k)", "03-ordinamento"],
+    ["Ordinamento", "RadixSort", "ordina", "O(d(n + b))", "O(d(n + b))", "O(d(n + b))", "d cifre in base b; stabile", "03-ordinamento"],
+    ["Ordinamento", "qualsiasi ordinamento per confronti", "limite inferiore", "", "", "Ω(n log n)", "albero di decisione con n! foglie", "03-ordinamento"],
+    ["Selezione", "secondo minimo", "minimum2", "", "", "2n − 3 confronti", "", "03-ordinamento"],
+    ["Selezione", "select (SelectionSort fino a k)", "k-esimo minimo", "Θ(kn)", "Θ(kn)", "Θ(kn)", "", "03-ordinamento"],
+    ["Selezione", "heapselect", "k-esimo minimo", "", "", "O(n + k log n)", "", "03-ordinamento"],
+    ["Selezione", "quickSelect", "k-esimo minimo", "Θ(n)", "O(n), al più 4n", "Θ(n²)", "", "03-ordinamento"],
+    ["Selezione", "mediano dei mediani", "k-esimo minimo", "O(n)", "O(n)", "O(n)", "", "03-ordinamento"],
+    ["Strutture elementari", "dizionario su array ordinato", "search · insert · delete", "", "", "O(log n) · O(n) · O(n)", "", "04-strutture-elementari"],
+    ["Strutture elementari", "dizionario su lista non ordinata", "search · insert · delete", "", "", "O(n) · O(1) · O(n)", "insert in testa", "04-strutture-elementari"],
+    ["Strutture elementari", "lista doppia circolare", "insert in testa · delete · search", "", "", "O(1) · O(n) · O(n)", "delete: O(n) per la ricerca, O(1) per lo scollegamento", "04-strutture-elementari"],
+    ["Strutture elementari", "pila o coda su array fisso o lista", "push · pop · enqueue · dequeue", "O(1)", "O(1)", "O(1)", "su array: overflow se piena", "04-strutture-elementari"],
+    ["Strutture elementari", "pila su array dinamico", "push · pop", "O(1)", "O(1) ammortizzato", "O(n)", "raddoppio a pieno, dimezzamento a 1/4", "04-strutture-elementari"],
+    ["Alberi", "visite (pre, in, post-ordine, BFS)", "visita", "Θ(n)", "Θ(n)", "Θ(n)", "", "05-alberi"],
+    ["Alberi", "MiniMax", "valutazione", "Θ(n)", "Θ(n)", "Θ(n)", "albero O(mⁿ) nodi con m mosse e n turni; memoria O(h)", "05-alberi"],
+    ["Alberi", "AlphaBeta", "valutazione", "O(m^(n/2))", "", "O(mⁿ)", "ottimo con l'ordine migliore delle mosse", "05-alberi"],
+    ["Alberi", "IterativeDeepening fino a profondità d", "valutazione", "", "", "O(m^d)", "memoria O(d)", "05-alberi"],
+    ["Alberi", "BST", "search · insert · delete · min · max · predecessor", "O(1)", "O(log n) con inserimenti casuali", "O(h) = O(n)", "", "05-alberi"],
+    ["Alberi", "AVL", "search · insert · delete", "O(1)", "O(log n)", "O(log n)", "insert: ≤ 1 rotazione; delete: O(log n) rotazioni", "05-alberi"],
+    ["Alberi", "rotazione semplice", "rotate", "O(1)", "O(1)", "O(1)", "", "05-alberi"],
+    ["Hash", "tabella a indirizzamento diretto", "search · insert · delete", "O(1)", "O(1)", "O(1)", "memoria Θ(|U|)", "06-tabelle-hash"],
+    ["Hash", "concatenamento", "search · delete", "O(1)", "Θ(1 + α)", "O(n)", "α = n/m", "06-tabelle-hash"],
+    ["Hash", "concatenamento", "insert", "O(1)", "O(1)", "O(1)", "in testa alla lista", "06-tabelle-hash"],
+    ["Hash", "indirizzamento aperto, sequenze equiprobabili", "search senza successo · con successo", "O(1)", "≤ 1/(1−α) · ≤ (1/α) ln(1/(1−α)) ispezioni", "O(m)", "doppio hashing, quadratica (approssimativamente)", "06-tabelle-hash"],
+    ["Hash", "ispezione lineare", "search senza successo · con successo", "O(1)", "≤ ½(1 + 1/(1−α)²) · ≤ ½(1 + 1/(1−α))", "O(m)", "clustering primario", "06-tabelle-hash"],
+    ["Heap", "heap binario", "findMax", "O(1)", "O(1)", "O(1)", "", "07-heap"],
+    ["Heap", "heap binario", "fixHeap · deleteMax · insert", "O(1)", "", "O(log n)", "", "07-heap"],
+    ["Heap", "heap binario", "heapify", "O(n)", "O(n)", "O(n)", "T(n) = 2T(n/2) + O(log n)", "07-heap"],
+    ["Heap", "d-heap", "findMin", "O(1)", "O(1)", "O(1)", "", "07-heap"],
+    ["Heap", "d-heap", "insert · decreaseKey", "", "", "O(log_d n)", "muoviAlto", "07-heap"],
+    ["Heap", "d-heap", "delete · deleteMin · increaseKey", "", "", "O(d log_d n)", "muoviBasso", "07-heap"],
+    ["Union-Find", "QuickFind", "makeSet · union · find", "", "", "O(1) · O(n) · O(1)", "", "08-union-find"],
+    ["Union-Find", "QuickUnion", "makeSet · union · find", "", "", "O(1) · O(1) · O(n)", "", "08-union-find"],
+    ["Union-Find", "QuickFind con euristica sul peso", "union", "", "O(log n) ammortizzato", "O(n)", "find O(1)", "08-union-find"],
+    ["Union-Find", "QuickUnion con euristica sul rango", "find", "", "", "O(log n)", "union O(1); albero di rango r ha ≥ 2^r nodi", "08-union-find"],
+    ["Tecniche", "torri di Hanoi", "mosse", "2ⁿ − 1", "2ⁿ − 1", "2ⁿ − 1", "T(n) = 2T(n − 1) + 1", "09-tecniche-algoritmiche"],
+    ["Tecniche", "moltiplicazione di Karatsuba", "prodotto di n cifre", "", "", "Θ(n^(log₂ 3)) ≈ Θ(n^1,59)", "in colonna Θ(n²)", "09-tecniche-algoritmiche"],
+    ["Tecniche", "sottovettore di somma massima", "forza bruta · migliorata · divide et impera · PD", "", "", "Θ(n³) · Θ(n²) · Θ(n log n) · Θ(n)", "", "09-tecniche-algoritmiche"],
+    ["Tecniche", "Huffman", "costruzione del codice", "", "", "O(n log n)", "n − 1 fusioni con una coda con priorità", "09-tecniche-algoritmiche"],
+    ["Tecniche", "Shortest Job First", "scheduling", "", "", "O(n log n)", "ordinamento per durata", "09-tecniche-algoritmiche"],
+    ["Tecniche", "zaino 0/1 (PD)", "valore ottimo", "Θ(nP)", "Θ(nP)", "Θ(nP)", "pseudopolinomiale", "09-tecniche-algoritmiche"],
+    ["Tecniche", "distanza di Levenshtein", "L[n, m]", "Θ(nm)", "Θ(nm)", "Θ(nm)", "", "09-tecniche-algoritmiche"],
+    ["Tecniche", "seam carving", "una cucitura", "Θ(MN)", "Θ(MN)", "Θ(MN)", "immagine M × N", "09-tecniche-algoritmiche"],
+    ["Grafi", "lista di archi", "spazio · adiacenza", "", "", "Θ(m) · O(m)", "", "10-grafi"],
+    ["Grafi", "liste di adiacenza", "spazio · grado · adiacenza", "", "", "Θ(n + m) · O(δ(v)) · O(min δ)", "", "10-grafi"],
+    ["Grafi", "matrice di adiacenza", "spazio · grado · adiacenza", "", "", "Θ(n²) · O(n) · O(1)", "aggiungere un vertice O(n²)", "10-grafi"],
+    ["Grafi", "BFS, DFS", "visita", "", "", "O(n + m) (liste) · O(n²) (matrice)", "", "10-grafi"],
+    ["Grafi", "ordinamento topologico, componenti connesse", "", "", "", "Θ(n + m)", "con una DFS", "10-grafi"],
+    ["Grafi", "componenti fortemente connesse", "una SCC · tutte, metodo base · Kosaraju/Tarjan", "", "", "O(n + m) · O(n(n + m)) · Θ(n + m)", "", "10-grafi"],
+    ["Grafi", "Kruskal", "MST", "", "", "O(m log n)", "ordinamento + union-find", "11-mst-cammini-minimi"],
+    ["Grafi", "Prim", "MST", "", "", "O(m log n)", "coda con priorità su heap", "11-mst-cammini-minimi"],
+    ["Grafi", "Bellman-Ford", "cammini da una sorgente", "", "", "O(nm)", "pesi negativi ammessi; rileva cicli negativi", "11-mst-cammini-minimi"],
+    ["Grafi", "Dijkstra", "cammini da una sorgente", "", "", "O(m log n)", "solo pesi ≥ 0", "11-mst-cammini-minimi"],
+    ["Grafi", "BFS con pesi tutti uguali", "cammini da una sorgente", "", "", "O(n + m)", "", "11-mst-cammini-minimi"],
+    ["Grafi", "Floyd-Warshall", "tutte le coppie", "Θ(n³)", "Θ(n³)", "Θ(n³)", "spazio Θ(n²) con una matrice", "11-mst-cammini-minimi"]
+  ];
+  const aree = [...new Set(R.map((r) => r[0]))];
+  const sel = new Set();
+  const box = document.getElementById("fo-aree"), corpo = document.getElementById("fo-righe"), cerca = document.getElementById("fo-cerca"), conta = document.getElementById("fo-conta");
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  box.innerHTML = aree.map((a) => `<button type="button" class="fo-chip" data-a="${esc(a)}" aria-pressed="false">${esc(a)}</button>`).join("");
+  function disegna() {
+    const q = cerca.value.trim().toLowerCase();
+    const righe = R.filter((r) => (!sel.size || sel.has(r[0])) && (!q || r.join(" ").toLowerCase().includes(q)));
+    corpo.innerHTML = righe.map((r) => `<tr><td class="area">${esc(r[0])}</td><td><a href="${r[7]}.html">${esc(r[1])}</a></td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td><small>${esc(r[6])}</small></td></tr>`).join("") || `<tr><td colspan="7">Nessuna riga corrisponde al filtro.</td></tr>`;
+    conta.textContent = `${righe.length} righe su ${R.length}`;
+  }
+  box.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-a]");
+    if (!b) return;
+    const a = b.dataset.a;
+    sel.has(a) ? sel.delete(a) : sel.add(a);
+    b.setAttribute("aria-pressed", String(sel.has(a)));
+    disegna();
+  });
+  cerca.addEventListener("input", disegna);
+  disegna();
+})();
+</script>
+</body>
+</html>

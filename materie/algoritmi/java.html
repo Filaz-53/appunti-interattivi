@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Java per il corso · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Il Java che serve per il corso e per il progetto: classi, ereditarietà, polimorfismo, classi astratte e interfacce, Comparable, eccezioni, generics e Java Collections con i costi delle operazioni.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="java">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Le basi</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Classi e oggetti</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Ereditarietà e polimorfismo</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Classi astratte e interfacce</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Eccezioni</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Generics</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Java Collections</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Verifica ed esercizi</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · Java</span>
+      <h1>Java per il corso</h1>
+      <p class="lede">Il corso non insegna a programmare: usa Java per implementare gli algoritmi e per il progetto. Qui c'è quello che serve, dalle classi ai generics, fino alle Java Collections con i costi delle operazioni messi accanto alle strutture dati che le realizzano.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Partire</span>
+        <h2>Le basi</h2>
+      </div>
+      <p>Ogni programma Java è fatto di <strong>classi</strong>, una per file con lo stesso nome (<code>HelloWorld.java</code>). Il compilatore <code>javac</code> produce bytecode (<code>.class</code>) che la Java Virtual Machine esegue con <code>java</code>. Operatori e strutture di controllo hanno la sintassi del C.</p>
+<pre class="codice largo" data-copia><code data-lang="java">
+public class HelloWorld {
+    public static void main(String[] args) {    // invocato al "run" della classe
+        System.out.println("Hello World!");
+    }
+}
+</code></pre>
+      <p>Java è <strong>fortemente tipizzato</strong>: ogni variabile ha un tipo dichiarato. I <strong>tipi primitivi</strong> hanno dimensione fissa; i <strong>tipi classe</strong> sono riferimenti a oggetti.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Tipo</th><th class="num">bit</th><th>Default</th><th>Intervallo</th></tr></thead>
+          <tbody>
+            <tr><td><code>boolean</code></td><td class="num">1</td><td>false</td><td>false, true</td></tr>
+            <tr><td><code>byte</code></td><td class="num">8</td><td>0</td><td>−128 … 127</td></tr>
+            <tr><td><code>char</code></td><td class="num">16</td><td>'\u0000'</td><td>0 … 2¹⁶ − 1</td></tr>
+            <tr><td><code>short</code></td><td class="num">16</td><td>0</td><td>−2¹⁵ … 2¹⁵ − 1</td></tr>
+            <tr><td><code>int</code></td><td class="num">32</td><td>0</td><td>−2³¹ … 2³¹ − 1 (circa ±2,1 miliardi)</td></tr>
+            <tr><td><code>long</code></td><td class="num">64</td><td>0L</td><td>−2⁶³ … 2⁶³ − 1</td></tr>
+            <tr><td><code>float</code></td><td class="num">32</td><td>0.0f</td><td>circa ±3,4 · 10³⁸</td></tr>
+            <tr><td><code>double</code></td><td class="num">64</td><td>0.0d</td><td>circa ±1,8 · 10³⁰⁸</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="nota">Nella tabella dei lucidi il massimo di double è indicato come 1,60 · 10³⁰⁸: il valore di Double.MAX_VALUE è circa 1,80 · 10³⁰⁸.</aside>
+      <ul>
+        <li><strong>Classi wrapper</strong> (<code>Integer</code>, <code>Double</code>, …): servono quando occorre un oggetto, per esempio nelle collezioni. La conversione è automatica (<em>autoboxing</em> e <em>unboxing</em>). Gli oggetti si confrontano con <code>equals</code> o <code>compareTo</code>, non con <code>==</code>, che confronta i riferimenti.</li>
+        <li><strong>Package</strong>: le classi si raggruppano in package (cartelle), dichiarati con <code>package nome;</code> e usati con <code>import java.util.Scanner;</code> o <code>import java.util.*;</code>.</li>
+        <li><strong>String</strong>: concatenazione con <code>+</code>, <code>length()</code>, <code>substring(…)</code>. <strong>enum</strong>: un tipo con un insieme finito di valori, come <code>enum Seme { CUORI, QUADRI, PICCHE, FIORI }</code>.</li>
+        <li><strong>Array</strong>: dimensione fissa, elementi dello stesso tipo: <code>Integer[] a = new Integer[10];</code> oppure <code>String[] w = {"cane", "gatto"};</code>. La classe <code>java.util.Arrays</code> offre <code>sort</code>, <code>asList</code> e altri metodi statici.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Programmazione a oggetti</span>
+        <h2>Classi e oggetti</h2>
+      </div>
+      <p>Una <strong>classe</strong> definisce campi e metodi; un <strong>oggetto</strong> è una sua istanza, creata con <code>new</code>, che invoca il <strong>costruttore</strong> (stesso nome della classe, nessun tipo di ritorno; se ne possono definire più con parametri diversi). L'<strong>incapsulamento</strong> separa la parte pubblica (l'interfaccia) da quella privata (l'implementazione): si può cambiare la seconda senza toccare il codice che usa la prima.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Modificatore</th><th>Chi vede il membro</th></tr></thead>
+          <tbody>
+            <tr><td><code>public</code></td><td>tutte le classi</td></tr>
+            <tr><td><code>protected</code></td><td>le sottoclassi e le classi dello stesso package</td></tr>
+            <tr><td>(nessuno)</td><td>le classi dello stesso package</td></tr>
+            <tr><td><code>private</code></td><td>solo la classe stessa</td></tr>
+          </tbody>
+        </table>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="java">
+public class Rettangolo {
+    private int l, h;                       // stato privato
+
+    public Rettangolo(int l, int h) {       // costruttore
+        this.l = l;
+        this.h = h;
+    }
+    public int getPerimetro() { return (l + h) * 2; }
+    public int getArea()      { return l * h; }
+}
+
+// uso
+Rettangolo r = new Rettangolo(20, 50);
+System.out.println("Area: " + r.getArea());
+</code></pre>
+      <aside class="nota">I lucidi mostrano anche Rettangolo2, che salva area e perimetro invece dei lati: stessa interfaccia, implementazione diversa. È l'incapsulamento in pratica.</aside>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Riuso</span>
+        <h2>Ereditarietà e polimorfismo</h2>
+      </div>
+      <p>Con <code>extends</code> una <strong>sottoclasse</strong> eredita campi e metodi (non privati) della superclasse, ne aggiunge altri e può ridefinirli. <code>super(…)</code> chiama il costruttore del padre e <code>super.metodo(…)</code> la sua versione di un metodo. Java non ha ereditarietà multipla tra classi, e ogni classe discende da <code>Object</code>.</p>
+      <ul>
+        <li><strong>Overriding</strong>: stesso nome e stessi parametri del metodo del padre, che viene ridefinito. <strong>Overloading</strong>: stesso nome, parametri diversi, un metodo diverso.</li>
+        <li><code>Object</code> definisce <code>toString()</code>, <code>equals(Object)</code>, <code>hashCode()</code>: di solito si ridefiniscono. Senza <code>toString</code> si stampa qualcosa come <code>persone.Persona@677327b6</code>.</li>
+        <li><strong>Polimorfismo e dynamic binding</strong>: una variabile di tipo statico <code>BankAccount</code> può riferire un <code>JointBankAccount</code>, e a run-time viene eseguito il metodo della classe effettiva.</li>
+      </ul>
+<pre class="codice largo" data-copia><code data-lang="java">
+BankAccount fred     = new BankAccount(123, "Fred", 345.50);
+BankAccount fredMary = new JointBankAccount(345, "Fred", "Mary", 450.65);  // lecito
+for (BankAccount b : new BankAccount[]{fred, fredMary})
+    System.out.println(b);   // BankAccount [...] poi JointBankAccount [...]: decide il tipo dinamico
+</code></pre>
+      <div class="avviso">
+        <span class="etichetta">La trappola di equals</span>
+        <p><code>public boolean equals(Persona p)</code> <strong>non</strong> ridefinisce <code>equals(Object o)</code>: è un overloading. Le collezioni chiamano <code>equals(Object)</code> e userebbero ancora quello di Object. La firma deve essere esattamente <code>public boolean equals(Object o)</code>, e chi ridefinisce equals deve ridefinire anche <code>hashCode</code> in modo coerente (oggetti uguali, hash uguale), altrimenti HashMap e HashSet non funzionano. L'annotazione <code>@Override</code> fa segnalare l'errore al compilatore.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Contratti</span>
+        <h2>Classi astratte e interfacce</h2>
+      </div>
+      <p>Una classe con almeno un metodo <code>abstract</code> (senza implementazione) è <strong>astratta</strong>: non si può istanziare, e ogni sottoclasse concreta deve implementare i metodi astratti (per esempio Shape con getArea e getPerimeter, implementati da Rectangle e Circle). Un'<strong>interfaccia</strong> contiene solo intestazioni di metodi pubblici (e costanti): una classe la <code>implements</code> e deve implementarne tutti i metodi. Un'interfaccia è un tipo: si possono scrivere metodi che accettano qualunque oggetto che la implementa.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th></th><th>Interfaccia</th><th>Classe astratta</th></tr></thead>
+          <tbody>
+            <tr><td>Ereditarietà</td><td>una classe ne implementa quante vuole</td><td>una classe ha un solo padre</td></tr>
+            <tr><td>Implementazione</td><td>nessuna, completamente astratta</td><td>completa o parziale</td></tr>
+            <tr><td>Visibilità</td><td>solo metodi pubblici</td><td>qualsiasi</td></tr>
+            <tr><td>Uso tipico</td><td>proprietà «periferiche» condivise da classi anche molto diverse (IColorable)</td><td>proprietà «core» di classi omogenee (Shape, Animale)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Comparable</strong> è l'interfaccia che impone un ordine: <code>compareTo(o)</code> restituisce un numero negativo, zero o positivo se l'oggetto precede, è uguale o segue o. È quella che usano <code>Arrays.sort</code>, <code>Collections.sort</code> e le strutture ordinate come TreeMap.</p>
+<pre class="codice largo" data-copia><code data-lang="java">
+public class Book implements Comparable&lt;Book&gt; {
+    private String title;
+    private int pubYear;
+    // costruttore e getter omessi
+
+    @Override
+    public int compareTo(Book other) {               // ordine per anno di pubblicazione
+        return Integer.compare(this.pubYear, other.pubYear);
+    }
+}
+Arrays.sort(books);                                  // usa compareTo
+</code></pre>
+      <aside class="nota">Nei lucidi Book implementa il Comparable «grezzo» con compareTo(Object o), un instanceof e un cast. Con i generics (Comparable&lt;Book&gt;) il cast sparisce e gli errori di tipo li trova il compilatore.</aside>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Errori</span>
+        <h2>Eccezioni</h2>
+      </div>
+      <p>Un'eccezione è un oggetto che porta il controllo dal punto dell'errore a un gestore competente. Si lancia con <code>throw</code>, si gestisce con <code>try … catch</code>: se il tipo lanciato è compatibile (uguale o sottoclasse) con quello di una clausola catch, si esegue quel blocco e si continua dopo il try. Senza gestore il programma termina stampando la pila delle chiamate.</p>
+<pre class="codice largo" data-copia><code data-lang="java">
+Integer[] a = {1, 4, 5, 76};
+try {
+    System.out.println(a[10]);
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("Houston, abbiamo un problema.");
+} catch (IllegalArgumentException e) {
+    System.out.println(e.getMessage());
+}
+
+public class BadException extends Exception {         // eccezione definita da noi
+    @Override public String getMessage() { return "This is a really bad exception..."; }
+}
+</code></pre>
+      <p>Le sottoclassi di <code>Exception</code> (tranne <code>RuntimeException</code>) sono <strong>checked</strong>: vanno gestite o dichiarate con <code>throws</code>. Le <code>RuntimeException</code> (indici fuori dall'array, NullPointerException, IllegalArgumentException) sono unchecked.</p>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Tipi parametrici</span>
+        <h2>Generics</h2>
+      </div>
+      <p>Dalla versione 5, classi e metodi possono avere <strong>parametri di tipo</strong>: <code>Coppia&lt;T&gt;</code> funziona con qualsiasi tipo, scelto da chi la usa. Per convenzione i parametri sono lettere maiuscole, e possono essere più d'uno (<code>CoppiaMista&lt;A, B&gt;</code>).</p>
+<pre class="codice largo" data-copia><code data-lang="java">
+public class Coppia&lt;T extends Comparable&lt;T&gt;&gt; {     // vincolo: T deve essere confrontabile
+    private T primo, secondo;
+
+    public Coppia(T primo, T secondo) { this.primo = primo; this.secondo = secondo; }
+
+    public void inverti() { T tmp = primo; primo = secondo; secondo = tmp; }
+
+    public T minore() {                                  // compareTo esiste di sicuro
+        return primo.compareTo(secondo) &lt;= 0 ? primo : secondo;
+    }
+}
+
+Coppia&lt;Integer&gt; ci = new Coppia&lt;&gt;(12, 30);              // il tipo si può inferire con &lt;&gt;
+</code></pre>
+      <ul>
+        <li>Il vincolo si scrive sempre con <code>extends</code>, anche quando è un'interfaccia: <code>&lt;T extends Comparable&lt;T&gt;&gt;</code>, oppure <code>&lt;T extends Person&gt;</code>. Se non è rispettato, l'errore è in compilazione.</li>
+        <li>Un parametro di tipo <strong>non</strong> si può usare con <code>new</code>: niente <code>new T()</code> né <code>new T[n]</code>.</li>
+        <li>I generics funzionano solo con tipi classe: <code>ArrayList&lt;Integer&gt;</code>, non <code>ArrayList&lt;int&gt;</code>.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Le strutture dati già pronte</span>
+        <h2>Java Collections</h2>
+      </div>
+      <p>Il <strong>Java Collections Framework</strong> offre interfacce (List, Queue, Deque, Set, Map), implementazioni e algoritmi (ordinamento, ricerca). <code>Map&lt;K, V&gt;</code> non deriva da Collection ma ne fa parte. Le collezioni sono <code>Iterable</code>: un <code>Iterator</code> con <code>hasNext()</code> e <code>next()</code> le scorre, ed è quello che fa il for-each.</p>
+<pre class="codice largo" data-copia><code data-lang="java">
+ArrayList&lt;Integer&gt; integers = new ArrayList&lt;&gt;();
+integers.add(5); integers.add(10);
+int somma = 0;
+for (Integer i : integers) somma += i;               // equivale a usare iterator()
+</code></pre>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Classe</th><th>Struttura dati (capitolo)</th><th>Operazioni e costi</th></tr></thead>
+          <tbody>
+            <tr><td><code>ArrayList</code></td><td>array dinamico (cap. 4)</td><td>get(i) O(1); add in fondo O(1) ammortizzato; add/remove in mezzo O(n)</td></tr>
+            <tr><td><code>LinkedList</code></td><td>lista doppiamente concatenata (cap. 4)</td><td>add/remove in testa e in coda O(1); get(i) O(n)</td></tr>
+            <tr><td><code>ArrayDeque</code></td><td>array circolare dinamico (cap. 4)</td><td>addFirst, addLast, removeFirst, removeLast O(1) ammortizzato: pila e coda</td></tr>
+            <tr><td><code>HashMap</code>, <code>HashSet</code></td><td>tabella hash con concatenamento (cap. 6)</td><td>get, put, remove, contains O(1) in media; fattore di carico 0,75</td></tr>
+            <tr><td><code>TreeMap</code>, <code>TreeSet</code></td><td>albero di ricerca bilanciato rosso-nero (cap. 5)</td><td>O(log n) nel caso pessimo; chiavi in ordine, firstKey, floorKey…</td></tr>
+            <tr><td><code>PriorityQueue</code></td><td>min-heap binario (cap. 7)</td><td>offer, poll O(log n); peek O(1); niente decreaseKey (remove(o) è O(n))</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Domanda dei lucidi: quanto costa?</span>
+        <p>Sommare una <code>LinkedList</code> con <code>for (int i = 0; i &lt; l.size(); i++) sum += l.get(i);</code> costa <strong>Θ(n²)</strong>: ogni get(i) scorre la lista dall'inizio (o dalla fine). Con il for-each, o con un ArrayList, costa Θ(n).</p>
+      </div>
+      <aside class="nota">Per Dijkstra e Prim in Java: PriorityQueue non ha decreaseKey, quindi si inserisce di nuovo il vertice con la nuova distanza e, quando si estrae, si scartano le copie vecchie (vertice già chiuso). Il costo resta O(m log n).</aside>
+      <p><code>Vector</code> e <code>Stack</code> esistono per retrocompatibilità (sincronizzati, più lenti): al loro posto si usano <code>ArrayList</code> e <code>ArrayDeque</code>. Nella pagina del <a href="progetto-scc.html">progetto SCC</a> ci sono esempi di HashMap, ArrayList e ArrayDeque usati sulla libreria del corso.</p>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Ripasso</span>
+        <h2>Verifica ed esercizi</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio dei lucidi · collezioni</span><h4>Che cosa contiene la sequenza alla fine?</h4></div>
+        <p>Caso 1, su una coda (add in fondo, remove dalla testa): add(5), add(3), remove(), add(2), add(8), remove(), remove(), add(4). Caso 2, su una deque: addFirst(3), addLast(8), addFirst(2), removeLast(), addLast(7), addLast(4), removeFirst(), removeFirst().</p>
+        <div class="domanda" data-id="ja-1">
+          <p class="testo">Risultato del caso 1?</p>
+          <div class="opz"><button>[5, 4]</button><button data-giusta>[8, 4]</button><button>[2, 8, 4]</button></div>
+          <div class="perche" hidden><p>[5] → [5, 3] → [3] → [3, 2] → [3, 2, 8] → [2, 8] → [8] → [8, 4].</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Caso 1: [5], [5, 3], [3], [3, 2], [3, 2, 8], [2, 8], [8], <strong>[8, 4]</strong>.</p></div></li>
+            <li><div><p>Caso 2: [3], [3, 8], [2, 3, 8], [2, 3], [2, 3, 7], [2, 3, 7, 4], [3, 7, 4], <strong>[7, 4]</strong>.</p></div></li>
+            <li><div><p class="risultato">Con LinkedList e ArrayDeque il risultato è lo stesso: cambia solo l'implementazione, non il comportamento dell'interfaccia.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · Java</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="ja-2">
+          <p class="testo">Che differenza c'è tra overriding e overloading?</p>
+          <div class="opz"><button data-giusta>Overriding ridefinisce un metodo del padre con la stessa firma; overloading definisce un metodo con lo stesso nome e parametri diversi</button><button>Sono sinonimi</button><button>Overloading riguarda solo i costruttori</button></div>
+          <div class="perche" hidden><p>Per questo equals(Persona) è un overloading e non ridefinisce equals(Object).</p></div>
+        </div>
+        <div class="domanda" data-id="ja-3">
+          <p class="testo">Una classe Java può…</p>
+          <div class="opz"><button>estendere più classi</button><button data-giusta>estendere una classe e implementare più interfacce</button><button>implementare al più un'interfaccia</button></div>
+          <div class="perche" hidden><p>Niente ereditarietà multipla tra classi; le interfacce invece si combinano.</p></div>
+        </div>
+        <div class="domanda" data-id="ja-4">
+          <p class="testo">Come si impone che il tipo T di una classe generica sia confrontabile?</p>
+          <div class="opz"><button>class Coppia&lt;T implements Comparable&gt;</button><button data-giusta>class Coppia&lt;T extends Comparable&lt;T&gt;&gt;</button><button>Non si può</button></div>
+          <div class="perche" hidden><p>Nei vincoli sui tipi si usa sempre extends, anche per le interfacce.</p></div>
+        </div>
+        <div class="domanda" data-id="ja-5">
+          <p class="testo">Quale collezione usare come coda con priorità per Dijkstra?</p>
+          <div class="opz"><button>TreeSet, sempre</button><button data-giusta>PriorityQueue, reinserendo i vertici invece di fare decreaseKey</button><button>ArrayList ordinato</button></div>
+          <div class="perche" hidden><p>PriorityQueue è un heap binario senza decreaseKey: si inseriscono copie e si ignorano quelle vecchie quando si estraggono.</p></div>
+        </div>
+        <div class="domanda" data-id="ja-6">
+          <p class="testo">Con quale costo medio HashMap fa get e put?</p>
+          <div class="opz"><button data-giusta>O(1)</button><button>O(log n)</button><button>O(n)</button></div>
+          <div class="perche" hidden><p>È una tabella hash con concatenamento e fattore di carico 0,75. TreeMap invece è O(log n).</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-java">
+        <li><label><input type="checkbox" id="rj-1"><span>So scrivere una classe con campi privati, costruttori, getter e toString.</span></label></li>
+        <li><label><input type="checkbox" id="rj-2"><span>So usare extends, super, @Override e il dynamic binding.</span></label></li>
+        <li><label><input type="checkbox" id="rj-3"><span>So quando scegliere una classe astratta e quando un'interfaccia.</span></label></li>
+        <li><label><input type="checkbox" id="rj-4"><span>So scrivere una classe generica con un vincolo sul tipo.</span></label></li>
+        <li><label><input type="checkbox" id="rj-5"><span>So il costo delle operazioni delle principali collezioni.</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Introduzione a Java», «Java Generics» e «Java Collections» (P. Di Lena, da slide di A. Di Iorio) ed esercizi Java nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. La tabella dei costi delle collezioni collega le classi Java ai capitoli del corso.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>

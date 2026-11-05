@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Union-Find · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Strutture dati per insiemi disgiunti: makeSet, find e union con QuickFind e QuickUnion, euristiche sul peso e sul rango, costi e analisi ammortizzata.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="08-union-find">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Insiemi disgiunti</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>QuickFind</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>QuickUnion</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Euristica sul peso</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Euristica sul rango</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Verifica ed esercizi</span></a></li>
+        <li class="extra"><a href="#a"><span class="n">A</span><span>Compressione dei cammini</span></a></li>
+        <li><a href="#esami"><span class="n">§7</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 8</span>
+      <h1>Union-Find</h1>
+      <p class="lede">Una struttura per gestire insiemi disgiunti che si fondono: chi sta con chi? Due implementazioni elementari, ognuna veloce in un'operazione e lenta nell'altra, e due euristiche che rendono entrambe le operazioni logaritmiche. Serve all'algoritmo di Kruskal (capitolo 11).</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Il problema</span>
+        <h2>Insiemi disgiunti</h2>
+      </div>
+      <p>Si gestisce una collezione S = {S₁, …, S<sub>k</sub>} di insiemi dinamici disgiunti, con n ≥ k elementi in tutto. Ogni insieme è identificato da un <strong>rappresentante</strong>, un suo membro qualsiasi: due find sullo stesso insieme devono restituire lo stesso oggetto, che può cambiare solo dopo un'unione.</p>
+      <div class="def">
+        <span class="etichetta">Operazioni</span>
+        <p><code>makeSet(x)</code>: crea l'insieme {x}, con x rappresentante (x non deve stare in altri insiemi).<br>
+        <code>find(x)</code>: restituisce il rappresentante dell'insieme che contiene x.<br>
+        <code>union(A, B)</code>: unisce gli insiemi di <em>nome</em> (rappresentante) A e B, distrugge i vecchi e chiama A il nuovo insieme. Per unire gli insiemi di due elementi qualsiasi si scrive union(find(x), find(y)).</p>
+      </div>
+      <p>Esempio: makeSet(1..6), union(1,2), union(3,4), union(5,6), union(1,3), union(1,5) porta a un solo insieme {1, …, 6} con rappresentante 1.</p>
+      <aside class="nota">L'applicazione dei lucidi: in un circuito con n pin e una lista E di coppie collegate, dopo aver fatto union per ogni coppia di E, «x e y sono collegati?» diventa find(x) = find(y).</aside>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Alberi di altezza uno</span>
+        <h2>QuickFind</h2>
+      </div>
+      <p>Ogni insieme è un albero di <strong>altezza 1</strong>: la radice è il nome dell'insieme e le foglie sono gli elementi. Si può realizzare con liste in cui ogni elemento punta direttamente al rappresentante.</p>
+      <ul>
+        <li><strong>makeSet(x)</strong>: un albero con l'unica foglia x. O(1).</li>
+        <li><strong>find(x)</strong>: restituisce il padre di x. <strong>O(1)</strong>.</li>
+        <li><strong>union(A, B)</strong>: tutte le foglie di B si spostano sotto A. <strong>O(n)</strong> nel caso pessimo, perché B può avere n − 1 elementi.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Foreste</span>
+        <h2>QuickUnion</h2>
+      </div>
+      <p>Ogni insieme è un albero radicato <strong>qualsiasi</strong>: ogni nodo punta al padre, la radice è il rappresentante. Si memorizza comodamente nel <strong>vettore dei padri</strong> p[1..n], con p[i] = i per le radici.</p>
+      <ul>
+        <li><strong>makeSet(x)</strong>: un albero con il solo x. O(1).</li>
+        <li><strong>find(x)</strong>: risale i padri fino alla radice. <strong>O(n)</strong> nel caso pessimo.</li>
+        <li><strong>union(A, B)</strong>: la radice B diventa figlia della radice A. <strong>O(1)</strong>.</li>
+      </ul>
+      <p>Il caso pessimo dei lucidi: makeSet(1..6), poi union(5,6), union(4,5), union(3,4), union(2,3), union(1,2). Si ottiene una catena di altezza 5, e find(6) costa n.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> QuickFind e QuickUnion, con e senza euristica. Il costo di union(find(x), find(y)) comprende le due find. Prova il caso pessimo con e senza euristica sul rango.</figcaption>
+        <div data-widget="union-find" data-modo="qu"></div>
+      </figure>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th></th><th>makeSet</th><th>union</th><th>find</th><th>Quando usarlo</th></tr></thead>
+          <tbody>
+            <tr><td>QuickFind</td><td>O(1)</td><td>O(n)</td><td>O(1)</td><td>union rare, find frequenti</td></tr>
+            <tr><td>QuickUnion</td><td>O(1)</td><td>O(1)</td><td>O(n)</td><td>find rare, union frequenti</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Migliorare QuickFind</span>
+        <h2>Euristica sul peso</h2>
+      </div>
+      <p>Nella radice si tiene il numero di elementi dell'insieme (aggiornabile in O(1)), e in union si spostano sempre le foglie dell'insieme <strong>più piccolo</strong> sotto la radice di quello più grande. Per rispettare la convenzione che l'unione si chiami A, se si sposta A sotto B si rinomina la radice risultante.</p>
+      <div class="def">
+        <span class="etichetta">Costo ammortizzato O(log n)</span>
+        <p><strong>Osservazione.</strong> Ogni volta che una foglia cambia padre, finisce in un insieme almeno <strong>doppio</strong> di quello in cui stava: se size(A) ≥ size(B) cambiano padre le foglie di B, e size(A) + size(B) ≥ 2·size(B).</p>
+        <p>Quindi ogni foglia cambia padre al più log₂ n volte. Una singola union può ancora spostare n/2 elementi (O(n) nel caso pessimo), ma le n − 1 union possibili spostano in tutto al più n log n elementi: costo ammortizzato <strong>O(n log n)/(n − 1) = O(log n)</strong> per union.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Migliorare QuickUnion</span>
+        <h2>Euristica sul rango (union by rank)</h2>
+      </div>
+      <p>Il problema di QuickUnion sono gli alberi troppo alti. Ogni radice mantiene il suo <strong>rango</strong>, il numero di archi del cammino più lungo verso una foglia (cioè l'altezza del suo albero), e in union la radice dell'albero <strong>più basso</strong> diventa figlia di quella dell'albero più alto:</p>
+      <ul>
+        <li>rank(A) &gt; rank(B): B sotto A, il rango di A non cambia;</li>
+        <li>rank(A) = rank(B): B sotto A e <strong>rank(A) cresce di 1</strong>;</li>
+        <li>rank(A) &lt; rank(B): si scambiano i ruoli (A sotto B), e la radice prende il nome A.</li>
+      </ul>
+      <div class="def">
+        <span class="etichetta">Teorema</span>
+        <p>Un albero con radice x costruito con l'euristica sul rango ha almeno <strong>2<sup>rank(x)</sup></strong> nodi.</p>
+        <p><strong>Dimostrazione</strong> per induzione sul numero di union. Base: un nodo solo ha rango 0 e 2⁰ = 1 nodo. Passo, con |A ∪ B| = |A| + |B|:</p>
+        <p>• rank(A) &lt; rank(B): rank(A ∪ B) = rank(B) e |A| + |B| ≥ 2<sup>rank(B)</sup>.<br>
+        • rank(A) &gt; rank(B): simmetrico.<br>
+        • rank(A) = rank(B): rank(A ∪ B) = rank(A) + 1 e |A| + |B| ≥ 2<sup>rank(A)</sup> + 2<sup>rank(A)</sup> = 2<sup>rank(A)+1</sup>.</p>
+      </div>
+      <p>Di conseguenza 2<sup>rank</sup> ≤ n, l'altezza è al più log₂ n e <strong>find costa O(log n) nel caso pessimo</strong>, mentre union resta O(1).</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th></th><th>makeSet</th><th>union</th><th>find</th></tr></thead>
+          <tbody>
+            <tr><td>QuickFind</td><td>O(1)</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>QuickUnion</td><td>O(1)</td><td>O(1)</td><td>O(n)</td></tr>
+            <tr><td>QuickFind con euristica sul peso</td><td>O(1)</td><td>O(log n) ammortizzato</td><td>O(1)</td></tr>
+            <tr><td>QuickUnion con euristica sul rango</td><td>O(1)</td><td>O(1)</td><td>O(log n)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Ripasso</span>
+        <h2>Verifica ed esercizi</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.1 · progettazione (esercizio del corso)</span><h4>Vincoli di uguaglianza e disuguaglianza</h4></div>
+        <p>Date n variabili x₁, …, x<sub>n</sub>, una lista di vincoli x<sub>i</sub> = x<sub>j</sub> e una di vincoli x<sub>i</sub> ≠ x<sub>j</sub>, dire se si possono soddisfare tutti. Esempio: x₁ = x₂, x₂ = x₃, x₃ = x₄, x₁ ≠ x₄ non è soddisfacibile.</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>makeSet(i) per ogni variabile; per ogni vincolo x<sub>i</sub> = x<sub>j</sub>, union(find(i), find(j)). Gli insiemi sono le classi di variabili costrette a essere uguali.</p></div></li>
+            <li><div><p>Per ogni vincolo x<sub>i</sub> ≠ x<sub>j</sub>: se find(i) = find(j) si restituisce false. Se nessuno fallisce, true (a ogni insieme si dà un valore diverso).</p></div></li>
+            <li><div>
+              <ol class="pseudo">
+                <li class="titolo">Verifica(int n, Lista uguali, Lista diversi) → bool</li>
+                <li><b>for</b> <i>i</i> = 1 <b>to</b> <i>n</i> <b>do</b> makeSet(<i>i</i>)</li>
+                <li><b>for each</b> (<i>i</i>, <i>j</i>) ∈ <i>uguali</i> <b>do</b> union(find(<i>i</i>), find(<i>j</i>))</li>
+                <li><b>for each</b> (<i>i</i>, <i>j</i>) ∈ <i>diversi</i> <b>do</b></li>
+                <li class="rientro1"><b>if</b> find(<i>i</i>) == find(<i>j</i>) <b>then return</b> false</li>
+                <li><b>return</b> true</li>
+              </ol>
+            </div></li>
+            <li><div><p class="risultato">Con QuickUnion e rango: Θ(n) + O(u log n) + O(d log n), con u e d i numeri di vincoli. Con u, d = O(n): O(n log n).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 8</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="uf-1">
+          <p class="testo">In QuickFind quanto costa find?</p>
+          <div class="opz"><button data-giusta>O(1)</button><button>O(log n)</button><button>O(n)</button></div>
+          <div class="perche" hidden><p>L'albero ha altezza 1: il padre di una foglia è il rappresentante. Il prezzo si paga in union.</p></div>
+        </div>
+        <div class="domanda" data-id="uf-2">
+          <p class="testo">Senza euristiche, con quale sequenza QuickUnion produce un albero di altezza n − 1?</p>
+          <div class="opz"><button>union(1,2), union(1,3), union(1,4), …</button><button data-giusta>union(n−1, n), union(n−2, n−1), …, union(1, 2)</button><button>Con nessuna: l'altezza è sempre O(log n)</button></div>
+          <div class="perche" hidden><p>Ogni volta l'albero intero finisce sotto un nuovo singoletto: si forma una catena. Con union(1, x) invece si ottiene una stella di altezza 1.</p></div>
+        </div>
+        <div class="domanda" data-id="uf-3">
+          <p class="testo">Con l'euristica sul rango, un albero di rango 4 ha almeno quanti nodi?</p>
+          <div class="opz"><button>5</button><button data-giusta>16</button><button>4</button></div>
+          <div class="perche" hidden><p>Almeno 2<sup>rank</sup> = 2⁴ = 16.</p></div>
+        </div>
+        <div class="domanda" data-id="uf-4">
+          <p class="testo">Perché con l'euristica sul peso ogni elemento cambia padre al più log n volte?</p>
+          <div class="opz"><button>Perché gli alberi hanno altezza log n</button><button data-giusta>Perché ogni volta finisce in un insieme almeno doppio del precedente</button><button>Perché union si fa al più log n volte</button></div>
+          <div class="perche" hidden><p>Si spostano sempre le foglie dell'insieme più piccolo: dopo lo spostamento l'insieme che le contiene è almeno doppio, e non si può raddoppiare più di log₂ n volte.</p></div>
+        </div>
+        <div class="domanda" data-id="uf-5">
+          <p class="testo">Unendo due alberi di rango 2 con l'euristica sul rango, che rango ha il risultato?</p>
+          <div class="opz"><button>2</button><button data-giusta>3</button><button>4</button></div>
+          <div class="perche" hidden><p>Ranghi uguali: una radice va sotto l'altra e l'altezza cresce di 1.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-08">
+        <li><label><input type="checkbox" id="r08-1"><span>So spiegare makeSet, find e union e il ruolo del rappresentante.</span></label></li>
+        <li><label><input type="checkbox" id="r08-2"><span>So i costi di QuickFind e QuickUnion e quando conviene ciascuno.</span></label></li>
+        <li><label><input type="checkbox" id="r08-3"><span>So dimostrare il costo ammortizzato O(log n) dell'euristica sul peso.</span></label></li>
+        <li><label><input type="checkbox" id="r08-4"><span>So dimostrare che un albero di rango r ha almeno 2<sup>r</sup> nodi.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="a">
+      <div class="titolo-sez extra largo">
+        <span class="num-sez">Approfondimento A · oltre i lucidi</span>
+        <h2>Compressione dei cammini</h2>
+      </div>
+      <p>I lucidi si fermano all'euristica sul rango. Il libro di testo aggiunge la <strong>compressione dei cammini</strong>: durante find(x), tutti i nodi incontrati vengono attaccati direttamente alla radice, così le find successive su di loro costano O(1). Combinando rango e compressione, una sequenza di m operazioni costa O(m · α(n)), dove α è l'inversa della funzione di Ackermann: per qualunque n realistico α(n) ≤ 4, quindi in pratica costo costante per operazione.</p>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="union-find"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Union-Find» (G. Zavattaro, dal materiale di M. Marzolla e A. Montresor), esercizio risolto sui vincoli di uguaglianza, appunti di Berto, tr4v4 e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

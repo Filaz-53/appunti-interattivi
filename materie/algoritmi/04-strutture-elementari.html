@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Strutture dati elementari · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Dizionari su array ordinato e su lista, liste concatenate semplici, doppie e circolari, pile su array dinamico con analisi ammortizzata, code su array circolare.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="04-strutture-elementari">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Strutture dati</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Il dizionario</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Liste concatenate</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Pile</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Code</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Esercizi risolti</span></a></li>
+        <li><a href="#esami"><span class="n">§7</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 4</span>
+      <h1>Strutture dati elementari</h1>
+      <p class="lede">Come si organizzano i dati in memoria e quanto costano le operazioni: il dizionario su array e su lista, le liste concatenate, le pile su array che crescono e si restringono (con l'analisi ammortizzata) e le code su array circolare.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Definizioni</span>
+        <h2>Strutture dati, prototipo e implementazione</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizione</span>
+        <p>Una <strong>struttura dati</strong> definisce come i dati sono organizzati logicamente e quali operazioni permettono di accedervi e modificarli. Descrive <em>come</em> sono organizzati i dati, non <em>quali</em> dati contiene: una lista può contenere interi o stringhe.</p>
+      </div>
+      <p>Il <strong>prototipo</strong> (l'interfaccia) descrive valori e operazioni e nasconde i dettagli: serve a chi usa la struttura. L'<strong>implementazione</strong> la realizza in un linguaggio, non è visibile all'utente e può cambiare di molto i tempi di esecuzione.</p>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Classificazione</th><th></th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Ordine</td><td><strong>lineari</strong>: elementi in sequenza (primo, secondo…)</td><td><strong>non lineari</strong>: nessun ordine sequenziale (alberi, grafi)</td></tr>
+            <tr><td>Dimensione</td><td><strong>statiche</strong>: numero di elementi costante</td><td><strong>dinamiche</strong>: il numero può variare</td></tr>
+            <tr><td>Tipi</td><td><strong>omogenee</strong>: un solo tipo di dato</td><td><strong>eterogenee</strong>: tipi diversi</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Un prototipo, due implementazioni</span>
+        <h2>Il dizionario</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Dizionario (array associativo)</span>
+        <p>Insieme dinamico di coppie (chiave, valore) con <strong>chiavi uniche</strong> (i valori possono ripetersi). Operazioni: <code>search(k)</code>, <code>insert(k, d)</code>, <code>delete(k)</code>.</p>
+      </div>
+<pre class="codice largo" data-copia><code data-lang="java">
+// asdlab.libreria.StruttureElem.Dizionario
+public interface Dizionario {
+    public void insert(Object e, Comparable k);   // aggiunge la coppia (e, k)
+    public void delete(Comparable k);             // rimuove l'elemento con chiave k
+    public Object search(Comparable k);           // restituisce l'elemento con chiave k
+}
+</code></pre>
+      <div class="sim-due largo">
+        <div>
+          <h3>Su array ordinato</h3>
+          <p><strong>search</strong>: ricerca binaria, O(log n).<br><strong>insert</strong>: ricerca binaria della posizione O(log n), spostamento in avanti delle coppie con chiave maggiore O(n), scrittura O(1): <strong>O(n)</strong>.<br><strong>delete</strong>: ricerca O(log n) e spostamento indietro O(n): <strong>O(n)</strong>. La coppia si sovrascrive, non serve cancellare l'ultima cella.</p>
+        </div>
+        <div>
+          <h3>Su lista concatenata non ordinata</h3>
+          <p><strong>search</strong>: ricerca sequenziale dalla testa, O(n).<br><strong>insert</strong>: in testa alla lista, <strong>O(1)</strong>.<br><strong>delete</strong>: ricerca O(n) e rimozione del nodo O(1): <strong>O(n)</strong>.</p>
+        </div>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Operazione</th><th>Array ordinato</th><th>Lista concatenata</th></tr></thead>
+          <tbody>
+            <tr><td>search</td><td>O(log n)</td><td>O(n)</td></tr>
+            <tr><td>insert</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>delete</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>dimensione</td><td>fissa</td><td>dinamica</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Non c'è un vincitore: dipende dall'applicazione (tante ricerche o tanti inserimenti?). Alberi di ricerca e tabelle hash, nei capitoli 5 e 6, fanno meglio di entrambe.</p>
+      <aside class="nota">«Perché non teniamo la lista ordinata?» Perché la ricerca resterebbe O(n): su una lista non si può fare la ricerca binaria, non c'è accesso diretto all'elemento centrale. Si perderebbe solo l'inserimento in O(1).</aside>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Strutture collegate</span>
+        <h2>Liste concatenate</h2>
+      </div>
+      <p>Una <strong>lista</strong> organizza gli elementi in ordine sequenziale. Su array l'ordine è dato dagli indici (spazio allocato staticamente, accesso veloce); con le <strong>liste concatenate</strong> è dato da una catena di puntatori (spazio allocato su richiesta, accesso lento, dimensione illimitata).</p>
+      <ul>
+        <li><strong>Semplice</strong> (singly linked): ogni nodo x ha <code>x.key</code> e <code>x.next</code>; se <code>x.next = NIL</code>, x è l'ultimo. Si visita in una sola direzione.</li>
+        <li><strong>Doppiamente concatenata</strong>: ogni nodo ha anche <code>x.prev</code>; se <code>x.prev = NIL</code>, x è il primo. Si visita nei due sensi.</li>
+        <li><strong>Circolare</strong>: doppiamente concatenata in cui <code>next</code> dell'ultimo punta al primo e <code>prev</code> del primo punta all'ultimo. Dalla testa si arriva alla coda in O(1).</li>
+      </ul>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">insert(List L, Int x) → List</li>
+            <li><i>p</i> = new List(<i>x</i>)</li>
+            <li><i>p</i>.next = <i>p</i>.prev = <i>p</i>   <span class="sc">(punta a sé)</span></li>
+            <li><b>if</b> <i>L</i> ≠ NIL <b>then</b></li>
+            <li class="rientro1"><i>p</i>.next = <i>L</i></li>
+            <li class="rientro1"><i>p</i>.prev = <i>L</i>.prev</li>
+            <li class="rientro1"><i>L</i>.prev.next = <i>p</i></li>
+            <li class="rientro1"><i>L</i>.prev = <i>p</i></li>
+            <li><b>return</b> <i>p</i>   <span class="sc">(nuova testa)</span></li>
+          </ol>
+          <p>Inserimento in testa: O(1) in ogni caso.</p>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">delete(List L, Int x) → List</li>
+            <li><i>p</i> = search(<i>L</i>, <i>x</i>)</li>
+            <li><b>if</b> <i>p</i> ≠ NIL <b>then</b></li>
+            <li class="rientro1"><i>p</i>.prev.next = <i>p</i>.next</li>
+            <li class="rientro1"><i>p</i>.next.prev = <i>p</i>.prev</li>
+            <li class="rientro1"><b>if</b> <i>p</i> == <i>L</i> <b>then</b>   <span class="sc">(si toglie la testa)</span></li>
+            <li class="rientro2"><b>if</b> <i>L</i>.next == <i>L</i> <b>then</b> <i>L</i> = NIL <b>else</b> <i>L</i> = <i>p</i>.next</li>
+            <li class="rientro1">free(<i>p</i>)</li>
+            <li><b>return</b> <i>L</i></li>
+          </ol>
+          <p>La ricerca costa O(n), gli aggiornamenti O(1): pessimo O(n), ottimo O(1).</p>
+        </div>
+      </div>
+      <ol class="pseudo largo">
+        <li class="titolo">search(List L, Int x) → List</li>
+        <li><b>if</b> <i>L</i> ≠ NIL <b>then</b></li>
+        <li class="rientro1"><i>p</i> = <i>L</i></li>
+        <li class="rientro1"><b>repeat</b></li>
+        <li class="rientro2"><b>if</b> <i>p</i>.key == <i>x</i> <b>then return</b> <i>p</i></li>
+        <li class="rientro2"><i>p</i> = <i>p</i>.next</li>
+        <li class="rientro1"><b>until</b> <i>p</i> == <i>L</i></li>
+        <li><b>return</b> NIL</li>
+      </ol>
+      <div class="avviso">
+        <span class="etichetta">Attenzione al «≠»</span>
+        <p>Nei PDF dei lucidi copiati come testo il simbolo ≠ spesso sparisce e «if L ≠ NIL» diventa «if L = NIL». In tutto lo pseudocodice di inserimento, cancellazione e visita la condizione corretta è <strong>diverso da NIL</strong>.</p>
+      </div>
+      <p>Nella libreria del corso, <code>StrutturaCollegata</code> implementa il dizionario con una lista circolare in cui il riferimento <code>list</code> punta all'<strong>ultimo</strong> nodo: l'inserimento aggiunge dopo <code>list</code> (cioè in testa, che è <code>list.next</code>) e la ricerca parte da <code>list.next</code>.</p>
+<pre class="codice largo" data-copia><code data-lang="java">
+public void insert(Object e, Comparable k) {
+    Record p = new Record(e, k);
+    if (list == null) list = p.prev = p.next = p;
+    else {
+        p.next = list.next;  list.next.prev = p;
+        list.next = p;       p.prev = list;
+    }
+}
+</code></pre>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · LIFO</span>
+        <h2>Pile (stack)</h2>
+      </div>
+      <p>Una <strong>pila</strong> supporta <code>push</code> (aggiunge in cima) e <code>pop</code> (toglie l'elemento inserito più di recente): <strong>Last In, First Out</strong>, come una pila di piatti. Si usa per i record di attivazione delle chiamate, l'undo degli editor, il controllo delle parentesi bilanciate, la DFS iterativa.</p>
+      <ul>
+        <li><strong>Con lista semplice</strong>: push e pop lavorano sulla testa. Dimensione illimitata, piccolo overhead (un puntatore per elemento). La lista doppia non serve: non si torna mai indietro.</li>
+        <li><strong>Con array</strong>: push scrive nella prima cella libera, pop toglie l'ultima. Nessun overhead, ma dimensione limitata: <em>overflow</em> se è piena, <em>underflow</em> se si fa pop da vuota.</li>
+      </ul>
+      <p>In entrambi i casi push e pop costano O(1). Per non avere il limite di dimensione si usa un <strong>array dinamico</strong>: si <strong>raddoppia</strong> quando è pieno e si <strong>dimezza</strong> quando l'occupazione scende a <strong>1/4</strong>. Una singola operazione che ridimensiona costa O(n) (la copia), le altre O(1).</p>
+      <div class="def">
+        <span class="etichetta">Analisi ammortizzata di push (aggregazione)</span>
+        <p>Partendo da una pila vuota con capacità 1, l'i-esimo push costa c<sub>i</sub> = i se i − 1 è una potenza di 2 (copia di i − 1 elementi + scrittura), 1 altrimenti:</p>
+        <p class="formula">Σ<sub>i=1..n</sub> c<sub>i</sub> ≤ n + Σ<sub>j=0..⌊log n⌋</sub> 2<sup>j</sup> = n + 2<sup>⌊log n⌋+1</sup> − 1 &lt; 3n</p>
+        <p>n push costano O(n): <strong>O(1) ammortizzato</strong>. Per i pop si usano gli accantonamenti (2 €: 1 € per la rimozione e 1 € di credito per la copia futura), e si dimostra che ogni sequenza di n push e pop su una pila inizialmente vuota costa O(n).</p>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">La strategia conta</span>
+        <p>Questi costi valgono per «raddoppia a pieno, dimezza a 1/4». Se si dimezzasse quando l'array è pieno per metà, dopo ogni contrazione l'array sarebbe di nuovo pieno: alternando push e pop al confine, ogni operazione copierebbe metà degli elementi, cioè <strong>O(n) ammortizzato</strong>. Provalo qui sotto.</p>
+      </div>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Pila su array dinamico, come la <code>PilaArray</code> della libreria (capacità iniziale 1). Il costo di un'operazione è 1 più il numero di elementi copiati.</figcaption>
+        <div data-widget="pila-dinamica"></div>
+      </figure>
+<pre class="codice largo" data-copia><code data-lang="java">
+// asdlab.libreria.StruttureElem.PilaArray
+public Object pop() {
+    if (this.isEmpty()) throw new EccezioneStrutturaVuota("Pila vuota");
+    n = n - 1;
+    Object e = S[n];
+    if (n &gt; 1 &amp;&amp; n == S.length / 4) {           // occupazione a 1/4: dimezza
+        Object[] temp = new Object[S.length / 2];
+        for (int i = 0; i &lt; n; i++) temp[i] = S[i];
+        S = temp;
+    }
+    return e;
+}
+</code></pre>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · FIFO</span>
+        <h2>Code (queue)</h2>
+      </div>
+      <p>Una <strong>coda</strong> supporta <code>enqueue</code> (aggiunge in fondo) e <code>dequeue</code> (toglie dalla testa): <strong>First In, First Out</strong>, come una fila allo sportello. Non si accede agli elementi in mezzo. Si usa nello scheduling dei processi e nella visita in ampiezza (BFS).</p>
+      <ul>
+        <li><strong>Lista circolare</strong>: enqueue in coda, dequeue in testa. Illimitata, due puntatori per elemento.</li>
+        <li><strong>Lista semplice</strong> con un puntatore anche all'ultimo nodo: enqueue in coda in O(1).</li>
+        <li><strong>Array circolare</strong>: nessun overhead, dimensione limitata.</li>
+      </ul>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">enqueue(Queue Q, Int x)</li>
+            <li><b>if</b> <i>Q</i>.size == <i>Q</i>.length <b>then</b> error "overflow"</li>
+            <li><i>Q</i>.buf[<i>Q</i>.tail] = <i>x</i></li>
+            <li><i>Q</i>.tail = (<i>Q</i>.tail mod <i>Q</i>.length) + 1</li>
+            <li><i>Q</i>.size = <i>Q</i>.size + 1</li>
+          </ol>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">dequeue(Queue Q) → Int</li>
+            <li><b>if</b> <i>Q</i>.size == 0 <b>then</b> error "underflow"</li>
+            <li><i>x</i> = <i>Q</i>.buf[<i>Q</i>.head]</li>
+            <li><i>Q</i>.head = (<i>Q</i>.head mod <i>Q</i>.length) + 1</li>
+            <li><i>Q</i>.size = <i>Q</i>.size − 1</li>
+            <li><b>return</b> <i>x</i></li>
+          </ol>
+        </div>
+      </div>
+      <p><code>tail</code> punta alla prima cella libera, <code>head</code> al primo elemento; il modulo fa ripartire gli indici dall'inizio. Entrambe le operazioni costano O(1). Il campo <code>size</code> serve a distinguere coda piena e coda vuota, che hanno entrambe head = tail.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 2.</b> Coda su array circolare di 8 celle. Fai qualche enqueue e dequeue: tail arriva in fondo e riparte da 1.</figcaption>
+        <div data-widget="coda-circolare" data-n="8"></div>
+      </figure>
+      <aside class="nota">Domanda dei lucidi: come fare una coda su array circolare <em>dinamico</em>? Quando è piena si alloca un array doppio e si copiano gli elementi <strong>a partire da head</strong>, nell'ordine della coda (head, head+1, … modulo length), rimettendo head = 1 e tail = size + 1. Copiare l'array così com'è romperebbe l'ordine se la coda «gira» attorno alla fine.</aside>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Allenamento</span>
+        <h2>Esercizi risolti</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.1 · liste</span><h4>Il k-esimo elemento dalla fine, con una sola visita</h4></div>
+        <p>Data una lista semplice e un intero k ≥ 1, restituire il k-esimo nodo dalla fine (k = 1 è l'ultimo) senza contare prima la lunghezza.</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Due puntatori: tmp1 parte avanti di k nodi, tmp2 dalla testa. Se la lista ha meno di k nodi si restituisce NIL.</p></div></li>
+            <li><div>
+              <ol class="pseudo">
+                <li class="titolo">lastk(List L, Int k) → List</li>
+                <li><i>tmp1</i> = <i>L</i>;  <i>tmp2</i> = <i>L</i>;  <i>i</i> = 0</li>
+                <li><b>while</b> <i>tmp1</i> ≠ NIL <b>and</b> <i>i</i> &lt; <i>k</i> <b>do</b> <i>i</i>++;  <i>tmp1</i> = <i>tmp1</i>.next</li>
+                <li><b>if</b> <i>i</i> &lt; <i>k</i> <b>then return</b> NIL</li>
+                <li><b>while</b> <i>tmp1</i> ≠ NIL <b>do</b> <i>tmp1</i> = <i>tmp1</i>.next;  <i>tmp2</i> = <i>tmp2</i>.next</li>
+                <li><b>return</b> <i>tmp2</i></li>
+              </ol>
+            </div></li>
+            <li><div><p class="risultato">La distanza tra i due puntatori resta k: quando tmp1 esce dalla lista, tmp2 è sul k-esimo dalla fine. Θ(n), una sola visita.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.2 · ricorsione su liste</span><h4>Eliminare gli elementi pari</h4></div>
+        <p>Con L = [4, 6, 7, 3, 2, 5] il risultato è [7, 3, 5].</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div>
+              <ol class="pseudo">
+                <li class="titolo">deleteEven(List L) → List</li>
+                <li><b>if</b> <i>L</i> == NIL <b>then return</b> NIL</li>
+                <li><b>if</b> <i>L</i>.key mod 2 == 0 <b>then return</b> deleteEven(<i>L</i>.next)   <span class="sc">(nodo pari: salta)</span></li>
+                <li><i>L</i>.next = deleteEven(<i>L</i>.next)   <span class="sc">(nodo dispari: resta)</span></li>
+                <li><b>return</b> <i>L</i></li>
+              </ol>
+            </div></li>
+            <li><div><p class="risultato">T(n) = T(n − 1) + 1 = Θ(n). Il trucco è restituire la nuova testa della sottolista e riattaccarla a L.next.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.3 · analisi di costo</span><h4>Eliminare i pari e duplicare i dispari</h4></div>
+        <p>Ogni elemento dispari va replicato tante volte quanti sono i pari che lo precedono: [4, 6, 7, 3, 2, 5] diventa [7, 7, 7, 3, 3, 3, 5, 5, 5, 5]. Qual è il costo nel caso pessimo?</p>
+        <div class="domanda" data-id="se-1">
+          <p class="testo">Costo pessimo in funzione di n, la lunghezza della lista?</p>
+          <div class="opz"><button>Θ(n)</button><button>Θ(n log n)</button><button data-giusta>Θ(n²)</button></div>
+          <div class="perche" hidden><p>Con pari e dispari alternati, l'i-esimo dispari ha i pari davanti: Σ<sub>i=1..n/2</sub> i = Θ(n²) nodi creati.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Si passa nella ricorsione il numero nPrec di pari già visti: un pari incrementa nPrec e viene saltato, un dispari viene ricopiato nPrec volte in testa.</p></div></li>
+            <li><div><p><strong>Limite superiore</strong>: ogni nodo è duplicato al più tante volte quanti nodi lo precedono, Σ<sub>i=0..n−1</sub> i = O(n²).</p></div></li>
+            <li><div><p><strong>Limite inferiore</strong>: con un pari e un dispari alternati il dispari i-esimo ha i pari davanti, Σ<sub>i=1..n/2</sub> i = (n/2)(n/2 + 1)/2 = Θ(n²).</p></div></li>
+            <li><div><p class="risultato">Il costo pessimo è Θ(n²); il costo ottimo è Θ(n) (solo pari o solo dispari).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 4</h3><span class="etichetta">5 domande</span></div>
+        <div class="domanda" data-id="se-2">
+          <p class="testo">Un dizionario su array ordinato: quanto costa insert nel caso pessimo?</p>
+          <div class="opz"><button>O(log n)</button><button data-giusta>O(n)</button><button>O(1)</button></div>
+          <div class="perche" hidden><p>Trovare la posizione costa O(log n), ma poi bisogna spostare in avanti tutte le coppie con chiave maggiore: O(n).</p></div>
+        </div>
+        <div class="domanda" data-id="se-3">
+          <p class="testo">n push su una pila con array dinamico (raddoppio), partendo da vuota, costano in tutto…</p>
+          <div class="opz"><button>O(n²)</button><button data-giusta>O(n), cioè O(1) ammortizzato</button><button>O(n log n)</button></div>
+          <div class="perche" hidden><p>I raddoppi copiano 1 + 2 + 4 + … &lt; 2n elementi: in tutto meno di 3n.</p></div>
+        </div>
+        <div class="domanda" data-id="se-4">
+          <p class="testo">Perché non si dimezza l'array della pila quando è pieno a metà?</p>
+          <div class="opz"><button>Perché si spreca memoria</button><button data-giusta>Perché alternando push e pop al confine ogni operazione costerebbe O(n)</button><button>Perché l'array deve avere capacità potenza di 2</button></div>
+          <div class="perche" hidden><p>Dopo la contrazione l'array è pieno: il push successivo lo raddoppia e il pop dopo lo dimezza di nuovo.</p></div>
+        </div>
+        <div class="domanda" data-id="se-5">
+          <p class="testo">Coda su array circolare di length 8, con head = 7 e size = 3. Quanto vale tail?</p>
+          <div class="opz"><button>10</button><button data-giusta>2</button><button>4</button></div>
+          <div class="perche" hidden><p>Gli elementi occupano le celle 7, 8 e 1; la prima libera è la 2.</p></div>
+        </div>
+        <div class="domanda" data-id="se-6">
+          <p class="testo">Per una pila su lista concatenata conviene la lista…</p>
+          <div class="opz"><button data-giusta>semplice, lavorando sulla testa</button><button>doppiamente concatenata</button><button>circolare con sentinella</button></div>
+          <div class="perche" hidden><p>Push e pop toccano solo la testa: il puntatore prev sarebbe memoria sprecata.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-04">
+        <li><label><input type="checkbox" id="r04-1"><span>So confrontare dizionario su array ordinato e su lista.</span></label></li>
+        <li><label><input type="checkbox" id="r04-2"><span>So scrivere insert, delete e search su lista circolare doppia.</span></label></li>
+        <li><label><input type="checkbox" id="r04-3"><span>So dimostrare che push su array dinamico costa O(1) ammortizzato.</span></label></li>
+        <li><label><input type="checkbox" id="r04-4"><span>So scrivere enqueue e dequeue su array circolare.</span></label></li>
+        <li><label><input type="checkbox" id="r04-5"><span>So risolvere esercizi ricorsivi su liste restituendo la nuova testa.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="strutture-elementari"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Strutture dati elementari» (P. Di Lena) con il codice della libreria asdlab, esercizi risolti sulle strutture elementari, appunti di Berto, tr4v4 e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. Gli alberi della seconda parte dei lucidi sono nel capitolo 5.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grafi e visite · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Definizioni sui grafi, rappresentazioni e loro costi, visita generica, BFS con cammini minimi, DFS con tempi di scoperta e fine, classificazione degli archi, ordinamento topologico, componenti connesse e fortemente connesse.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="10-grafi">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s0"><span class="n">§0</span><span>Cosa chiedono all'esame</span></a></li>
+        <li><a href="#s1"><span class="n">§1</span><span>Definizioni</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Rappresentazioni</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>La visita generica</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Visita in ampiezza</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Visita in profondità</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Applicazioni della DFS</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Verifica ed esercizi</span></a></li>
+        <li><a href="#esami"><span class="n">§8</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 10</span>
+      <h1>Grafi e visite</h1>
+      <p class="lede">Il vocabolario dei grafi, come si memorizzano e quanto costano le operazioni, poi le due visite fondamentali: in ampiezza (cammini con il minor numero di archi) e in profondità (cicli, ordinamento topologico, componenti connesse).</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s0">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§0 · Orientamento</span>
+        <h2>Cosa chiedono all'esame</h2>
+      </div>
+      <p>L'esercizio 4 dello scritto è <strong>sempre</strong> sui grafi (vedi la <a href="mappa-esami.html">mappa degli esami</a>): di solito si tratta di modellare un problema come grafo e risolverlo adattando una visita o un algoritmo di cammini minimi. Se si riusa un algoritmo noto basta richiamarlo e spiegare cosa si modifica, con il costo in funzione di n = |V| e m = |E|.</p>
+    </section>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Vocabolario</span>
+        <h2>Definizioni</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Grafo</span>
+        <p>Un <strong>grafo orientato</strong> è una coppia G = (V, E) con V insieme finito di vertici ed E ⊆ V × V relazione binaria (gli archi (u, v) sono coppie ordinate). In un <strong>grafo non orientato</strong> gli archi {u, v} sono coppie non ordinate. Si pone n = |V| e m = |E|.</p>
+      </div>
+      <ul>
+        <li><strong>Incidenza e adiacenza</strong>: l'arco (v, w) è incidente da v in w, e w è adiacente a v. Nei grafi non orientati l'adiacenza è simmetrica.</li>
+        <li><strong>Grado</strong>: in un grafo non orientato, il numero di archi incidenti; in uno orientato, grado entrante + grado uscente.</li>
+        <li><strong>Cammino</strong>: sequenza ⟨w₀, …, w<sub>k</sub>⟩ con ogni (w<sub>i</sub>, w<sub>i+1</sub>) ∈ E; la <strong>lunghezza</strong> è k, il numero di archi. È <strong>semplice</strong> se i vertici sono tutti distinti. w è <strong>raggiungibile</strong> da v se c'è un cammino da v a w.</li>
+        <li><strong>Ciclo</strong>: cammino di lunghezza ≥ 1 con w₀ = w<sub>k</sub>; semplice se w₁, …, w<sub>k−1</sub> sono distinti. Nei grafi non orientati il ciclo di lunghezza 2 (avanti e indietro sullo stesso arco) è <strong>banale</strong>. Un grafo senza cicli è <strong>aciclico</strong>; un orientato aciclico è un <strong>DAG</strong>.</li>
+        <li><strong>Connesso</strong> (non orientato): ogni vertice raggiunge ogni altro. <strong>Fortemente connesso</strong> (orientato): esiste un cammino orientato tra ogni coppia, in entrambi i versi. <strong>Debolmente connesso</strong>: non è fortemente connesso, ma lo è la sua versione non orientata.</li>
+        <li><strong>Completo</strong>: un arco tra ogni coppia, cioè n(n − 1)/2 archi (non orientato). Quindi m = O(n²).</li>
+        <li><strong>Albero libero</strong>: grafo non orientato connesso e aciclico; scegliendo una radice diventa un albero radicato.</li>
+        <li><strong>Grafo pesato</strong>: una funzione c : E → ℝ dà un costo a ogni arco; tra vertici non adiacenti il costo è ∞.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · In memoria</span>
+        <h2>Rappresentazioni e costi</h2>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Operazione</th><th>Lista di archi</th><th>Liste di incidenza</th><th>Matrice di adiacenza</th><th>Liste di adiacenza</th></tr></thead>
+          <tbody>
+            <tr><td>spazio</td><td>Θ(m)</td><td>Θ(n + m)</td><td>Θ(n²)</td><td>Θ(n + m)</td></tr>
+            <tr><td>grado(v), archiIncidenti(v)</td><td>O(m)</td><td>O(δ(v))</td><td>O(n)</td><td>O(δ(v))</td></tr>
+            <tr><td>sonoAdiacenti(x, y)</td><td>O(m)</td><td>O(min{δ(x), δ(y)})</td><td><strong>O(1)</strong></td><td>O(min{δ(x), δ(y)})</td></tr>
+            <tr><td>aggiungiVertice</td><td>O(1)</td><td>O(1)</td><td>O(n²)</td><td>O(1)</td></tr>
+            <tr><td>aggiungiArco</td><td>O(1)</td><td>O(1)</td><td>O(1)</td><td>O(1)</td></tr>
+            <tr><td>rimuoviVertice</td><td>O(m)</td><td>O(m)</td><td>O(n²)</td><td>O(m)</td></tr>
+            <tr><td>rimuoviArco(x, y)</td><td>O(1)</td><td>O(δ(x) + δ(y))</td><td>O(1)</td><td>O(δ(x) + δ(y))</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>δ(v) è il grado di v. Le <strong>liste di adiacenza</strong> (v.adj = vertici adiacenti a v) sono la scelta standard per grafi sparsi; la <strong>matrice</strong> M[u, v] = 1 se l'arco c'è (o il costo, con ∞ se manca) conviene per grafi densi o quando serve sonoAdiacenti in O(1). In un grafo non orientato la matrice è simmetrica.</p>
+      <aside class="nota">Proprietà della matrice di adiacenza: l'elemento [u, v] di M<sup>k</sup> è il numero di cammini (non necessariamente semplici) di lunghezza k da u a v.</aside>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Schema comune</span>
+        <h2>La visita generica</h2>
+      </div>
+      <p>Visitare tutti i vertici raggiungibili da una sorgente s, ognuno una volta sola. Copiare la BFS degli alberi trattando gli adiacenti come «figli» <strong>non funziona</strong>: su un grafo con cicli la coda non si svuota mai (A mette in coda B, B rimette A, …). Bisogna <strong>marcare</strong> i vertici già incontrati.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">visita(G, s) → albero</li>
+        <li>rendi «non marcati» tutti i vertici;  <i>T</i> = {<i>s</i>};  <i>F</i> = {<i>s</i>};  marca <i>s</i></li>
+        <li><b>while</b> <i>F</i> ≠ ∅ <b>do</b></li>
+        <li class="rientro1"><i>u</i> = <i>F</i>.extract();  visita il vertice <i>u</i></li>
+        <li class="rientro1"><b>for each</b> <i>v</i> adiacente a <i>u</i> <b>do</b></li>
+        <li class="rientro2"><b>if</b> <i>v</i> non è marcato <b>then</b> marca <i>v</i>;  <i>T</i> = <i>T</i> ∪ {<i>v</i>};  <i>F</i>.insert(<i>v</i>);  <i>v</i>.parent = <i>u</i></li>
+        <li><b>return</b> <i>T</i></li>
+      </ol>
+      <p>Un vertice è <strong>inesplorato</strong> (fuori da T), <strong>aperto</strong> (nella frontiera F) o <strong>chiuso</strong> (in T − F, tutti i suoi archi esaminati). Ogni vertice raggiungibile entra in T una volta, e ogni arco si esamina al più due volte (una per estremo nei grafi non orientati): costo <strong>O(n + m)</strong> con liste di adiacenza, <strong>O(n²)</strong> con la matrice. Come funzionano extract e insert decide il tipo di visita.</p>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Frontiera = coda</span>
+        <h2>Visita in ampiezza (BFS)</h2>
+      </div>
+      <p>Visita i vertici a distanza crescente dalla sorgente: tutti quelli a distanza k prima di quelli a distanza k + 1. Produce un <strong>albero BF</strong> in cui il cammino da s a ogni vertice è un cammino con il <strong>minimo numero di archi</strong>, e calcola le distanze.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">BFS(Grafo G, vertice s) → albero</li>
+        <li><b>for each</b> <i>v</i> ∈ <i>V</i> <b>do</b> <i>v</i>.mark = false</li>
+        <li><i>F</i> = new Queue();  <i>F</i>.enqueue(<i>s</i>);  <i>s</i>.mark = true;  <i>s</i>.dist = 0</li>
+        <li><b>while</b> <i>F</i> ≠ ∅ <b>do</b></li>
+        <li class="rientro1"><i>u</i> = <i>F</i>.dequeue();  visita il vertice <i>u</i></li>
+        <li class="rientro1"><b>for each</b> <i>v</i> adiacente a <i>u</i> <b>do</b></li>
+        <li class="rientro2"><b>if not</b> <i>v</i>.mark <b>then</b></li>
+        <li class="rientro3"><i>v</i>.mark = true;  <i>v</i>.dist = <i>u</i>.dist + 1;  <i>F</i>.enqueue(<i>v</i>);  <i>v</i>.parent = <i>u</i></li>
+      </ol>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Simulatore delle visite. In BFS le annotazioni sono le distanze e puoi cliccare un nodo per farlo diventare la sorgente; gli adiacenti si esaminano in ordine alfabetico. Le altre modalità sono spiegate nei paragrafi seguenti.</figcaption>
+        <div data-widget="visita-grafo" data-modo="bfs"></div>
+      </figure>
+      <p>Per stampare il cammino più breve da s a v basta risalire i padri:</p>
+      <ol class="pseudo largo">
+        <li class="titolo">print-path(G, s, v)</li>
+        <li><b>if</b> <i>v</i> = <i>s</i> <b>then</b> print <i>s</i></li>
+        <li><b>else if</b> <i>v</i>.parent = nil <b>then</b> print "nessun cammino da s a v"</li>
+        <li><b>else</b> print-path(<i>G</i>, <i>s</i>, <i>v</i>.parent);  print <i>v</i></li>
+      </ol>
+      <aside class="nota">Il labirinto dei lucidi: le caselle sono vertici, i passaggi archi, e la BFS dall'entrata trova l'uscita con il minor numero di passi.</aside>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Frontiera = pila</span>
+        <h2>Visita in profondità (DFS)</h2>
+      </div>
+      <p>Va «il più lontano possibile» prima di tornare indietro. A differenza della BFS si usa per coprire <strong>tutto il grafo</strong>: si riparte da ogni vertice ancora bianco, e il risultato è una <strong>foresta DF</strong>. Per ogni vertice si registrano il tempo di scoperta <strong>dt</strong> e il tempo di fine <strong>ft</strong>; i colori sono bianco (inesplorato), grigio (aperto), nero (chiuso).</p>
+      <div class="sim-due largo">
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">DFS(Grafo G)</li>
+            <li><b>for each</b> <i>u</i> ∈ <i>V</i> <b>do</b> <i>u</i>.mark = white;  <i>u</i>.parent = nil</li>
+            <li><i>time</i> = 0</li>
+            <li><b>for each</b> <i>u</i> ∈ <i>V</i> <b>do</b></li>
+            <li class="rientro1"><b>if</b> <i>u</i>.mark == white <b>then</b> DFS-visit(<i>u</i>)</li>
+          </ol>
+        </div>
+        <div>
+          <ol class="pseudo">
+            <li class="titolo">DFS-visit(vertice u)</li>
+            <li><i>u</i>.mark = gray;  <i>time</i>++;  <i>u</i>.dt = <i>time</i></li>
+            <li><b>for each</b> <i>v</i> adiacente a <i>u</i> <b>do</b></li>
+            <li class="rientro1"><b>if</b> <i>v</i>.mark == white <b>then</b> <i>v</i>.parent = <i>u</i>;  DFS-visit(<i>v</i>)</li>
+            <li>visita il vertice <i>u</i></li>
+            <li><i>time</i>++;  <i>u</i>.ft = <i>time</i>;  <i>u</i>.mark = black</li>
+          </ol>
+        </div>
+      </div>
+      <p>Costo <strong>Θ(n + m)</strong> con le liste di adiacenza. Nel simulatore scegli «DFS»: le annotazioni sono gli intervalli [dt, ft] e a destra c'è la pila delle chiamate ricorsive attive.</p>
+      <div class="def">
+        <span class="etichetta">Teorema delle parentesi</span>
+        <p>In una DFS, per ogni coppia di vertici u, v vale una sola di queste: gli intervalli [u.dt, u.ft] e [v.dt, v.ft] sono <strong>disgiunti</strong> (nessuno dei due discende dall'altro), oppure uno è <strong>contenuto</strong> nell'altro (quello interno è discendente dell'altro nella foresta DF). <strong>Corollario</strong>: v discende da u se e solo se u.dt &lt; v.dt &lt; v.ft &lt; u.ft.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Classificazione degli archi (grafi orientati)</span>
+        <p>Un arco (u, v) che non sta nella foresta DF è:</p>
+        <p>• <strong>all'indietro</strong> se v.dt &lt; u.dt e u.ft &lt; v.ft (v è un antenato, grigio quando si esamina l'arco);<br>
+        • <strong>in avanti</strong> se u.dt &lt; v.dt e v.ft &lt; u.ft (v è un discendente già chiuso);<br>
+        • <strong>di attraversamento</strong> se v.ft &lt; u.dt (v è in un altro ramo, già chiuso).<br>
+        Il caso u.ft &lt; v.dt non può presentarsi: v sarebbe stato scoperto da u.</p>
+      </div>
+      <p>Prova «DFS orientata» nel simulatore: il grafo ha un arco f → a che chiude un ciclo e compare come arco all'indietro.</p>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · A cosa serve</span>
+        <h2>Applicazioni della DFS</h2>
+      </div>
+      <ul>
+        <li><strong>Riconoscere un DAG</strong>: un grafo orientato è aciclico se e solo se la DFS non trova archi all'indietro.</li>
+        <li><strong>Ordinamento topologico</strong> di un DAG: un ordine lineare dei vertici in cui per ogni arco (u, v) u viene prima di v (ce ne possono essere più d'uno). Si fa una DFS e ogni vertice, quando finisce, si inserisce <strong>in testa</strong> a una lista: il risultato è l'ordine decrescente dei tempi di fine. Costo Θ(n + m).</li>
+        <li><strong>Componenti connesse</strong> di un grafo non orientato: «u è raggiungibile da v» è una relazione di equivalenza (riflessiva, simmetrica, transitiva), quindi i vertici raggiunti da una visita formano una classe. Si lancia una visita da ogni vertice non ancora etichettato, con un'etichetta k nuova ogni volta. È anche il <em>floodfill</em> dei programmi di disegno.</li>
+      </ul>
+      <ol class="pseudo largo">
+        <li class="titolo">CC(G)</li>
+        <li><b>for each</b> <i>u</i> ∈ <i>V</i> <b>do</b> <i>u</i>.cc = −1</li>
+        <li><i>k</i> = 0</li>
+        <li><b>for each</b> <i>u</i> ∈ <i>V</i> <b>do</b> <b>if</b> <i>u</i>.cc &lt; 0 <b>then</b> CC-visit(<i>u</i>, <i>k</i>);  <i>k</i>++</li>
+        <li class="titolo">CC-visit(u, k)</li>
+        <li><i>u</i>.cc = <i>k</i></li>
+        <li><b>for each</b> <i>v</i> adiacente a <i>u</i> <b>do</b> <b>if</b> <i>v</i>.cc &lt; 0 <b>then</b> <i>v</i>.parent = <i>u</i>;  CC-visit(<i>v</i>, <i>k</i>)</li>
+      </ol>
+      <div class="def">
+        <span class="etichetta">Componenti fortemente connesse (grafi orientati)</span>
+        <p>u e v stanno nella stessa SCC se c'è un cammino da u a v e uno da v a u (anche questa è una relazione di equivalenza). La SCC di x è D(x) ∩ A(x): D(x) sono i discendenti (una visita da x su G), A(x) gli antenati (una visita da x sul <strong>grafo trasposto</strong> G<sup>T</sup>, con gli archi invertiti). Una SCC costa O(n + m), tutte con questo metodo O(n(n + m)).</p>
+      </div>
+      <p>Gli algoritmi che trovano tutte le SCC in <strong>O(n + m)</strong> (Kosaraju con due DFS, Tarjan con una) sono spiegati con un simulatore nella pagina del <a href="progetto-scc.html">progetto SCC</a>.</p>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Ripasso</span>
+        <h2>Verifica ed esercizi</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.1 · progettazione</span><h4>Un grafo non orientato è bipartito?</h4></div>
+        <p>G è bipartito se i vertici si possono colorare di bianco e nero in modo che ogni arco colleghi colori diversi.</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Per ogni componente si fa una BFS: la sorgente prende colore 0, e ogni vertice scoperto da u prende il colore opposto a u (cioè la parità della sua distanza).</p></div></li>
+            <li><div><p>Quando si esamina un arco (u, v) con v già marcato, se v ha lo stesso colore di u si risponde «no»: c'è un ciclo di lunghezza dispari.</p></div></li>
+            <li><div><p class="risultato">Se nessun arco viola la colorazione, G è bipartito. Costo O(n + m), lo stesso della visita.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 7.2 · progettazione</span><h4>Il percorso più breve con al più k cambi di colore</h4></div>
+        <p>Variante tipica d'esame: un problema «a stati» si risolve con una BFS su un grafo i cui vertici sono coppie (vertice, informazione aggiuntiva).</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Se il problema dice «minimo numero di mosse» e ogni mossa costa 1, è una BFS. Se le mosse hanno costi diversi, servono i cammini minimi (capitolo 11).</p></div></li>
+            <li><div><p>Quando contano anche cose come «quanti cambi ho già fatto», si costruisce (anche implicitamente) il grafo degli stati: vertici (v, c) con c = cambi usati, e archi solo verso stati validi (c ≤ k).</p></div></li>
+            <li><div><p class="risultato">Il grafo degli stati ha n(k + 1) vertici e O(m(k + 1)) archi: la BFS costa O((n + m)k). Nello scritto basta descriverlo e richiamare la BFS.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 10</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="gr-1">
+          <p class="testo">Quanto costa una visita con la matrice di adiacenza?</p>
+          <div class="opz"><button>O(n + m)</button><button data-giusta>O(n²)</button><button>O(m log n)</button></div>
+          <div class="perche" hidden><p>Per trovare gli adiacenti di ogni vertice bisogna scorrere un'intera riga di n elementi.</p></div>
+        </div>
+        <div class="domanda" data-id="gr-2">
+          <p class="testo">Quale visita calcola i cammini con il minor numero di archi da una sorgente?</p>
+          <div class="opz"><button data-giusta>BFS</button><button>DFS</button><button>Entrambe</button></div>
+          <div class="perche" hidden><p>La BFS visita per distanze crescenti; la DFS può scendere lungo un cammino lungo prima di trovarne uno corto.</p></div>
+        </div>
+        <div class="domanda" data-id="gr-3">
+          <p class="testo">In una DFS u.dt = 3, u.ft = 10, v.dt = 5, v.ft = 8. Che relazione c'è tra u e v?</p>
+          <div class="opz"><button>Nessuna</button><button data-giusta>v discende da u</button><button>u discende da v</button></div>
+          <div class="perche" hidden><p>[5, 8] è contenuto in [3, 10]: per il teorema delle parentesi v è un discendente di u.</p></div>
+        </div>
+        <div class="domanda" data-id="gr-4">
+          <p class="testo">Come si riconosce un ciclo in un grafo orientato con la DFS?</p>
+          <div class="opz"><button>C'è un arco di attraversamento</button><button data-giusta>C'è un arco all'indietro</button><button>C'è un arco in avanti</button></div>
+          <div class="perche" hidden><p>Un arco verso un antenato grigio chiude un ciclo. Archi in avanti e di attraversamento possono esserci anche nei DAG.</p></div>
+        </div>
+        <div class="domanda" data-id="gr-5">
+          <p class="testo">L'ordinamento topologico ottenuto con la DFS è…</p>
+          <div class="opz"><button>l'ordine crescente dei tempi di scoperta</button><button data-giusta>l'ordine decrescente dei tempi di fine</button><button>l'ordine della BFS</button></div>
+          <div class="perche" hidden><p>Ogni vertice va in testa alla lista quando finisce; per ogni arco (u, v) di un DAG vale v.ft &lt; u.ft.</p></div>
+        </div>
+        <div class="domanda" data-id="gr-6">
+          <p class="testo">Un grafo non orientato completo con 10 vertici quanti archi ha?</p>
+          <div class="opz"><button>100</button><button data-giusta>45</button><button>90</button></div>
+          <div class="perche" hidden><p>n(n − 1)/2 = 10 · 9 / 2 = 45. Nella versione orientata sarebbero 90.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-10">
+        <li><label><input type="checkbox" id="r10-1"><span>So le definizioni: cammino, ciclo, connesso, fortemente e debolmente connesso, DAG.</span></label></li>
+        <li><label><input type="checkbox" id="r10-2"><span>So i costi delle quattro rappresentazioni.</span></label></li>
+        <li><label><input type="checkbox" id="r10-3"><span>So simulare BFS e DFS a mano, con distanze e tempi.</span></label></li>
+        <li><label><input type="checkbox" id="r10-4"><span>So classificare gli archi con i tempi di scoperta e fine.</span></label></li>
+        <li><label><input type="checkbox" id="r10-5"><span>So fare ordinamento topologico e componenti connesse.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="grafi"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Grafi» e «Algoritmi di visita di grafi» (G. Zavattaro, dal materiale di M. Marzolla e A. Montresor), appunti di Berto, tr4v4 e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. I grafi del simulatore sono nuovi; con un ordine diverso degli adiacenti i risultati delle visite cambiano.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>

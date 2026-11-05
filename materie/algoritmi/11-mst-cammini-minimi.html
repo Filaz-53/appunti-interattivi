@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alberi di copertura e cammini minimi · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="Minimum spanning tree con le regole del taglio e del ciclo, Kruskal e Prim; cammini minimi con rilassamento, Bellman-Ford, Dijkstra e Floyd-Warshall, con simulatore.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="11-mst-cammini-minimi">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Alberi di copertura minimi</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Kruskal e Prim</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Cammini minimi: le basi</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Bellman-Ford</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Dijkstra</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Floyd-Warshall</span></a></li>
+        <li><a href="#s7"><span class="n">§7</span><span>Quale algoritmo usare</span></a></li>
+        <li><a href="#s8"><span class="n">§8</span><span>Verifica ed esercizi</span></a></li>
+        <li><a href="#esami"><span class="n">§9</span><span>Esercizi d'esame</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · capitolo 11</span>
+      <h1>Alberi di copertura e cammini minimi</h1>
+      <p class="lede">Due problemi diversi sui grafi pesati: collegare tutti i vertici spendendo il meno possibile (minimum spanning tree, con Kruskal e Prim) e trovare i cammini di costo minimo (Bellman-Ford, Dijkstra, Floyd-Warshall). Tutti gli algoritmi si possono seguire passo per passo nello stesso simulatore.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Problema 1</span>
+        <h2>Alberi di copertura minimi</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Definizioni</span>
+        <p>Input: un grafo <strong>non orientato e connesso</strong> G = (V, E) con pesi w(u, v) = w(v, u) (∞ se l'arco manca). Un <strong>albero di copertura</strong> è un sottografo T = (V, E<sub>T</sub>), con E<sub>T</sub> ⊆ E, che è un albero e contiene tutti i vertici. Un <strong>minimum spanning tree</strong> (MST) è un albero di copertura di peso totale w(T) = Σ w(u, v) minimo. Non è necessariamente unico. Esempio classico: collegare i componenti di un circuito con la minima quantità di filo.</p>
+      </div>
+      <p><strong>Algoritmo generico (greedy).</strong> Si fa crescere un insieme T di archi mantenendo l'invariante «T è contenuto in qualche MST». Un arco è <strong>sicuro</strong> per T se T ∪ {u, v} è ancora contenuto in qualche MST: finché T non copre il grafo, si aggiunge un arco sicuro.</p>
+      <div class="def">
+        <span class="etichetta">Tagli e le due regole</span>
+        <p>Un <strong>taglio</strong> (S, V − S) è una partizione di V. Un arco lo <strong>attraversa</strong> se ha un estremo in S e uno in V − S; il taglio <strong>rispetta</strong> un insieme di archi se nessuno di essi lo attraversa; un arco che attraversa il taglio è <strong>leggero</strong> se ha peso minimo tra quelli che lo attraversano.</p>
+        <p><strong>Regola del taglio</strong>: scelto un taglio che rispetta gli archi blu, si colora di blu un arco leggero tra quelli non colorati che lo attraversano. <strong>Regola del ciclo</strong>: scelto un ciclo semplice senza archi rossi, si colora di rosso un arco di peso massimo tra quelli non colorati del ciclo. Applicando le due regole in un ordine qualsiasi (finché si può) gli archi blu formano un MST.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Due ordini per le regole</span>
+        <h2>Kruskal e Prim</h2>
+      </div>
+      <p><strong>Kruskal</strong> (1956) parte da una foresta di n alberi senza archi e considera gli archi in ordine di peso non decrescente: se un arco collega due alberi blu diversi è blu (regola del taglio), altrimenti è rosso (regola del ciclo). Per sapere se due estremi stanno nello stesso albero usa una struttura <strong>union-find</strong> (capitolo 8).</p>
+      <ol class="pseudo largo">
+        <li class="titolo">Kruskal-MST(Grafo G = (V, E, w)) → Tree</li>
+        <li>UnionFind <i>UF</i>;  <i>T</i> = albero vuoto</li>
+        <li><b>for</b> <i>i</i> = 1 <b>to</b> <i>n</i> <b>do</b> <i>UF</i>.makeSet(<i>i</i>)</li>
+        <li>ordina gli archi di <i>E</i> per peso crescente</li>
+        <li><b>for each</b> {<i>u</i>, <i>v</i>} ∈ <i>E</i> <b>do</b></li>
+        <li class="rientro1"><i>Tu</i> = <i>UF</i>.find(<i>u</i>);  <i>Tv</i> = <i>UF</i>.find(<i>v</i>)</li>
+        <li class="rientro1"><b>if</b> <i>Tu</i> ≠ <i>Tv</i> <b>then</b> <i>T</i> = <i>T</i> ∪ {<i>u</i>, <i>v</i>};  <i>UF</i>.union(<i>Tu</i>, <i>Tv</i>)   <span class="sc">(evita i cicli)</span></li>
+        <li><b>return</b> <i>T</i></li>
+      </ol>
+      <p>Costo: ordinare costa O(m log m) = O(m log n) (perché m ≤ n²); poi n makeSet, 2m find e n − 1 union, che con QuickUnion e rango costano O(n + m log n). In tutto <strong>O(m log n)</strong> (in un grafo connesso m ≥ n − 1).</p>
+      <p><strong>Prim</strong> (1957) usa solo la regola del taglio e fa crescere <strong>un solo albero</strong> a partire da una radice: a ogni passo aggiunge l'arco di peso minimo tra un vertice già nell'albero e uno fuori. I vertici fuori stanno in una coda con priorità ordinata per d[v], il peso minimo di un arco che li collega all'albero (∞ se non c'è, e allora non sono ancora in coda).</p>
+      <ol class="pseudo largo">
+        <li class="titolo">Prim-MST(Grafo G = (V, E, w), nodo s) → int[]</li>
+        <li><b>for</b> <i>v</i> = 1 <b>to</b> <i>n</i> <b>do</b> <i>d</i>[<i>v</i>] = ∞;  <i>p</i>[<i>v</i>] = −1;  <i>b</i>[<i>v</i>] = false</li>
+        <li><i>d</i>[<i>s</i>] = 0;  <i>Q</i>.insert(<i>s</i>, 0)</li>
+        <li><b>while not</b> <i>Q</i>.isEmpty() <b>do</b></li>
+        <li class="rientro1"><i>u</i> = <i>Q</i>.find();  <i>Q</i>.deleteMin();  <i>b</i>[<i>u</i>] = true</li>
+        <li class="rientro1"><b>for each</b> <i>v</i> adiacente a <i>u</i> con <b>not</b> <i>b</i>[<i>v</i>] <b>do</b></li>
+        <li class="rientro2"><b>if</b> <i>d</i>[<i>v</i>] == ∞ <b>then</b> <i>Q</i>.insert(<i>v</i>, <i>w</i>(<i>u</i>, <i>v</i>));  <i>d</i>[<i>v</i>] = <i>w</i>(<i>u</i>, <i>v</i>);  <i>p</i>[<i>v</i>] = <i>u</i></li>
+        <li class="rientro2"><b>else if</b> <i>w</i>(<i>u</i>, <i>v</i>) &lt; <i>d</i>[<i>v</i>] <b>then</b> <i>Q</i>.decreaseKey(<i>v</i>, <i>d</i>[<i>v</i>] − <i>w</i>(<i>u</i>, <i>v</i>));  <i>d</i>[<i>v</i>] = <i>w</i>(<i>u</i>, <i>v</i>);  <i>p</i>[<i>v</i>] = <i>u</i></li>
+        <li><b>return</b> <i>p</i>   <span class="sc">(vettore dei padri dell'MST)</span></li>
+      </ol>
+      <p>Con uno heap binario: n deleteMin e al più m insert o decreaseKey, tutte O(log n): <strong>O(m log n)</strong>.</p>
+      <figure class="fig largo" style="margin:0">
+        <figcaption class="fig-cap"><b>Figura 1.</b> Simulatore: Kruskal e Prim sul grafo non orientato, Dijkstra, Bellman-Ford e Floyd-Warshall su quello orientato. Per Dijkstra e Bellman-Ford puoi passare al grafo con un arco negativo.</figcaption>
+        <div data-widget="cammini" data-alg="kruskal"></div>
+      </figure>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Problema 2</span>
+        <h2>Cammini minimi: le basi</h2>
+      </div>
+      <p>In un grafo orientato con costi w(x, y), il costo di un cammino è la somma dei costi dei suoi archi; si cerca un cammino di costo minimo π* tra due vertici. È un problema diverso dall'MST: il cammino minimo tra due vertici può usare archi che non stanno nell'MST.</p>
+      <ul>
+        <li><strong>Singola coppia</strong> u, v (non si conoscono algoritmi asintoticamente migliori di quelli da singola sorgente);</li>
+        <li><strong>singola sorgente</strong>: da s a tutti i vertici raggiungibili (Bellman-Ford, Dijkstra);</li>
+        <li><strong>tutte le coppie</strong> (Floyd-Warshall).</li>
+      </ul>
+      <div class="def">
+        <span class="etichetta">Esistenza e proprietà</span>
+        <p>Un cammino minimo non esiste se la destinazione non è raggiungibile o se c'è un <strong>ciclo di costo negativo</strong> raggiungibile (girandoci il costo scende senza limite). Senza cicli negativi esiste sempre un cammino minimo <strong>semplice</strong>: togliere un ciclo non aumenta il costo, e i cammini semplici sono finiti.</p>
+        <p><strong>Sottostruttura ottima</strong>: ogni sotto-cammino di un cammino minimo è minimo (altrimenti lo si sostituirebbe con uno più corto). Quindi esiste un <strong>albero dei cammini minimi</strong> radicato in s, e gli algoritmi lo restituiscono con il vettore pred.</p>
+      </div>
+      <div class="def">
+        <span class="etichetta">Distanza, condizione di Bellman e rilassamento</span>
+        <p>La distanza d<sub>xy</sub> è il costo di un cammino minimo da x a y (+∞ se non esiste; d<sub>vv</sub> = 0), e vale la disuguaglianza triangolare d<sub>xz</sub> ≤ d<sub>xy</sub> + d<sub>yz</sub>. Ne segue la <strong>condizione di Bellman</strong>: per ogni arco (u, v), d<sub>sv</sub> ≤ d<sub>su</sub> + w(u, v), e l'arco sta su un cammino minimo se e solo se vale l'uguaglianza.</p>
+        <p>Gli algoritmi mantengono stime D ≥ d e le abbassano con il <strong>rilassamento</strong>:</p>
+        <p class="formula">if D[u] + w(u, v) &lt; D[v] then D[v] = D[u] + w(u, v); pred[v] = u</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Pesi qualsiasi</span>
+        <h2>Bellman-Ford</h2>
+      </div>
+      <p>Un cammino minimo s = v₀, v₁, …, v<sub>k</sub> si otterrebbe rilassando i suoi archi in ordine, ma non lo si conosce. Si rilassano allora <strong>tutti</strong> gli m archi, per n − 1 volte: all'iterazione i è stato fatto anche il rilassamento «giusto» dell'i-esimo arco di ogni cammino minimo, che ha al più n − 1 archi.</p>
+      <ol class="pseudo largo">
+        <li class="titolo">BellmanFord(Grafo G = (V, E, w), int s) → double[]</li>
+        <li><b>for</b> <i>v</i> = 1 <b>to</b> <i>n</i> <b>do</b> <i>D</i>[<i>v</i>] = +∞;  <i>pred</i>[<i>v</i>] = −1</li>
+        <li><i>D</i>[<i>s</i>] = 0</li>
+        <li><b>for</b> <i>i</i> = 1 <b>to</b> <i>n</i> − 1 <b>do</b></li>
+        <li class="rientro1"><b>for each</b> (<i>u</i>, <i>v</i>) ∈ <i>E</i> <b>do</b></li>
+        <li class="rientro2"><b>if</b> <i>D</i>[<i>u</i>] + <i>w</i>(<i>u</i>, <i>v</i>) &lt; <i>D</i>[<i>v</i>] <b>then</b> <i>D</i>[<i>v</i>] = <i>D</i>[<i>u</i>] + <i>w</i>(<i>u</i>, <i>v</i>);  <i>pred</i>[<i>v</i>] = <i>u</i></li>
+        <li><b>for each</b> (<i>u</i>, <i>v</i>) ∈ <i>E</i> <b>do</b>   <span class="sc">(controllo dei cicli negativi)</span></li>
+        <li class="rientro1"><b>if</b> <i>D</i>[<i>u</i>] + <i>w</i>(<i>u</i>, <i>v</i>) &lt; <i>D</i>[<i>v</i>] <b>then</b> error "il grafo contiene cicli negativi"</li>
+        <li><b>return</b> <i>D</i></li>
+      </ol>
+      <p>Costo <strong>O(nm)</strong>. Funziona con <strong>pesi negativi</strong>, purché non ci siano cicli negativi, che anzi riconosce: se dopo n − 1 iterazioni un arco si rilassa ancora, c'è un ciclo negativo. Se un'iterazione non cambia nulla ci si può fermare prima.</p>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Pesi non negativi</span>
+        <h2>Dijkstra</h2>
+      </div>
+      <div class="def">
+        <span class="etichetta">Lemma di Dijkstra</span>
+        <p>Con tutti i pesi <strong>≥ 0</strong>, sia T una parte dell'albero dei cammini minimi da s. Allora l'arco (u, v) con u ∈ T e v ∉ T che minimizza d<sub>su</sub> + w(u, v) appartiene a un cammino minimo da s a v.</p>
+        <p><strong>Dimostrazione</strong> per assurdo: se un cammino minimo π* verso v fosse più corto, lascerebbe T con un arco (x, y), y il primo vertice fuori da T: d<sub>sv</sub> = d<sub>sx</sub> + w(x, y) + d<sub>yv</sub> ≥ d<sub>sx</sub> + w(x, y) ≥ d<sub>su</sub> + w(u, v) (perché d<sub>yv</sub> ≥ 0 e per la scelta di (u, v)), contro l'ipotesi d<sub>su</sub> + w(u, v) &gt; d<sub>sv</sub>. Il passo d<sub>yv</sub> ≥ 0 è quello che richiede pesi non negativi.</p>
+      </div>
+      <ol class="pseudo largo">
+        <li class="titolo">Dijkstra(Grafo G = (V, E, w), int s) → double[]</li>
+        <li><b>for</b> <i>v</i> = 1 <b>to</b> <i>n</i> <b>do</b> <i>D</i>[<i>v</i>] = +∞;  <i>pred</i>[<i>v</i>] = −1</li>
+        <li><i>D</i>[<i>s</i>] = 0;  <i>Q</i>.insert(<i>s</i>, 0)</li>
+        <li><b>while not</b> <i>Q</i>.isEmpty() <b>do</b></li>
+        <li class="rientro1"><i>u</i> = <i>Q</i>.find();  <i>Q</i>.deleteMin()   <span class="sc">(il nodo con D minima)</span></li>
+        <li class="rientro1"><b>for each</b> <i>v</i> adiacente a <i>u</i> <b>do</b></li>
+        <li class="rientro2"><b>if</b> <i>D</i>[<i>v</i>] == +∞ <b>then</b> <i>D</i>[<i>v</i>] = <i>D</i>[<i>u</i>] + <i>w</i>(<i>u</i>, <i>v</i>);  <i>Q</i>.insert(<i>v</i>, <i>D</i>[<i>v</i>]);  <i>pred</i>[<i>v</i>] = <i>u</i></li>
+        <li class="rientro2"><b>else if</b> <i>D</i>[<i>u</i>] + <i>w</i>(<i>u</i>, <i>v</i>) &lt; <i>D</i>[<i>v</i>] <b>then</b> <i>Q</i>.decreaseKey(<i>v</i>, <i>D</i>[<i>v</i>] − <i>D</i>[<i>u</i>] − <i>w</i>(<i>u</i>, <i>v</i>));  <i>D</i>[<i>v</i>] = <i>D</i>[<i>u</i>] + <i>w</i>(<i>u</i>, <i>v</i>);  <i>pred</i>[<i>v</i>] = <i>u</i></li>
+        <li><b>return</b> <i>D</i></li>
+      </ol>
+      <p>Somiglia a Prim, ma la priorità è la distanza da s, non il peso dell'arco. Un nodo estratto non rientra più in coda. Costo: inizializzazione O(n), al più n find e deleteMin e al più m insert o decreaseKey, tutte O(log n): <strong>O((n + m) log n) = O(m log n)</strong> se tutti i vertici sono raggiungibili.</p>
+      <div class="avviso">
+        <span class="etichetta">Pesi negativi</span>
+        <p>Con un arco negativo Dijkstra può sbagliare: un vertice già estratto potrebbe essere raggiunto più tardi con un costo minore. Nel simulatore, con il grafo «con un arco negativo», Dijkstra dà D[b] = 3 mentre il cammino s → a → b costa 1. E non basta sommare una costante C a tutti i pesi per renderli positivi: i cammini con più archi vengono penalizzati di più. Con s → t di peso 0 e s → a → t di pesi 2 e −3 il minimo è il secondo (−1); aggiungendo 3 diventa 3 contro 5 e vince il primo.</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Tutte le coppie</span>
+        <h2>Floyd-Warshall</h2>
+      </div>
+      <p>Programmazione dinamica per le distanze tra tutte le coppie, con pesi qualsiasi purché senza cicli negativi. Con V = {1, …, n}, D<sup>k</sup><sub>xy</sub> è la distanza minima da x a y usando come vertici intermedi solo vertici in {1, …, k}; la soluzione è D<sup>n</sup>.</p>
+      <p class="formula">D⁰[x, y] = 0 se x = y;  w(x, y) se (x, y) ∈ E;  ∞ altrimenti</p>
+      <p class="formula">D<sup>k</sup>[x, y] = min{ D<sup>k−1</sup>[x, y],  D<sup>k−1</sup>[x, k] + D<sup>k−1</sup>[k, y] }</p>
+      <p>O il cammino non passa per k, o ci passa una volta sola e si spezza in due cammini minimi (sottostruttura ottima). Poiché D<sup>k</sup>[x, k] = D<sup>k−1</sup>[x, k] e D<sup>k</sup>[k, y] = D<sup>k−1</sup>[k, y], basta <strong>una sola matrice</strong> n × n aggiornata sul posto:</p>
+      <ol class="pseudo largo">
+        <li class="titolo">FloydWarshall(G = (V, E, w)) → double[1..n, 1..n]</li>
+        <li>inizializza <i>D</i>[<i>x</i>, <i>y</i>] come D⁰</li>
+        <li><b>for</b> <i>k</i> = 1 <b>to</b> <i>n</i> <b>do</b></li>
+        <li class="rientro1"><b>for</b> <i>x</i> = 1 <b>to</b> <i>n</i> <b>do</b></li>
+        <li class="rientro2"><b>for</b> <i>y</i> = 1 <b>to</b> <i>n</i> <b>do</b></li>
+        <li class="rientro3"><b>if</b> <i>D</i>[<i>x</i>, <i>k</i>] + <i>D</i>[<i>k</i>, <i>y</i>] &lt; <i>D</i>[<i>x</i>, <i>y</i>] <b>then</b> <i>D</i>[<i>x</i>, <i>y</i>] = <i>D</i>[<i>x</i>, <i>k</i>] + <i>D</i>[<i>k</i>, <i>y</i>]</li>
+        <li><b>return</b> <i>D</i></li>
+      </ol>
+      <p>Costo <strong>Θ(n³)</strong> in tempo, Θ(n²) in spazio con la matrice unica. Se alla fine D[x, x] &lt; 0 per qualche x, x sta su un ciclo negativo.</p>
+      <div class="avviso">
+        <span class="etichetta">Refuso nei lucidi</span>
+        <p>Nella slide della versione a una matrice la formula è scritta «D[x, y] = max{ D[x, y], D[x, k] + D[k, y] }»: è un <strong>min</strong>, come nello pseudocodice subito sotto (che confronta con &lt;).</p>
+      </div>
+    </section>
+
+    <section class="sez" id="s7">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§7 · Riassunto</span>
+        <h2>Quale algoritmo usare</h2>
+      </div>
+      <div class="tab-wrap largo">
+        <table class="tab">
+          <thead><tr><th>Problema</th><th>Condizioni</th><th>Algoritmo</th><th>Costo</th></tr></thead>
+          <tbody>
+            <tr><td>MST</td><td>non orientato, connesso</td><td>Kruskal (union-find)</td><td>O(m log n)</td></tr>
+            <tr><td>MST</td><td>non orientato, connesso</td><td>Prim (coda con priorità)</td><td>O(m log n)</td></tr>
+            <tr><td>MST</td><td>tutti gli archi con lo stesso peso</td><td>qualsiasi visita</td><td>O(n + m)</td></tr>
+            <tr><td>Cammini da una sorgente</td><td>tutti gli archi con lo stesso peso</td><td>BFS</td><td>O(n + m)</td></tr>
+            <tr><td>Cammini da una sorgente</td><td>pesi ≥ 0</td><td>Dijkstra</td><td>O(m log n)</td></tr>
+            <tr><td>Cammini da una sorgente</td><td>pesi qualsiasi, nessun ciclo negativo</td><td>Bellman-Ford</td><td>O(nm)</td></tr>
+            <tr><td>Tutte le coppie</td><td>pesi qualsiasi, nessun ciclo negativo</td><td>Floyd-Warshall</td><td>Θ(n³)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sez" id="s8">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§8 · Ripasso</span>
+        <h2>Verifica ed esercizi</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.1 · MST (esercizio del corso)</span><h4>Tutti gli archi hanno lo stesso peso w</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Ogni albero di copertura ha n − 1 archi, quindi pesa w(n − 1): sono tutti minimi.</p></div></li>
+            <li><div><p class="risultato">Basta l'albero di una visita (BFS o DFS) da un nodo qualsiasi: O(n + m), meglio di Kruskal e Prim.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.2 · MST (esercizio del corso)</span><h4>Maximum spanning tree</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Si moltiplicano i pesi per −1 e si calcola un MST: i pesi possono essere negativi, Kruskal e Prim funzionano lo stesso.</p></div></li>
+            <li><div><p class="risultato">Più direttamente: Kruskal con gli archi in ordine <strong>decrescente</strong> di peso. O(m log n).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.3 · cammini (esercizio del corso)</span><h4>Archi di peso uguale α, grafo non orientato</h4></div>
+        <p>Calcolare la lunghezza del cammino minimo tra u e v (+∞ se non sono connessi).</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Dijkstra funziona, ma costa O(m log n). Con pesi tutti uguali il cammino più economico è quello con meno archi.</p></div></li>
+            <li><div><p class="risultato">BFS da u, fermandosi quando si estrae v: risultato v.dist · α. O(n + m).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.4 · cammini (esercizio del corso)</span><h4>Arrivare a destinazione con C litri di carburante</h4></div>
+        <p>Rete stradale orientata, w(u, v) = litri per percorrere la strada, tutti positivi, nessun distributore. Si parte da s con C litri: si riesce a raggiungere d?</p>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Si usa Dijkstra da s con i consumi come pesi: serve il cammino di consumo minimo.</p></div></li>
+            <li><div><p class="risultato">Si risponde true se e solo se D[d] ≤ C. Ci si può fermare appena si estrae d, o appena la distanza minima in coda supera C. O(m log n).</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 8.5 · MST (esercizio del corso)</span><h4>Si può sempre costruire un MST che contiene un arco dato?</h4></div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>No. Controesempio: un ciclo A – B – C – D – A con pesi 1, 2, 3 e 10 sull'arco {A, D}.</p></div></li>
+            <li><div><p class="risultato">L'unico MST è A – B – C – D, di peso 6: ogni albero che contiene {A, D} pesa almeno 10 + 1 + 2 = 13. Per la regola del ciclo, l'arco più pesante di un ciclo può sempre essere escluso.</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · capitolo 11</h3><span class="etichetta">6 domande</span></div>
+        <div class="domanda" data-id="cm-1">
+          <p class="testo">Kruskal: come si capisce se un arco chiuderebbe un ciclo?</p>
+          <div class="opz"><button>Con una DFS a ogni arco</button><button data-giusta>Con find sugli estremi: se il rappresentante è lo stesso, sono già nello stesso albero</button><button>Controllando se i due estremi hanno lo stesso grado</button></div>
+          <div class="perche" hidden><p>È l'uso dello union-find: due find e, se diversi, una union.</p></div>
+        </div>
+        <div class="domanda" data-id="cm-2">
+          <p class="testo">Dijkstra si può usare con archi di peso negativo?</p>
+          <div class="opz"><button>Sì, se non ci sono cicli negativi</button><button data-giusta>No, il lemma richiede pesi ≥ 0</button><button>Sì, sommando una costante a tutti i pesi</button></div>
+          <div class="perche" hidden><p>Con pesi negativi un nodo già estratto potrebbe migliorare dopo. Sommare una costante cambia i cammini minimi. Si usa Bellman-Ford.</p></div>
+        </div>
+        <div class="domanda" data-id="cm-3">
+          <p class="testo">Quanto costa Bellman-Ford?</p>
+          <div class="opz"><button>O(m log n)</button><button data-giusta>O(nm)</button><button>Θ(n³)</button></div>
+          <div class="perche" hidden><p>n − 1 passate su tutti gli m archi.</p></div>
+        </div>
+        <div class="domanda" data-id="cm-4">
+          <p class="testo">Come si riconosce un ciclo negativo con Bellman-Ford?</p>
+          <div class="opz"><button data-giusta>Dopo n − 1 iterazioni c'è ancora un arco che si può rilassare</button><button>Una distanza resta ∞</button><button>pred forma un albero</button></div>
+          <div class="perche" hidden><p>Senza cicli negativi n − 1 iterazioni bastano; se dopo si migliora ancora, si sta girando su un ciclo negativo.</p></div>
+        </div>
+        <div class="domanda" data-id="cm-5">
+          <p class="testo">Che differenza c'è tra Prim e Dijkstra?</p>
+          <div class="opz"><button>Nessuna</button><button data-giusta>Prim ordina la coda per peso dell'arco verso l'albero, Dijkstra per distanza dalla sorgente</button><button>Prim usa lo union-find</button></div>
+          <div class="perche" hidden><p>La struttura è la stessa (coda con priorità, insert e decreaseKey), cambia la chiave: w(u, v) in Prim, D[u] + w(u, v) in Dijkstra.</p></div>
+        </div>
+        <div class="domanda" data-id="cm-6">
+          <p class="testo">Floyd-Warshall: che cosa rappresenta D<sup>k</sup>[x, y]?</p>
+          <div class="opz"><button>Il cammino minimo con al più k archi</button><button data-giusta>La distanza da x a y usando come intermedi solo i vertici 1..k</button><button>La distanza da k a y</button></div>
+          <div class="perche" hidden><p>Quello con al più k archi è invece l'invariante di Bellman-Ford dopo k iterazioni.</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+
+      <ul class="checklist" data-id="ripasso-11">
+        <li><label><input type="checkbox" id="r11-1"><span>So enunciare le regole del taglio e del ciclo.</span></label></li>
+        <li><label><input type="checkbox" id="r11-2"><span>So simulare Kruskal e Prim e giustificarne il costo.</span></label></li>
+        <li><label><input type="checkbox" id="r11-3"><span>So la condizione di Bellman e il rilassamento.</span></label></li>
+        <li><label><input type="checkbox" id="r11-4"><span>So simulare Dijkstra e Bellman-Ford e dire quando usare ciascuno.</span></label></li>
+        <li><label><input type="checkbox" id="r11-5"><span>So l'equazione di Floyd-Warshall e la versione a una matrice.</span></label></li>
+      </ul>
+    </section>
+
+    <section class="sez" id="esami">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§9 · Dagli scritti</span>
+        <h2>Esercizi d'esame su questo capitolo</h2>
+      </div>
+      <div data-esami-tag="mst,cammini-minimi"></div>
+    </section>
+
+    <footer class="piede"><p>Fonti: lucidi «Minimum Spanning Tree» e «Cammini minimi» (G. Zavattaro, dal materiale di M. Marzolla e A. Montresor) con i relativi esercizi risolti, appunti di Berto, tr4v4 e lucat1 nella raccolta <a href="https://github.com/cartabinaria/algoritmi-e-strutture-di-dati">cartabinaria/algoritmi-e-strutture-di-dati</a>. I grafi del simulatore sono nuovi.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="esami/2020.js"></script>
+<script src="esami/2021.js"></script>
+<script src="esami/2022-2023.js"></script>
+<script src="esami/2024-2025.js"></script>
+<script src="esami/2026.js"></script>
+<script src="../../assets/js/core.js"></script>
+<script src="js/simulatori.js"></script>
+</body>
+</html>
