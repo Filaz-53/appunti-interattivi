@@ -44,6 +44,7 @@ window.MATERIE = [
       { id: "12-np-completezza", titolo: "NP-completezza", sottotitolo: "Classi P, NP, PSpace, ExpTime, riducibilità, problemi NP-completi.", fonte: "Lucidi «Teoria della NP-completezza» (non svolti a lezione)" },
       { id: "java", titolo: "Java per il corso", sottotitolo: "Il Java che serve per la libreria del corso: classi, interfacce, generics, collections, eccezioni.", fonte: "Lucidi «Introduzione a Java», «Java Generics» e «Java Collections»" },
       { id: "formulario", titolo: "Formulario dei costi", sottotitolo: "Tutti i costi computazionali del corso in una tabella da consultare e filtrare.", fonte: "Lucidi del corso e capitoli del quaderno, confrontati con i formulari della raccolta" },
+      { id: "esercizio-1-complessita", titolo: "Esercizio 1: complessità passo passo", sottotitolo: "La scheda d'esame per mystery1/mystery2: Master Theorem, ricorrenze per sottrazione, trappole (k = 2ⁿ) ed esercizi degli scritti con soluzione.", fonte: "Scritti con soluzione 2024–2026 (risorse.vercel.app)" },
       { id: "esami", titolo: "Esami svolti", sottotitolo: "Tutte le prove del professore dal 2020 al 2026, divise per argomento, con soluzione passo per passo e modalità simulazione.", stato: "in-arrivo" },
       {
         id: "progetto-scc",

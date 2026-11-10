@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="it" data-materia="algoritmi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Esercizio 1: complessità passo passo · Algoritmi e Strutture di Dati</title>
+<meta name="description" content="La scheda per l'esercizio 1 dello scritto: mystery1 e mystery2, Master Theorem, ricorrenze per sottrazione, trappole e esercizi d'esame.">
+<script>try{var t=JSON.parse(localStorage.getItem("appunti:tema"));if(t==="chiaro")document.documentElement.dataset.theme="light";else if(t==="scuro")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/base.css">
+</head>
+<body data-root="../../" data-argomento="esercizio-1-complessita">
+<div id="barra"></div>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Indice degli appunti">
+    <details>
+      <summary>Indice</summary>
+      <ol>
+        <li><a href="#s1"><span class="n">§1</span><span>Formule e fatti</span></a></li>
+        <li><a href="#s2"><span class="n">§2</span><span>Come si riconosce</span></a></li>
+        <li><a href="#s3"><span class="n">§3</span><span>Procedura</span></a></li>
+        <li><a href="#s4"><span class="n">§4</span><span>Esercizio svolto</span></a></li>
+        <li><a href="#s5"><span class="n">§5</span><span>Trappole</span></a></li>
+        <li><a href="#s6"><span class="n">§6</span><span>Esercizi tuoi</span></a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main class="foglio">
+    <header class="intestazione">
+      <span class="etichetta">Algoritmi e Strutture di Dati · scheda d'esame</span>
+      <h1>Esercizio 1: complessità passo passo</h1>
+      <p class="lede">L'esercizio 1 c'è in tutti i 18 scritti dal 2024 al 2026: «calcolare la complessità T(n) di mystery1». Qui c'è solo quello che serve per risolverlo, con la notazione delle soluzioni ufficiali. La teoria completa è nel <a href="02-notazione-asintotica.html">capitolo 2</a>.</p>
+      <div class="meta">
+        <span class="etichetta" data-progresso-pagina></span>
+        <button class="btn piccolo" type="button" data-azione="azzera-quiz">Azzera tutte le risposte</button>
+      </div>
+    </header>
+
+    <div class="def prerequisiti">
+      <span class="etichetta">Prima di iniziare · cosa ti serve</span>
+      <p>Potenze e logaritmi (log₂ n = quante volte dimezzi n per arrivare a 1: log₂ 8 = 3, perché 8 → 4 → 2 → 1) · le sommatorie Σ · cos'è una funzione ricorsiva. La definizione di O, Ω e Θ è nel <a href="02-notazione-asintotica.html#s2">capitolo 2 §2</a>.</p>
+    </div>
+
+    <section class="sez" id="s1">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§1 · Formule e fatti da sapere</span>
+        <h2>Cosa devi avere in testa</h2>
+      </div>
+      <p>Ordine di crescita, dal più lento al più veloce: <strong>1 &lt; log n &lt; √n &lt; n &lt; n log n &lt; n² &lt; n³ &lt; 2ⁿ &lt; n!</strong></p>
+      <p>Logaritmi: log(a·b) = log a + log b · log(aᵏ) = k·log a, quindi <strong>log(2ⁿ) = n</strong> · la base non conta dentro Θ.</p>
+
+      <table>
+        <caption>Quanto costano i cicli</caption>
+        <thead><tr><th>Ciclo</th><th>Iterazioni</th></tr></thead>
+        <tbody>
+          <tr><td><code>for i = 1..n</code></td><td>n</td></tr>
+          <tr><td>due <code>for 1..n</code> annidati</td><td>n²</td></tr>
+          <tr><td><code>for i = 1..n</code> con dentro <code>for j = 1..i</code></td><td>n(n+1)/2 = Θ(n²)</td></tr>
+          <tr><td><code>while n ≥ 1: n = n/2</code></td><td>log n</td></tr>
+          <tr><td><code>i = 1; while i &lt; n: i = 2i</code></td><td>log n</td></tr>
+          <tr><td><code>while x·x &lt; n: x = x + 1</code></td><td>√n</td></tr>
+        </tbody>
+      </table>
+
+      <p>Somme: Σ i = Θ(n²) · Σ iᵏ = Θ(nᵏ⁺¹) · <strong>Σ log i = log(n!) = Θ(n log n)</strong> · Σ 2ⁱ = Θ(2ⁿ).</p>
+
+      <div class="def">
+        <span class="etichetta">Master Theorem (forma del corso)</span>
+        <p>Per <strong>T(n) = a·T(n/b) + Θ(n<sup>β</sup>)</strong> calcola <strong>α = log<sub>b</sub> a</strong>:</p>
+        <p>α &gt; β ⇒ Θ(n<sup>α</sup>) · α = β ⇒ Θ(n<sup>α</sup> log n) · α &lt; β ⇒ Θ(n<sup>β</sup>)</p>
+        <p>Con una sola chiamata ricorsiva a = 1, quindi α = 0. Un costo costante è n⁰, quindi β = 0.</p>
+      </div>
+
+      <div class="def">
+        <span class="etichetta">Ricorrenze per sottrazione</span>
+        <p><strong>T(n) = T(n−1) + f(n)</strong> ⇒ T(n) = Σᵢ₌₁ⁿ f(i). Il Master Theorem non si applica: si srotola (metodo iterativo).</p>
+        <p><strong>T(n) = 2T(n−1) + 1</strong> ⇒ Θ(2ⁿ).</p>
+      </div>
+
+      <div class="verifica">
+        <div class="verifica-testa"><h3>Verifica · §1</h3><span class="etichetta">3 domande</span></div>
+        <div class="domanda" data-id="e1-1">
+          <p class="testo">T(n) = T(n/2) + 1. Quanto vale?</p>
+          <div class="opz">
+            <button>Θ(n)</button>
+            <button data-giusta>Θ(log n)</button>
+            <button>Θ(1)</button>
+          </div>
+          <div class="perche" hidden><p>a = 1, b = 2: α = log₂ 1 = 0. Il costo extra è costante: β = 0. α = β ⇒ Θ(n⁰ log n) = Θ(log n).</p></div>
+        </div>
+        <div class="domanda" data-id="e1-2">
+          <p class="testo">T(n) = 4T(n/2) + n. Quanto vale?</p>
+          <div class="opz">
+            <button>Θ(n log n)</button>
+            <button>Θ(n)</button>
+            <button data-giusta>Θ(n²)</button>
+          </div>
+          <div class="perche" hidden><p>α = log₂ 4 = 2 &gt; β = 1 ⇒ Θ(n<sup>α</sup>) = Θ(n²).</p></div>
+        </div>
+        <div class="domanda" data-id="e1-3">
+          <p class="testo">T(n) = T(n−1) + n. Quanto vale?</p>
+          <div class="opz">
+            <button data-giusta>Θ(n²)</button>
+            <button>Θ(n log n), con il Master Theorem</button>
+            <button>Θ(n)</button>
+          </div>
+          <div class="perche" hidden><p>È per sottrazione: il Master Theorem non vale. Srotolando: n + (n−1) + … + 1 = n(n+1)/2 = Θ(n²).</p></div>
+        </div>
+        <button class="btn piccolo azzera" type="button" data-azione="azzera-quiz">Rifai queste domande</button>
+      </div>
+    </section>
+
+    <section class="sez" id="s2">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§2 · Come si riconosce</span>
+        <h2>Cosa guardare nel codice</h2>
+      </div>
+      <table>
+        <thead><tr><th>Vedi…</th><th>Allora…</th></tr></thead>
+        <tbody>
+          <tr><td><code>return mystery2(n/2) + …</code></td><td>Ricorrenza a divisione: Master Theorem</td></tr>
+          <tr><td><code>return mystery1(n−1) + …</code></td><td>Ricorrenza a sottrazione: somma</td></tr>
+          <tr><td>un ciclo che modifica <code>k</code> o <code>x</code>, poi <code>mystery2(k)</code></td><td>Prima calcola quanto vale k in funzione di n, poi il costo è T′(k)</td></tr>
+          <tr><td><code>for i = 1..n</code> con dentro <code>mystery2(…)</code></td><td>Il costo del ciclo è la somma dei costi delle chiamate</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sez" id="s3">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§3 · Procedura passo-passo</span>
+        <h2>Come si scrive la soluzione</h2>
+      </div>
+      <ol>
+        <li><strong>Prima <code>mystery2</code></strong>, la funzione più interna: quante chiamate ricorsive (a), su quale input (n/b oppure n−1), quanto costa il resto della funzione. Scrivi T′(n) con il caso base e risolvila.</li>
+        <li><strong>Poi <code>mystery1</code></strong>: ogni chiamata <code>mystery2(x)</code> costa T′(x), sull'argomento passato e non per forza su n. Se x è costruito da un ciclo, calcola prima il suo valore.</li>
+        <li>Scrivi l'equazione di <code>mystery1</code> e risolvila.</li>
+        <li>Risultato in Θ, tenendo solo il termine che cresce di più.</li>
+      </ol>
+    </section>
+
+    <section class="sez" id="s4">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§4 · Esercizio svolto</span>
+        <h2>Lo scritto del 10/01/2024</h2>
+      </div>
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 4.1 · scritto del 10/01/2024</span><h4>mystery1 con n−1 e mystery2 con n/4</h4></div>
+<pre class="codice"><code>mystery1(n):  if n ≤ 0: return 1
+              else: return mystery1(n−1) + mystery2(n)
+mystery2(n):  if n ≤ 0: return 1
+              else: return mystery2(n/4) + n/4</code></pre>
+        <div class="domanda" data-id="e4-1">
+          <p class="testo">Quanto vale T(n) di mystery1?</p>
+          <div class="opz"><button>Θ(n)</button><button data-giusta>Θ(n log n)</button><button>Θ(log n)</button></div>
+          <div class="perche" hidden><p>Aprire la soluzione qui sotto per i passaggi.</p></div>
+        </div>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>mystery2</strong>: una chiamata su n/4 (a = 1, b = 4). Il resto, <code>+ n/4</code>, è un'operazione aritmetica: costa 1, quindi β = 0.</p><p class="formula">T′(n) = T′(n/4) + 1 ⇒ α = log₄ 1 = 0 = β ⇒ T′(n) = Θ(log n)</p></div></li>
+            <li><div><p><strong>mystery1</strong>: una chiamata su n−1 (sottrazione) più <code>mystery2(n)</code>, che costa Θ(log n).</p><p class="formula">T(n) = T(n−1) + log n</p></div></li>
+            <li><div><p>Srotolando:</p><p class="formula">T(n) = log n + log(n−1) + … + log 1 + T(0) = Σ log i + 1 = log(n!) + 1</p></div></li>
+            <li><div><p class="risultato">T(n) = Θ(n log n)</p></div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="sez" id="s5">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§5 · Trappole tipiche</span>
+        <h2>Dove si perdono punti</h2>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Un'operazione aritmetica non è un ciclo</span>
+        <p><code>return mystery2(n/2) + n² + n + 1</code> costa 1 oltre alla chiamata: n² è un valore calcolato in un passo, non n² operazioni.</p>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Conta l'argomento della chiamata</span>
+        <p>Se <code>k</code> raddoppia n volte (k = 2ⁿ) e poi chiami <code>mystery2(k)</code> di costo logaritmico, il costo è log(2ⁿ) = n, non log n. È la trappola più frequente negli scritti 2025–26.</p>
+      </div>
+      <div class="avviso">
+        <span class="etichetta">Ciclo con chiamate che crescono</span>
+        <p><code>for i = 1..n: k = 3k; mystery2(k)</code> con mystery2 logaritmica costa Σ log(3ⁱ) = Σ i·log 3 = Θ(n²), non n log n (scritto del 09/01/2026).</p>
+      </div>
+      <ul>
+        <li>Il valore restituito non è il costo: mystery1 può restituire un numero enorme e costare poco.</li>
+        <li>Il Master Theorem non si usa per T(n−1).</li>
+        <li>Scrivi sempre il caso base e tutti i passaggi: senza, il punteggio è parziale anche con il risultato giusto.</li>
+      </ul>
+    </section>
+
+    <section class="sez" id="s6">
+      <div class="titolo-sez largo">
+        <span class="num-sez">§6 · Esercizi</span>
+        <h2>Prova tu, poi apri la soluzione</h2>
+      </div>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.1 · scritto del 24/01/2024</span><h4>Un while che dimezza e una mystery2 quadratica</h4></div>
+<pre class="codice"><code>mystery1(n):  x = 0
+              while n ≥ 1:  n = n/2;  x = x + 1
+              return mystery2(x)
+mystery2(n):  if n ≤ 0: return 1
+              else: x = 0
+                    for i = 1..n:  for j = 1..n:  x = x + n
+                    return mystery2(n/2) + log n − x</code></pre>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p><strong>mystery2</strong>: una chiamata su n/2 più un doppio ciclo da n·n operazioni.</p><p class="formula">T′(n) = T′(n/2) + n² ⇒ α = 0 &lt; 2 = β ⇒ T′(n) = Θ(n²)</p></div></li>
+            <li><div><p><strong>Il while</strong> dimezza n finché è ≥ 1: fa log₂ n + c iterazioni, e alla fine x = log₂ n + c.</p></div></li>
+            <li><div><p><strong>mystery1</strong> costa il while più la chiamata su x:</p><p class="formula">T(n) = Θ(log n) + T′(log n) = Θ(log n) + Θ(log² n)</p></div></li>
+            <li><div><p class="risultato">T(n) = Θ(log² n)</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.2 · due chiamate</span><h4>f(n) = f(n/2) + f(n/2) + n</h4></div>
+<pre class="codice"><code>f(n):  if n ≤ 1: return 1
+       else: return f(n/2) + f(n/2) + n</code></pre>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Due chiamate su n/2 (a = 2, b = 2). Attenzione: <code>+ n</code> è un'operazione aritmetica e costa 1, quindi β = 0.</p><p class="formula">T(n) = 2T(n/2) + 1 ⇒ α = log₂ 2 = 1 &gt; 0 = β</p></div></li>
+            <li><div><p class="risultato">T(n) = Θ(n)</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="esercizio largo">
+        <div class="esercizio-testa"><span class="etichetta">Esercizio 6.3 · sottrazione</span><h4>Un ciclo e una chiamata su n−1</h4></div>
+<pre class="codice"><code>g(n):  if n ≤ 0: return 0
+       for i = 1..n: x = x + i
+       return g(n−1)</code></pre>
+        <div class="soluzione"><span class="etichetta">Soluzione</span>
+          <ol class="passi">
+            <li><div><p>Il ciclo costa n, poi c'è una chiamata su n−1.</p><p class="formula">T(n) = T(n−1) + n = n + (n−1) + … + 1 = n(n+1)/2</p></div></li>
+            <li><div><p class="risultato">T(n) = Θ(n²)</p></div></li>
+          </ol>
+        </div>
+      </article>
+
+      <ul class="checklist" data-id="e1-ripasso">
+        <li><label><input type="checkbox" id="e1r-1"><span>So applicare il Master Theorem con α = log<sub>b</sub> a e β.</span></label></li>
+        <li><label><input type="checkbox" id="e1r-2"><span>So risolvere T(n) = T(n−1) + f(n) sommando.</span></label></li>
+        <li><label><input type="checkbox" id="e1r-3"><span>Distinguo un'operazione aritmetica da un ciclo.</span></label></li>
+        <li><label><input type="checkbox" id="e1r-4"><span>Calcolo il valore dell'argomento prima di applicare il costo di mystery2.</span></label></li>
+      </ul>
+    </section>
+
+    <footer class="piede"><p>Scheda scritta dagli scritti con soluzione 2024–2026 (risorse.vercel.app), con la notazione delle soluzioni ufficiali. Novembre 2026.</p></footer>
+  </main>
+</div>
+
+<script src="../../assets/js/materie.js"></script>
+<script src="../../assets/js/core.js"></script>
+</body>
+</html>
